@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Club M — Premier incubateur féminin | Kinshasa, RDC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #091626;
+      --navy-light: #0f2847;
+      --terracotta: #a55b46;
+      --terracotta-hover: #8f4d3a;
+      --cream: #f5f0e8;
+      --white: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.85);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--navy);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .font-cormorant { font-family: 'Cormorant', serif; }
+    .font-cormorant-italic { font-family: 'Cormorant', serif; font-style: italic; }
+
+    /* ----- Section base ----- */
+    section {
+      padding: clamp(3rem, 8vw, 6rem) 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    section.full-width { max-width: none; padding-left: 1.5rem; padding-right: 1.5rem; }
+    section.navy { background: var(--navy); color: var(--white); }
+    section.cream { background: var(--cream); color: var(--navy); }
+
+    /* ----- 1. HERO (full viewport) ----- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 2rem 1.5rem;
+      background: var(--navy) url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23091626" width="1200" height="800"/></svg>') center/cover;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(9, 22, 38, 0.85) 0%, rgba(9, 22, 38, 0.6) 100%);
+      z-index: 0;
+    }
+    .hero .content { position: relative; z-index: 1; max-width: 800px; }
+    .hero h1 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(2.25rem, 5vw, 3.5rem);
+      font-weight: 600;
+      color: var(--white);
+      margin: 0 0 1rem;
+      line-height: 1.2;
+    }
+    .hero h2 {
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      font-weight: 400;
+      color: var(--text-muted);
+      margin: 0 0 2rem;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .hero-badge strong { color: var(--terracotta); }
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1.75rem;
+      border-radius: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    .btn-primary {
+      background: var(--terracotta);
+      color: var(--white);
+      border: none;
+    }
+    .btn-primary:hover { background: var(--terracotta-hover); }
+    .btn-secondary {
+      background: var(--white);
+      color: var(--navy);
+      border: 2px solid var(--white);
+    }
+    .btn-secondary:hover { background: transparent; color: var(--white); }
+
+    /* ----- 2. IDENTIFICATION ----- */
+    #home-s3 { scroll-margin-top: 2rem; }
+    .identification h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      margin: 0 0 2rem;
+      max-width: 700px;
+    }
+    .identification ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem;
+    }
+    .identification li {
+      padding: 0.75rem 0;
+      padding-left: 1.75rem;
+      position: relative;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+    .identification li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--terracotta);
+    }
+    .identification .cta-discret {
+      color: var(--terracotta);
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .identification .cta-discret:hover { text-decoration: underline; }
+
+    /* ----- 3. VISION — 4 piliers (2x2) ----- */
+    .vision h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      text-align: center;
+      margin: 0 0 2.5rem;
+    }
+    .piliers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .pilier-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 20px rgba(9, 22, 38, 0.08);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .pilier-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(9, 22, 38, 0.12);
+    }
+    .pilier-card .badge {
+      display: inline-block;
+      width: 2.5rem;
+      height: 2.5rem;
+      line-height: 2.5rem;
+      text-align: center;
+      background: var(--terracotta);
+      color: var(--white);
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .pilier-card h3 {
+      font-family: 'Cormorant', serif;
+      font-size: 1.5rem;
+      margin: 0 0 0.75rem;
+      color: var(--navy);
+    }
+    .pilier-card p { margin: 0 0 1rem; color: var(--navy); opacity: 0.9; }
+    .pilier-card a {
+      color: var(--terracotta);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .pilier-card a:hover { text-decoration: underline; }
+
+    /* ----- 4. COMMUNAUTÉ ----- */
+    .communaute h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      margin: 0 0 1.5rem;
+    }
+    .communaute ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem;
+    }
+    .communaute li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .communaute li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--terracotta);
+      font-weight: bold;
+    }
+
+    /* ----- 5. ACTIVATION — Business Alignéd ----- */
+    .activation h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+    }
+    .activation h3 {
+      font-size: 1.15rem;
+      font-weight: 500;
+      margin: 0 0 1.5rem;
+      opacity: 0.9;
+    }
+    .activation .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .activation .step {
+      padding: 1.25rem;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      border-left: 4px solid var(--terracotta);
+    }
+    .activation .step strong { display: block; margin-bottom: 0.25rem; }
+    .activation .livrables { margin-top: 1rem; font-size: 0.95rem; opacity: 0.9; }
+
+    /* ----- 6. MENTORS & EXPERTES (slider simplifié) ----- */
+    .expertes h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      text-align: center;
+      margin: 0 0 0.5rem;
+    }
+    .expertes h3 {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 400;
+      margin: 0 0 2rem;
+      opacity: 0.9;
+    }
+    .expertes-slider {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .expertes-card {
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(9, 22, 38, 0.08);
+      text-align: center;
+      color: var(--navy);
+    }
+    .expertes-card .photo {
+      height: 180px;
+      background: linear-gradient(145deg, var(--navy-light), var(--navy));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 3rem;
+    }
+    .expertes-card .info { padding: 1.25rem; }
+    .expertes-card .nom { font-weight: 600; margin-bottom: 0.25rem; }
+    .expertes-card .domaine { font-size: 0.9rem; color: var(--terracotta); margin-bottom: 0.5rem; }
+    .expertes-card .phrase { font-size: 0.9rem; opacity: 0.9; margin: 0; }
+    .expertes .cta-wrap { text-align: center; margin-top: 2rem; }
+
+    /* ----- 7. TÉMOIGNAGES ----- */
+    .temoignages h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      text-align: center;
+      margin: 0 0 2rem;
+    }
+    .indicateurs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .indicateurs span {
+      font-weight: 600;
+      color: var(--terracotta);
+    }
+    .temoignages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .temoignage-card {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .temoignage-card .citation { font-style: italic; margin-bottom: 1rem; opacity: 0.95; }
+    .temoignage-card .auteur { font-weight: 500; font-size: 0.95rem; }
+
+    /* ----- 8. PARCOURS ----- */
+    .parcours h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 600;
+      text-align: center;
+      margin: 0 0 2rem;
+    }
+    .parcours-desc {
+      text-align: center;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+    .parcours-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 1rem;
+      margin-bottom: 2rem;
+    }
+    .parcours-nav a {
+      color: var(--navy);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+    }
+    .parcours-nav a:hover { background: var(--terracotta); color: var(--white); }
+
+    /* ----- 9. PROJECTION ----- */
+    .projection {
+      background: var(--cream);
+      color: var(--navy);
+    }
+    .projection h2 {
+      font-family: 'Cormorant', serif;
+      font-style: italic;
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 500;
+      text-align: center;
+      margin: 0 0 2.5rem;
+    }
+    .projection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .projection-item h3 {
+      font-family: 'Cormorant', serif;
+      font-size: 1.35rem;
+      margin: 0 0 0.5rem;
+      color: var(--terracotta);
+    }
+    .projection-item p { margin: 0; opacity: 0.9; }
+
+    /* ----- 10. CTA FINAL ----- */
+    .cta-final {
+      background: var(--navy);
+      color: var(--white);
+      text-align: center;
+      padding: clamp(4rem, 10vw, 6rem) 1.5rem;
+    }
+    .cta-final h2 {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+    }
+    .cta-final h3 {
+      font-size: 1.1rem;
+      font-weight: 400;
+      margin: 0 0 2.5rem;
+      opacity: 0.9;
+    }
+    .cta-final .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .cta-final .btn { min-width: 200px; padding: 1rem 2rem; font-size: 1.05rem; }
+
+    /* ----- Animations au scroll ----- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. HERO — Immersion & Identification -->
+  <section class="hero">
+    <div class="content">
+      <h1 class="font-cormorant">Tu n'es pas seule. Et ton ambition mérite un cadre.</h1>
+      <h2>Le premier incubateur féminin structurant en République Démocratique du Congo.</h2>
+      <div class="hero-badge"><strong>+250</strong> femmes depuis 2022 à Kinshasa</div>
+      <div class="hero-ctas">
+        <a href="/rejoindre" class="btn btn-primary">Rejoindre le Club</a>
+        <a href="/parle-nous-de-ton-projet" class="btn btn-secondary">Parle-nous de ton projet</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. IDENTIFICATION — Le problème ressenti -->
+  <section class="identification navy reveal" id="home-s3">
+    <h2 class="font-cormorant">Beaucoup de femmes ont une idée. Peu ont un cadre. Encore moins ont un réseau solide.</h2>
+    <ul>
+      <li>Peur de perdre de l'argent</li>
+      <li>Peur de mal commencer</li>
+      <li>Manque de modèle</li>
+      <li>Pression familiale</li>
+      <li>Solitude entrepreneuriale</li>
+    </ul>
+    <a href="#home-s3" class="cta-discret">Découvrir comment le Club M agit →</a>
+  </section>
+
+  <!-- 3. VISION — Plus qu'un réseau. Un écosystème. -->
+  <section class="vision cream reveal">
+    <h2 class="font-cormorant">Plus qu'un réseau. Un écosystème.</h2>
+    <div class="piliers-grid">
+      <article class="pilier-card">
+        <span class="badge">1</span>
+        <h3>Communauté</h3>
+        <p>Entraide 24/7, WhatsApp, solidarité.</p>
+        <a href="/rejoindre">Rejoindre →</a>
+      </article>
+      <article class="pilier-card">
+        <span class="badge">2</span>
+        <h3>Structuration</h3>
+        <p>Cadre, méthode, plan d'action.</p>
+        <a href="/business-aligne">Découvrir →</a>
+      </article>
+      <article class="pilier-card">
+        <span class="badge">3</span>
+        <h3>Mentorat</h3>
+        <p>Expertes, coaching Business Alignéd.</p>
+        <a href="/expertes">Voir les expertes →</a>
+      </article>
+      <article class="pilier-card">
+        <span class="badge">4</span>
+        <h3>Activation</h3>
+        <p>Événements physiques, réseau, opportunités.</p>
+        <a href="/evenements">Événements →</a>
+      </article>
+    </div>
+    <p style="text-align: center; margin-top: 1rem; opacity: 0.85;">Aucun tarif affiché ici — uniquement la valeur.</p>
+  </section>
+
+  <!-- 4. COMMUNAUTÉ — Force émotionnelle -->
+  <section class="communaute cream reveal">
+    <h2 class="font-cormorant">Les aînées transmettent. Les jeunes bousculent.</h2>
+    <ul>
+      <li>Transmission intergénérationnelle</li>
+      <li>Solidarité active</li>
+      <li>Partage des échecs</li>
+      <li>Réseau actif 24/7</li>
+    </ul>
+    <a href="/le-club" class="btn btn-primary">Explorer la communauté</a>
+  </section>
+
+  <!-- 5. ACTIVATION — Business Alignéd -->
+  <section class="activation navy reveal">
+    <h2 class="font-cormorant">Une idée ne suffit pas. Elle doit être structurée.</h2>
+    <h3>Business Alignéd : le cadre qui transforme les idées en projets.</h3>
+    <div class="steps">
+      <div class="step"><strong>Diagnostic</strong> Identifier tes forces et axes de progression.</div>
+      <div class="step"><strong>Plan d'action</strong> Structurer ton projet étape par étape.</div>
+      <div class="step"><strong>Suivi</strong> Accompagnement pour tenir le cap.</div>
+    </div>
+    <p class="livrables">Livrables : business plan, plan 90j, pitch deck. Pas de prix affiché ici.</p>
+    <a href="/business-aligne" class="btn btn-primary">Découvrir le Business Alignéd</a>
+  </section>
+
+  <!-- 6. MENTORS & EXPERTES -->
+  <section class="expertes navy reveal">
+    <h2 class="font-cormorant">Rencontre nos Expertes</h2>
+    <h3>Finance · Commerce · Digital · Juridique · Leadership</h3>
+    <div class="expertes-slider">
+      <div class="expertes-card">
+        <div class="photo">👩‍💼</div>
+        <div class="info">
+          <div class="nom">Expert 1</div>
+          <div class="domaine">Finance</div>
+          <p class="phrase">« Accompagner les femmes à structurer leur trésorerie. »</p>
+        </div>
+      </div>
+      <div class="expertes-card">
+        <div class="photo">👩‍💻</div>
+        <div class="info">
+          <div class="nom">Expert 2</div>
+          <div class="domaine">Digital</div>
+          <p class="phrase">« Donner les clés du digital sans jargon. »</p>
+        </div>
+      </div>
+      <div class="expertes-card">
+        <div class="photo">⚖️</div>
+        <div class="info">
+          <div class="nom">Expert 3</div>
+          <div class="domaine">Juridique</div>
+          <p class="phrase">« Sécuriser ton projet dès le début. »</p>
+        </div>
+      </div>
+      <div class="expertes-card">
+        <div class="photo">🌟</div>
+        <div class="info">
+          <div class="nom">Expert 4</div>
+          <div class="domaine">Leadership</div>
+          <p class="phrase">« Oser prendre ta place de leader. »</p>
+        </div>
+      </div>
+    </div>
+    <div class="cta-wrap"><a href="/expertes" class="btn btn-secondary">Découvrir toutes les Expertes</a></div>
+  </section>
+
+  <!-- 7. TÉMOIGNAGES -->
+  <section class="temoignages navy reveal">
+    <h2 class="font-cormorant">+250 femmes. Un mouvement. Depuis Kinshasa.</h2>
+    <div class="indicateurs">
+      <span>+250</span> <span>Depuis 2022</span> <span>+50/an</span> <span>3 niveaux</span> <span>24/7</span> <span>Kinshasa</span>
+    </div>
+    <div class="temoignages-grid">
+      <div class="temoignage-card">
+        <p class="citation">« Le Club M m'a donné un cadre et des sœurs pour avancer. »</p>
+        <span class="auteur">— Membre 1</span>
+      </div>
+      <div class="temoignage-card">
+        <p class="citation">« J'ai enfin osé parler de mon projet à voix haute. »</p>
+        <span class="auteur">— Membre 2</span>
+      </div>
+      <div class="temoignage-card">
+        <p class="citation">« Plus qu'un réseau : une vraie famille entrepreneuriale. »</p>
+        <span class="auteur">— Membre 3</span>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 2rem;"><a href="/journal" class="btn btn-primary">Lire leurs histoires</a></div>
+  </section>
+
+  <!-- 8. PARCOURS -->
+  <section class="parcours cream reveal">
+    <h2 class="font-cormorant">Trouve ta place dans le mouvement</h2>
+    <p class="parcours-desc">Cercle Business — Se développer — Coaching — Expertes. Trois niveaux, une logique d'évolution.</p>
+    <nav class="parcours-nav">
+      <a href="/">Home</a>
+      <a href="/le-club">Le Club</a>
+      <a href="/business-aligne">Business Alignéd</a>
+      <a href="/membres">Membres</a>
+      <a href="/expertes">Expertes</a>
+      <a href="/evenements">Événements</a>
+      <a href="/journal">Journal</a>
+    </nav>
+    <div style="text-align: center;"><a href="/membres" class="btn btn-primary">Voir les détails et tarifs</a></div>
+  </section>
+
+  <!-- 9. PROJECTION -->
+  <section class="projection reveal">
+    <h2 class="font-cormorant-italic">Et si c'était ton moment ?</h2>
+    <div class="projection-grid">
+      <div class="projection-item">
+        <h3>Confiance</h3>
+        <p>Tu oses enfin parler de ton projet à voix haute.</p>
+      </div>
+      <div class="projection-item">
+        <h3>Structure</h3>
+        <p>Tu as un plan. Pas juste une idée.</p>
+      </div>
+      <div class="projection-item">
+        <h3>Impact</h3>
+        <p>Ton activité change ta vie et celle de ta famille.</p>
+      </div>
+      <div class="projection-item">
+        <h3>Leadership</h3>
+        <p>Tu inspires d'autres femmes à se lancer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. CTA FINAL -->
+  <section class="cta-final full-width">
+    <h2 class="font-cormorant">Entreprendre seule, c'est fini.</h2>
+    <h3>Le mouvement est lancé.</h3>
+    <div class="btns">
+      <a href="/rejoindre" class="btn btn-primary">Rejoindre le Club</a>
+      <a href="/parle-nous-de-ton-projet" class="btn btn-secondary">Parler de son projet</a>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var reveals = document.querySelectorAll('.reveal');
+      function reveal() {
+        reveals.forEach(function (el) {
+          var top = el.getBoundingClientRect().top;
+          var bottom = el.getBoundingClientRect().bottom;
+          if (top < window.innerHeight - 80 && bottom > 0) el.classList.add('visible');
+        });
+      }
+      window.addEventListener('scroll', reveal);
+      window.addEventListener('resize', reveal);
+      reveal();
+    })();
+  </script>
+</body>
+</html>

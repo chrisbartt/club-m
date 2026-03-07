@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1900">
+  <title>Club M - Audit Produit MVP & Sitemap UX</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --border: #475569;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --green: #22C55E;
+      --green-dark: #4a2a1e;
+      --orange: #F59E0B;
+      --red: #EF4444;
+      --blue: #3B82F6;
+      --purple: #8B5CF6;
+      --pink: #EC4899;
+      --cyan: #06B6D4;
+      --brown: #a55b46;
+      --mvp: #EF4444;
+      --v1: #F59E0B;
+      --v2: #3B82F6;
+    }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg-dark); color: var(--text); line-height: 1.5; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #4a2a1e 0%, #a55b46 100%); padding: 16px 32px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .header h1 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+    .header .badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .header-stats { display: flex; gap: 24px; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 28px; font-weight: 700; color: white; }
+    .stat-label { font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase; }
+    .filter-bar { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
+    .filter-buttons { display: flex; gap: 6px; }
+    .filter-btn { padding: 8px 16px; border-radius: 6px; border: 2px solid transparent; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+    .filter-btn .count { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    .filter-btn.mvp { background: rgba(239,68,68,0.2); color: #fca5a5; }
+    .filter-btn.mvp.active { background: var(--mvp); color: white; border-color: white; }
+    .filter-btn.v1 { background: rgba(245,158,11,0.2); color: #fcd34d; }
+    .filter-btn.v1.active { background: var(--v1); color: black; border-color: white; }
+    .filter-btn.v2 { background: rgba(59,130,246,0.2); color: #93c5fd; }
+    .filter-btn.v2.active { background: var(--v2); color: white; border-color: white; }
+    .filter-btn.all { background: rgba(255,255,255,0.1); color: white; }
+    .filter-btn.all.active { background: white; color: var(--bg-dark); }
+    .filter-btn:hover { transform: translateY(-2px); }
+    .role-filters, .status-filters { display: flex; gap: 6px; }
+    .status-filters { margin-left: auto; }
+    .role-btn, .status-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; font-size: 11px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .role-btn .dot, .status-btn .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .role-btn.admin .dot { background: var(--blue); }
+    .role-btn.membre .dot { background: var(--green); }
+    .role-btn.business .dot { background: var(--orange); }
+    .status-btn.existing .dot { background: var(--green); }
+    .status-btn.harmonize .dot { background: var(--orange); }
+    .status-btn.missing .dot { background: var(--red); }
+    .role-btn.active, .status-btn.active { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+    .role-btn.inactive, .status-btn.inactive { opacity: 0.4; }
+    .main { padding: 24px 32px; }
+    .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; min-height: calc(100vh - 200px); }
+    .kanban-column { background: var(--bg-card); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
+    .column-header { padding: 16px 20px; border-bottom: 4px solid; display: flex; justify-content: space-between; align-items: center; }
+    .column-header.ecrans { background: rgba(139,92,246,0.1); border-color: var(--purple); }
+    .column-header.notifications { background: rgba(59,130,246,0.1); border-color: var(--blue); }
+    .column-header.workflows { background: rgba(245,158,11,0.1); border-color: var(--orange); }
+    .column-header.ameliorations { background: rgba(6,182,212,0.1); border-color: var(--cyan); }
+    .column-header .title { font-size: 16px; font-weight: 700; }
+    .column-header.ecrans .title { color: var(--purple); }
+    .column-header.notifications .title { color: var(--blue); }
+    .column-header.workflows .title { color: var(--orange); }
+    .column-header.ameliorations .title { color: var(--cyan); }
+    .column-header .subtitle { font-size: 11px; color: var(--text-muted); font-weight: 400; display: block; margin-top: 2px; }
+    .column-header .count-badge { font-size: 20px; font-weight: 700; padding: 6px 16px; border-radius: 8px; background: var(--bg-dark); }
+    .column-body { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .level-group { margin-bottom: 16px; }
+    .level-group:last-child { margin-bottom: 0; }
+    .level-group-header { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--border); }
+    .level-group-header.dashboard { border-color: var(--blue); }
+    .level-group-header.business-aligne { border-color: var(--orange); }
+    .level-group-header.evenements-admin { border-color: var(--red); }
+    .level-group-header.evenements-membre { border-color: var(--pink); }
+    .level-group-header.annuaire { border-color: var(--purple); }
+    .level-group-header.marketplace { border-color: var(--cyan); }
+    .level-group-header.global { border-color: var(--green); }
+    .level-group-header.membre { border-color: var(--green); }
+    .level-group-header.admin { border-color: var(--blue); }
+    .level-group-header.evenement-flow { border-color: var(--red); }
+    .level-group-header.marketplace-flow { border-color: var(--cyan); }
+    .level-group-header.navigation { border-color: var(--blue); }
+    .level-group-header.ux { border-color: var(--purple); }
+    .level-group-header.technique { border-color: var(--cyan); }
+    .level-group-header .count { background: var(--bg-hover); padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    .screen-card { padding: 12px 14px; background: var(--bg-dark); border-radius: 8px; border-left: 4px solid; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; transition: all 0.2s; cursor: pointer; position: relative; }
+    .screen-card:hover { background: var(--bg-hover); transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    .screen-card.existing { border-color: var(--green); }
+    .screen-card.harmonize { border-color: var(--orange); background: rgba(245,158,11,0.05); }
+    .screen-card.missing { border-color: var(--red); background: rgba(239,68,68,0.05); }
+    .screen-card.hidden { display: none !important; }
+    .screen-card .main-info { flex: 1; min-width: 0; }
+    .screen-card .name { font-size: 13px; font-weight: 600; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+    .screen-card .description { font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+    .screen-card .meta { font-size: 9px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .screen-card .meta span { background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 3px; }
+    .screen-card .tags { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .priority-tag { padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .priority-tag.mvp { background: var(--mvp); color: white; }
+    .priority-tag.v1 { background: var(--v1); color: black; }
+    .priority-tag.v2 { background: var(--v2); color: white; }
+    .role-tag { padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: 600; text-transform: uppercase; }
+    .role-tag.admin { background: rgba(59,130,246,0.2); color: #93c5fd; }
+    .role-tag.membre { background: rgba(34,197,94,0.2); color: #86efac; }
+    .role-tag.business { background: rgba(245,158,11,0.2); color: #fcd34d; }
+    .blocking-tag { padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: 700; background: rgba(239,68,68,0.3); color: #fca5a5; text-transform: uppercase; }
+    .status-indicator { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .screen-card.existing .status-indicator { background: var(--green); }
+    .screen-card.harmonize .status-indicator { background: var(--orange); }
+    .screen-card.missing .status-indicator { background: var(--red); }
+    .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .drawer-overlay.active { opacity: 1; visibility: visible; }
+    .drawer { position: fixed; top: 0; right: -720px; width: 720px; height: 100vh; background: var(--bg-card); z-index: 1000; transition: right 0.3s ease; display: flex; flex-direction: column; box-shadow: -10px 0 40px rgba(0,0,0,0.5); }
+    .drawer.active { right: 0; }
+    .drawer-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg-dark); }
+    .drawer-header .screen-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .drawer-header .screen-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .drawer-close { background: var(--bg-hover); border: none; color: var(--text); font-size: 20px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; }
+    .drawer-close:hover { background: var(--red); color: white; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .drawer-section { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .drawer-section:last-child { margin-bottom: 0; border-bottom: none; }
+    .drawer-section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--brown); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .drawer-section h3::before { content: ''; width: 4px; height: 16px; background: var(--brown); border-radius: 2px; }
+    .drawer-section .content { color: var(--text); font-size: 14px; line-height: 1.7; }
+    .drawer-section .content ul { margin-left: 20px; margin-top: 8px; }
+    .drawer-section .content li { margin-bottom: 6px; }
+    .info-card { background: var(--bg-dark); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; border-left: 4px solid var(--green); }
+    .info-card.warning { border-color: var(--orange); }
+    .info-card.danger { border-color: var(--red); }
+    .info-card.info { border-color: var(--blue); }
+    .info-card .label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .info-card .value { font-size: 14px; font-weight: 500; }
+    .priority-detail { padding: 16px 18px; border-radius: 10px; display: flex; align-items: center; gap: 16px; }
+    .priority-detail.mvp { background: rgba(239,68,68,0.15); border: 2px solid var(--mvp); }
+    .priority-detail.v1 { background: rgba(245,158,11,0.15); border: 2px solid var(--v1); }
+    .priority-detail.v2 { background: rgba(59,130,246,0.15); border: 2px solid var(--v2); }
+    .priority-detail .badge { padding: 8px 20px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+    .priority-detail.mvp .badge { background: var(--mvp); color: white; }
+    .priority-detail.v1 .badge { background: var(--v1); color: black; }
+    .priority-detail.v2 .badge { background: var(--v2); color: white; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .screen-card { animation: fadeIn 0.2s ease forwards; }
+    /* Summary bar */
+    .summary-bar { background: var(--bg-card); border-radius: 12px; padding: 20px 32px; margin-bottom: 24px; display: flex; gap: 32px; flex-wrap: wrap; align-items: center; border: 1px solid var(--border); }
+    .summary-block { display: flex; flex-direction: column; gap: 4px; }
+    .summary-block .sb-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .summary-block .sb-value { font-size: 22px; font-weight: 700; }
+    .summary-block .sb-value.green { color: var(--green); }
+    .summary-block .sb-value.orange { color: var(--orange); }
+    .summary-block .sb-value.red { color: var(--red); }
+    .summary-block .sb-value.blue { color: var(--blue); }
+    .summary-divider { width: 1px; height: 40px; background: var(--border); }
+    .progress-bar-container { flex: 1; min-width: 200px; }
+    .progress-bar-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px; }
+    .progress-bar { height: 12px; background: var(--bg-dark); border-radius: 6px; overflow: hidden; display: flex; }
+    .progress-bar .seg { height: 100%; transition: width 0.3s; }
+    .progress-bar .seg.green { background: var(--green); }
+    .progress-bar .seg.orange { background: var(--orange); }
+    .progress-bar .seg.red { background: var(--red); }
+  </style>
+</head>
+<body>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="screen-title" id="drawer-title">Nom de l'élément</div>
+      <div class="screen-meta" id="drawer-meta"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<div class="header">
+  <div class="header-top">
+    <h1>
+      👑 Club M — Audit Produit & Sitemap UX
+      <span class="badge">MVP Test Vendredi · Mme Morel</span>
+    </h1>
+    <div class="header-stats">
+      <div class="stat-item"><div class="stat-value" id="stat-ecrans">0</div><div class="stat-label">Écrans</div></div>
+      <div class="stat-item"><div class="stat-value" id="stat-notifs">0</div><div class="stat-label">Notifications</div></div>
+      <div class="stat-item"><div class="stat-value" id="stat-workflows">0</div><div class="stat-label">Workflows</div></div>
+      <div class="stat-item"><div class="stat-value" id="stat-amelio">0</div><div class="stat-label">Améliorations</div></div>
+      <div class="stat-item"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total</div></div>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">Priorité :</span>
+      <div class="filter-buttons">
+        <button class="filter-btn all active" data-filter="all" onclick="setFilter('all')">Tout <span class="count" id="count-all">0</span></button>
+        <button class="filter-btn mvp" data-filter="mvp" onclick="setFilter('mvp')">🔴 MVP <span class="count" id="count-mvp">0</span></button>
+        <button class="filter-btn v1" data-filter="v1" onclick="setFilter('v1')">🟠 V1 <span class="count" id="count-v1">0</span></button>
+        <button class="filter-btn v2" data-filter="v2" onclick="setFilter('v2')">🔵 V2 <span class="count" id="count-v2">0</span></button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Rôle :</span>
+      <div class="role-filters">
+        <button class="role-btn admin active" onclick="toggleRole('admin')"><span class="dot"></span> Admin</button>
+        <button class="role-btn membre active" onclick="toggleRole('membre')"><span class="dot"></span> Membre</button>
+        <button class="role-btn business active" onclick="toggleRole('business')"><span class="dot"></span> Business</button>
+      </div>
+    </div>
+    <div class="status-filters">
+      <button class="status-btn existing active" onclick="toggleStatus('existing')"><span class="dot"></span> ✅ Existant</button>
+      <button class="status-btn harmonize active" onclick="toggleStatus('harmonize')"><span class="dot"></span> 🟠 À corriger</button>
+      <button class="status-btn missing active" onclick="toggleStatus('missing')"><span class="dot"></span> 🔴 À créer</button>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <div class="summary-bar" id="summary-bar"></div>
+  <div class="kanban" id="kanban-container"></div>
+</main>
+
+<script>
+// ============================================================
+// CLUB M — BASE DE DONNÉES AUDIT COMPLÈTE (61 éléments)
+// Audit réalisé le 7 février 2026
+// Périmètre : Dashboard, Business Aligné, Événements, Annuaire, Marketplace
+// ============================================================
+const database = {
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · TABLEAU DE BORD
+  // ─────────────────────────────────────────────────────────
+  'e-admin-dashboard': {
+    id:'e-admin-dashboard', name:'Dashboard Admin', category:'ecrans', subcategory:'dashboard',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:true,
+    fichier:'/app/admin/(home)/page.tsx',
+    description:'Dashboard admin principal. KPIs : vue financière ($15 612), membres actifs (1 284), demandes (5), BP (89), tontines (45), ateliers (6). Tables demandes adhésion + suivi membres. Filtres période 7j/30j/90j.',
+    audit:'Complet avec 6 KPI cards, 2 tables, widget ateliers/coaching, utilisation modules. Toutes les données sont mockées (aucune API). Le filtre période change l\'état local mais aucune donnée ne change.',
+    actions:['Filtrer par période','Voir demandes adhésion','Voir suivi membres','Voir ateliers'],
+    corrections:[
+      'CRITIQUE : Masquer les KPIs Tontines et Business Plans (hors MVP)',
+      'CRITIQUE : Masquer les widgets hors périmètre',
+      'Adapter les KPIs : garder vue financière, membres actifs, demandes, ateliers',
+      'Connecter aux vraies données (actuellement tout est mock)'
+    ]
+  },
+  'e-mb-dashboard': {
+    id:'e-mb-dashboard', name:'Dashboard Membre', category:'ecrans', subcategory:'dashboard',
+    priority:'mvp', status:'harmonize', role:'membre', blocking:true,
+    fichier:'/app/membre/(home)/page.tsx',
+    description:'Page d\'accueil membre. Même structure que le dashboard admin : vue financière, membres, demandes, modules. Filtres période. Widgets ateliers & coaching.',
+    audit:'Écran complet, identique au dashboard admin. Toutes données mockées. Navigation fonctionnelle.',
+    actions:['Filtrer par période','Voir activité','Accéder aux modules'],
+    corrections:[
+      'CRITIQUE : Masquer les KPIs Tontines et Business Plans',
+      'Adapter la vue pour un membre (moins de données admin)',
+      'Garder uniquement : mes événements à venir, mon business aligné, annuaire, marketplace'
+    ]
+  },
+  'e-mb-dashboard-filter': {
+    id:'e-mb-dashboard-filter', name:'Filtre période Dashboard', category:'ecrans', subcategory:'dashboard',
+    priority:'mvp', status:'existing', role:'membre', blocking:false,
+    fichier:'/app/membre/(home)/_layout/filterDashboard.tsx',
+    description:'Barre sticky de filtres : 7 jours, 30 jours, 90 jours + plage personnalisée avec date picker.',
+    audit:'Fonctionnel. Changement de période en local (useState), pas connecté à l\'API.',
+    actions:['Sélection période prédéfinie','Date personnalisée'],
+    corrections:[]
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · NAVIGATION GLOBALE
+  // ─────────────────────────────────────────────────────────
+  'e-sidebar-admin': {
+    id:'e-sidebar-admin', name:'Sidebar Navigation Admin', category:'ecrans', subcategory:'dashboard',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:true,
+    fichier:'/components/_layout/sidebar/sidebar.tsx',
+    description:'Sidebar fixe 250px. Sections : Principal (Dashboard), Gestion (Business Plans, Épargne/Tontines, Événements, Marketplace, Membres), Accompagnement (Coaching, Messages), Système (Paramètres, Aide). Logo Club M + badge rôle. Switch thème clair/sombre.',
+    audit:'Fonctionnel. Liens actifs détectés par usePathname(). Badges notifications (2 sur Épargne, 3 sur Événements, 5 sur Messages). Switch thème opérationnel via next-themes.',
+    actions:['Naviguer entre modules','Changer thème'],
+    corrections:[
+      'CRITIQUE : Masquer "Business Plans" (lien vers /admin/business-plans)',
+      'CRITIQUE : Masquer "Épargne / Tontines" (lien vers /admin/epargne-tontines)',
+      'Masquer liens disabled : Coaching, Messages, Paramètres, Aide',
+      'Ne garder que : Dashboard, Événements, Marketplace, Membres, Business Alignés'
+    ]
+  },
+  'e-sidebar-membre': {
+    id:'e-sidebar-membre', name:'Sidebar Navigation Membre', category:'ecrans', subcategory:'dashboard',
+    priority:'mvp', status:'harmonize', role:'membre', blocking:true,
+    fichier:'/components/_layout/sidebar/sidebar.tsx',
+    description:'Même composant que admin avec condition sur le rôle. Sections membre : Principal (Dashboard), Mon Business (Mon BP, Épargne, Mes Finances), Communauté (Événements, Marketplace, Réseau), Accompagnement (Mon Coach, Messages).',
+    audit:'Fonctionnel. Même fichier. Liens disabled : Mes Finances, Mon Coach, Messages, Paramètres, Aide.',
+    actions:['Naviguer entre modules','Changer thème'],
+    corrections:[
+      'CRITIQUE : Masquer "Mon Business Plan"',
+      'CRITIQUE : Masquer "Épargne / Tontines"',
+      'CRITIQUE : Masquer "Mes Finances" (disabled)',
+      'Masquer liens disabled : Mon Coach, Messages',
+      'Ne garder que : Dashboard, Business Aligné, Événements, Marketplace, Réseau (Annuaire)'
+    ]
+  },
+  'e-navbar': {
+    id:'e-navbar', name:'Navbar supérieure', category:'ecrans', subcategory:'dashboard',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/components/_layout/navbar/navbar.tsx',
+    description:'Barre de navigation top sticky. Titre et sous-titre dynamiques selon la route (pageConfig). Boutons : Export stats, Créer atelier, Notification bell (avec indicateur rouge), Avatar utilisateur "MA".',
+    audit:'Fonctionnel. Titre/sous-titre se mettent à jour automatiquement. Responsive (boutons masqués sur mobile).',
+    actions:['Export stats','Créer atelier','Voir notifications'],
+    corrections:['Adapter les titres de page si nécessaire au périmètre MVP']
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · BUSINESS ALIGNÉ
+  // ─────────────────────────────────────────────────────────
+  'e-admin-ba-dashboard': {
+    id:'e-admin-ba-dashboard', name:'Dashboard Business Aligné (Admin)', category:'ecrans', subcategory:'business-aligne',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/business-alignes/page.tsx',
+    description:'Vue d\'ensemble BA admin. KPIs : dossiers en cours (12, dont 8 en analyse + 4 en attente), finalisés (28), RDV à venir (5), CA ($2 400). Navigation 7 onglets. Dossiers récents, accès rapide, alertes accompagnement.',
+    audit:'Complet. Cards KPIs scrollables, table dossiers, accès rapide, section alertes. Toutes données mockées. Modals ShowDetail, ModalMessage, ModalCoaching fonctionnels.',
+    actions:['Voir KPIs','Voir dossiers récents','Accès rapide','Voir alertes'],
+    corrections:['Connecter aux vraies données']
+  },
+  'e-mb-ba-dashboard': {
+    id:'e-mb-ba-dashboard', name:'Dashboard Business Aligné (Membre)', category:'ecrans', subcategory:'business-aligne',
+    priority:'mvp', status:'existing', role:'membre', blocking:false,
+    fichier:'/app/membre/business-alignes/page.tsx',
+    description:'Vue Business Aligné côté membre. Même structure que admin : KPIs, dossiers, accès rapide, alertes. Utilise ModalMessage.',
+    audit:'Complet avec mock data. Navigation fonctionnelle.',
+    actions:['Voir mes dossiers','Accès rapide','Voir alertes'],
+    corrections:['Adapter la vue pour un membre (pas admin)','Connecter aux vraies données']
+  },
+  'e-admin-ba-dossiers': {
+    id:'e-admin-ba-dossiers', name:'Liste Dossiers BA (Admin)', category:'ecrans', subcategory:'business-aligne',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/business-alignes/dossiers/page.tsx',
+    description:'Table des dossiers Business Aligné avec filtres et recherche. Modals de détail, message et coaching.',
+    audit:'Complet. Données mockées.',
+    actions:['Filtrer dossiers','Voir détail','Message','Coaching'],
+    corrections:[]
+  },
+  'e-admin-ba-membres': {
+    id:'e-admin-ba-membres', name:'Membres BA (Admin)', category:'ecrans', subcategory:'business-aligne',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/business-alignes/membres/page.tsx',
+    description:'Liste des membres inscrits au programme Business Aligné.',
+    audit:'Complet.',
+    actions:['Voir membres','Filtrer'],
+    corrections:[]
+  },
+  'e-admin-ba-coachs': {
+    id:'e-admin-ba-coachs', name:'Coachs BA (Admin)', category:'ecrans', subcategory:'business-aligne',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/business-alignes/coachs/page.tsx',
+    description:'Gestion des coachs du programme BA. KPIs et table coachs.',
+    audit:'Complet avec KPIs et table.',
+    actions:['Voir coachs','Gérer assignations'],
+    corrections:[]
+  },
+  'e-admin-ba-stats': {
+    id:'e-admin-ba-stats', name:'Statistiques BA (Admin)', category:'ecrans', subcategory:'business-aligne',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/business-alignes/statistiques/page.tsx',
+    description:'Statistiques du programme BA : évolution, répartition statuts, KPIs, classement coachs.',
+    audit:'Complet.',
+    actions:['Voir stats','Voir classement coachs'],
+    corrections:[]
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · ÉVÉNEMENTS — ADMIN ⚠️ MODULE CRITIQUE
+  // ─────────────────────────────────────────────────────────
+  'e-admin-evt-liste': {
+    id:'e-admin-evt-liste', name:'Liste événements (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:true,
+    fichier:'/app/admin/evenements/page.tsx',
+    description:'Vue de tous les événements. Navigation scrollable par type (Tous, Ateliers, Lunchs, Conférences, Formations, Networking, Autre) avec compteurs. Recherche textuelle. Filtre statut (Tous/À venir/En cours/Terminé). Bouton "Ajouter un événement". Grid de cards événements (image, type badge coloré, prix, date, titre, lieu).',
+    audit:'6 événements mockés. Filtrage par type ET statut fonctionne (useMemo client-side). Recherche par titre/lieu/type opérationnelle. NavTypeEvent avec scroll horizontal + boutons chevron + ResizeObserver. Cards non cliquables vers un détail. Aucun affichage d\'inscrites ni de CA.',
+    actions:['Filtrer par type','Filtrer par statut','Rechercher','Ajouter événement'],
+    corrections:[
+      'CRITIQUE : Ajouter nombre d\'inscrites sur chaque card',
+      'CRITIQUE : Ajouter places restantes',
+      'CRITIQUE : Ajouter CA réalisé / CA potentiel par événement',
+      'CRITIQUE : Rendre les cards cliquables vers une page détail',
+      'Ajouter indicateur billets vendus',
+      'Ajouter boutons Modifier/Supprimer par événement',
+      'Envisager vue tableau (pour pilotage Mme Morel) en plus de la vue cards'
+    ]
+  },
+  'e-admin-evt-dashboard': {
+    id:'e-admin-evt-dashboard', name:'Dashboard KPI Événements (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    fichier:null,
+    description:'Vue globale de pilotage pour Mme Morel. Doit afficher d\'un coup d\'œil : total inscriptions tous événements, CA réalisé total, CA potentiel (places × prix), places restantes, taux de remplissage, abandons de panier, et un tableau récap par événement avec colonnes : Nom, Date, Inscrites, Places restantes, Billets vendus, CA réalisé, CA potentiel.',
+    audit:'N\'EXISTE PAS. C\'est l\'écran le plus critique pour le test vendredi. Mme Morel doit pouvoir piloter la rentabilité.',
+    actions:['Voir KPIs globaux','Voir tableau récap tous événements','Voir inscrites sans entrer dans chaque événement','Détecter abandons panier','Comparer CA réalisé vs potentiel','Vérifier rentabilité (CA - coût)'],
+    corrections:[
+      'CRÉER : Cards KPIs en haut (CA réalisé, CA potentiel, total inscriptions, places restantes, abandons)',
+      'CRÉER : Tableau récapitulatif avec toutes les métriques par événement',
+      'CRÉER : Section abandons de panier',
+      'CRÉER : Vue liste inscrites toutes événements confondus',
+      'CRÉER : Indicateur rentabilité (CA - coût global)'
+    ]
+  },
+  'e-admin-evt-creation': {
+    id:'e-admin-evt-creation', name:'Créer un événement (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:true,
+    fichier:'/app/admin/evenements/nouvel-evenement/page.tsx',
+    description:'Formulaire multi-étapes (5 steps avec indicateur de progression visuel) : 1. Type (6 boutons : Ateliers, Lunchs, Conférences, Formations, Networking, Autre) → 2. Infos (titre, description, date avec validation ≥ aujourd\'hui, heure, lieu, checkbox public, upload image avec preview base64) → 3. Participants/Hôtes (ajout dynamique, nom+email requis) → 4. Tickets (optionnel, nom+prix+quantité+description) → 5. Récapitulatif lecture seule.',
+    audit:'Formulaire complet et fonctionnel côté UI. Step navigation avec validation. Image preview en base64. Hôtes et tickets dynamiques (ajout/suppression). MAIS : handleSubmit fait uniquement router.push("/admin/evenements") — aucun appel API, aucune sauvegarde. Les données sont perdues au submit.',
+    actions:['Choisir type','Remplir infos','Ajouter hôtes','Configurer tickets','Valider et créer'],
+    corrections:[
+      'CRITIQUE : Renommer "Participants" en "Intervenantes" (label + titre step 3)',
+      'CRITIQUE : Ajouter champ "Objectif financier" (montant cible)',
+      'CRITIQUE : Ajouter champ "Coût global événement" (pour calcul rentabilité)',
+      'CRITIQUE : Ajouter prix membre / prix non-membre sur les tickets',
+      'Ajouter option "Peut inviter des personnes" + nombre max d\'invitations',
+      'Connecter handleSubmit à l\'API backend',
+      'Ajouter toast succès après création',
+      'Ajouter upload image vers serveur (actuellement preview locale uniquement)'
+    ]
+  },
+  'e-admin-evt-detail': {
+    id:'e-admin-evt-detail', name:'Détail événement (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    fichier:null,
+    description:'Vue détaillée d\'un événement pour l\'admin. Doit afficher : toutes les infos (titre, date, lieu, type, description, intervenantes), les indicateurs financiers (CA réalisé vs objectif vs coût → marge), la liste complète des inscrites avec statut paiement, les billets vendus par catégorie, les places restantes.',
+    audit:'N\'EXISTE PAS. Les cards événements dans la liste ne sont pas cliquables et ne mènent nulle part.',
+    actions:['Voir infos complètes','Voir liste inscrites','Voir CA vs objectif','Voir rentabilité','Modifier événement','Annuler événement'],
+    corrections:[
+      'CRÉER : Page /admin/evenements/[id] avec header résumé',
+      'CRÉER : Section inscrites avec table (Nom, Billet, Montant, Statut paiement, Date)',
+      'CRÉER : Cards indicateurs financiers',
+      'CRÉER : Boutons modifier/annuler'
+    ]
+  },
+  'e-admin-evt-modifier': {
+    id:'e-admin-evt-modifier', name:'Modifier événement (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:false,
+    fichier:null,
+    description:'Écran d\'édition d\'un événement existant. Réutiliser le formulaire de création en mode édition (pré-rempli).',
+    audit:'N\'EXISTE PAS. Le formulaire de création ne gère pas le mode édition.',
+    actions:['Modifier infos','Modifier tickets','Modifier intervenantes','Sauvegarder'],
+    corrections:['CRÉER : Ajouter un mode "edit" au formulaire existant avec pré-remplissage']
+  },
+  'e-admin-evt-inscrites': {
+    id:'e-admin-evt-inscrites', name:'Liste inscrites événement (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    fichier:null,
+    description:'Vue table de toutes les inscrites à un événement spécifique. Colonnes : Nom, Type billet, Montant payé, Statut paiement (payé/en attente/échoué), Date inscription.',
+    audit:'N\'EXISTE PAS. Mme Morel doit pouvoir voir qui est inscrite à chaque événement.',
+    actions:['Voir toutes inscrites','Filtrer par statut paiement','Exporter liste'],
+    corrections:['CRÉER : Table inscrites avec filtres et export']
+  },
+  'e-admin-evt-abandonpanier': {
+    id:'e-admin-evt-abandonpanier', name:'Abandons de panier (Admin)', category:'ecrans', subcategory:'evenements-admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:false,
+    fichier:null,
+    description:'Détection et affichage des inscriptions commencées mais non finalisées (membre a commencé le parcours d\'inscription mais n\'a pas payé).',
+    audit:'N\'EXISTE PAS. Aucun système de tracking du tunnel de conversion.',
+    actions:['Voir abandons','Filtrer par événement','Relancer par notification'],
+    corrections:['CRÉER : Table abandons (Nom, Événement, Étape abandonnée, Date, Montant perdu, Action relance)']
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · ÉVÉNEMENTS — MEMBRE
+  // ─────────────────────────────────────────────────────────
+  'e-mb-evt-liste': {
+    id:'e-mb-evt-liste', name:'Liste événements (Membre)', category:'ecrans', subcategory:'evenements-membre',
+    priority:'mvp', status:'harmonize', role:'membre', blocking:true,
+    fichier:'/app/membre/evenements/page.tsx',
+    description:'Vue des événements côté membre. Strictement identique à la vue admin (même composants : NavTypeEvent, CardEvent, Container). 6 événements mockés. Filtrage par type + statut + recherche. Bouton "Ajouter un événement" (devrait être masqué côté membre).',
+    audit:'Copie exacte de la version admin avec juste les chemins adaptés (/membre/ au lieu de /admin/). Même mock data, mêmes filtres.',
+    actions:['Parcourir événements','Filtrer par type/statut','Rechercher'],
+    corrections:[
+      'CRITIQUE : Distinguer "Déjà inscrite" vs "Disponible" (badge sur la card)',
+      'CRITIQUE : Ajouter bouton "S\'inscrire" sur chaque card',
+      'CRITIQUE : Masquer le bouton "Ajouter un événement" (réservé admin)',
+      'Ajouter un onglet/filtre "Mes inscriptions"',
+      'Rendre les cards cliquables vers le détail'
+    ]
+  },
+  'e-mb-evt-detail': {
+    id:'e-mb-evt-detail', name:'Détail événement (Membre)', category:'ecrans', subcategory:'evenements-membre',
+    priority:'mvp', status:'missing', role:'membre', blocking:true,
+    fichier:null,
+    description:'Page de détail d\'un événement pour la membre : description complète, intervenantes, lieu, horaires, prix membre/non-membre, places restantes, bouton "S\'inscrire".',
+    audit:'N\'EXISTE PAS. Aucune page détail, aucun parcours d\'inscription.',
+    actions:['Voir détails complets','Voir intervenantes','Voir prix','S\'inscrire'],
+    corrections:[
+      'CRÉER : Page /membre/evenements/[id]',
+      'CRÉER : Section intervenantes avec photo/bio',
+      'CRÉER : Affichage prix (membre / non-membre)',
+      'CRÉER : Indicateur places restantes',
+      'CRÉER : Bouton S\'inscrire → tunnel inscription'
+    ]
+  },
+  'e-mb-evt-inscription': {
+    id:'e-mb-evt-inscription', name:'Inscription / Paiement événement', category:'ecrans', subcategory:'evenements-membre',
+    priority:'mvp', status:'missing', role:'membre', blocking:true,
+    fichier:null,
+    description:'Parcours d\'inscription complet : sélection billet → ajout invitée(s) si autorisé → récapitulatif → paiement → confirmation avec récapitulatif + QR code.',
+    audit:'N\'EXISTE PAS. Workflow le plus critique du MVP car il implique de l\'argent.',
+    actions:['Sélectionner billet','Ajouter invitée(s)','Voir récapitulatif','Payer','Recevoir confirmation'],
+    corrections:[
+      'CRÉER : Écran sélection billet (prix membre / non-membre)',
+      'CRÉER : Écran ajout invitées (si option activée)',
+      'CRÉER : Écran récapitulatif avant paiement',
+      'CRÉER : Intégration paiement (ou simulation pour le test)',
+      'CRÉER : Page confirmation avec résumé + QR code'
+    ]
+  },
+  'e-mb-evt-mesinscriptions': {
+    id:'e-mb-evt-mesinscriptions', name:'Mes inscriptions', category:'ecrans', subcategory:'evenements-membre',
+    priority:'mvp', status:'missing', role:'membre', blocking:true,
+    fichier:null,
+    description:'Liste personnalisée des événements auxquels la membre est inscrite. Filtrable : à venir / passés / annulés.',
+    audit:'N\'EXISTE PAS. La membre ne peut pas voir ses inscriptions.',
+    actions:['Voir événements à venir','Voir historique','Annuler inscription'],
+    corrections:['CRÉER : Page "Mes inscriptions" avec onglets À venir / Passés']
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · ANNUAIRE
+  // ─────────────────────────────────────────────────────────
+  'e-mb-annuaire-dashboard': {
+    id:'e-mb-annuaire-dashboard', name:'Dashboard Annuaire (Membre)', category:'ecrans', subcategory:'annuaire',
+    priority:'mvp', status:'harmonize', role:'membre', blocking:false,
+    fichier:'/app/membre/membres/page.tsx',
+    description:'Vue d\'ensemble membres. 5 cards KPIs cliquables (Tous: 1 284, Business: 231, Premium: 450, Free: 603, À accompagner: 12) avec sélection visuelle (ring). Progression modules. Suivi membres. Alertes.',
+    audit:'Complet. Cards cliquables avec état sélectionné. Toutes données mockées.',
+    actions:['Filtrer par type membre','Voir progression modules','Voir à accompagner'],
+    corrections:['Adapter pour vue membre (masquer données admin : "à accompagner", notes internes)']
+  },
+  'e-mb-annuaire-liste': {
+    id:'e-mb-annuaire-liste', name:'Liste Annuaire', category:'ecrans', subcategory:'annuaire',
+    priority:'mvp', status:'existing', role:'membre', blocking:false,
+    fichier:'/app/membre/membres/liste/page.tsx',
+    description:'Table paginée de tous les membres. 7 colonnes : Membre (avatar+nom+email), Statut (Business/Premium/Free), Modules (badges), Engagement (score), Activité (date), Support (icône), Actions (Voir profil, Message). Filtres avancés multi-critères. Recherche. Export.',
+    audit:'Complet. 7 membres mockés. Filtres par statut/engagement/activité/inscription/modules fonctionnels. Pagination. Bouton export.',
+    actions:['Rechercher','Filtrer multi-critères','Voir profil','Envoyer message','Exporter'],
+    corrections:['Masquer colonnes admin (Support, Engagement) pour la vue membre']
+  },
+  'e-mb-annuaire-profil': {
+    id:'e-mb-annuaire-profil', name:'Profil Membre (détail)', category:'ecrans', subcategory:'annuaire',
+    priority:'v1', status:'existing', role:'membre', blocking:false,
+    fichier:'/app/membre/membres/liste/[id]/page.tsx',
+    description:'Profil complet : header (avatar, nom, statut, date inscription, tags), 4 cards stats (connexions, actions, temps passé, engagement), état des 4 modules (BP, Épargne, Formations, Marketplace), timeline activité, notes internes, historique accompagnement.',
+    audit:'Complet avec mock data. Vue très riche.',
+    actions:['Voir infos','Envoyer message','Planifier coaching','Ajouter note'],
+    corrections:['Masquer notes internes et coaching si vue membre (pas admin)']
+  },
+  'e-admin-annuaire-dashboard': {
+    id:'e-admin-annuaire-dashboard', name:'Dashboard Membres (Admin)', category:'ecrans', subcategory:'annuaire',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/membres/page.tsx',
+    description:'Dashboard admin des membres. Même structure que côté membre mais avec toutes les données.',
+    audit:'Complet.',
+    actions:['Vue globale membres','Filtrer','Voir progression'],
+    corrections:[]
+  },
+  'e-admin-annuaire-liste': {
+    id:'e-admin-annuaire-liste', name:'Liste Membres (Admin)', category:'ecrans', subcategory:'annuaire',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/membres/liste/page.tsx',
+    description:'Liste admin complète. Toutes colonnes visibles, tous filtres actifs.',
+    audit:'Complet. 7 membres mockés. Filtres avancés. Pagination. Export.',
+    actions:['Rechercher','Filtrer','Voir profil','Message','Exporter'],
+    corrections:[]
+  },
+  'e-admin-annuaire-profil': {
+    id:'e-admin-annuaire-profil', name:'Profil Membre (Admin)', category:'ecrans', subcategory:'annuaire',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/membres/liste/[id]/page.tsx',
+    description:'Vue admin complète du profil avec notes internes, historique coaching, accompagnement.',
+    audit:'Complet.',
+    actions:['Voir tout','Message','Coaching','Notes','Export'],
+    corrections:[]
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // ÉCRANS · MARKETPLACE
+  // ─────────────────────────────────────────────────────────
+  'e-admin-mp-dashboard': {
+    id:'e-admin-mp-dashboard', name:'Dashboard Marketplace (Admin)', category:'ecrans', subcategory:'marketplace',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/page.tsx',
+    description:'Dashboard complet : GMV ($24 850, +18%), Membres Business (48), Services actifs (127), Commandes ce mois (89), Litiges ouverts (3). Détails finance : en séquestre ($4 230), commissions ($2 485), paiements bloqués ($850). Alertes prioritaires, statut commandes, commandes récentes (table 3 lignes), top prestataires.',
+    audit:'Complet avec tous les widgets. Navigation 9 onglets fonctionnelle (Dashboard, Membres, Services, Commandes, Litiges, Paiements, Commissions, Alertes, Paramètres). Données mockées.',
+    actions:['Voir KPIs','Voir alertes','Voir commandes récentes','Naviguer sections'],
+    corrections:['Connecter aux vraies données']
+  },
+  'e-admin-mp-membres': {
+    id:'e-admin-mp-membres', name:'Membres Business Marketplace', category:'ecrans', subcategory:'marketplace',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/membres/page.tsx',
+    description:'Liste membres business : nom, catégorie, services, commandes, CA, score, statut. Drawer détail (showMembre) avec profil, stats (24 commandes, $3 450 CA, note 4.9, 3 services), services publiés, actions admin.',
+    audit:'Complet. 4 membres mockés. Drawer showMembre fonctionnel mais actions vides (handleSauvegarderNotes vide, contact/surveillance/suspension non implémentés).',
+    actions:['Rechercher','Filtrer','Voir membre (drawer)','Suspendre','Exporter'],
+    corrections:['Implémenter les actions admin dans le drawer']
+  },
+  'e-admin-mp-services': {
+    id:'e-admin-mp-services', name:'Gestion Services', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/services/page.tsx',
+    description:'KPIs : Total (156), Fiables (112), À surveiller (32), Risque (12). Table services avec filtres.',
+    audit:'Complet. 3 services mockés.',
+    actions:['Voir services','Filtrer','Suspendre','Exporter'],
+    corrections:[]
+  },
+  'e-admin-mp-commandes': {
+    id:'e-admin-mp-commandes', name:'Gestion Commandes', category:'ecrans', subcategory:'marketplace',
+    priority:'mvp', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/commandes/page.tsx',
+    description:'Suivi commandes : N° commande, client→prestataire, service, montant, date, statut. Drawer détail (showCommande) avec timeline, parties, service commandé, actions admin.',
+    audit:'Complet. 4 commandes mockées. Drawer showCommande avec statut, montant en séquestre, timeline 3 étapes, actions (contacter client/prestataire, pause, annuler), notes internes. Actions non implémentées (handlers vides).',
+    actions:['Rechercher','Filtrer par statut','Voir détail (drawer)','Exporter'],
+    corrections:['Implémenter les handlers d\'actions dans le drawer']
+  },
+  'e-admin-mp-litiges': {
+    id:'e-admin-mp-litiges', name:'Centre Litiges', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/litiges/page.tsx',
+    description:'Double table : litiges en cours + résolus. KPIs : ouverts (3), investigation (1), résolus (24), temps moyen (2.1j). Drawer showLitige avec parties, commande, motif, réponse prestataire, pièces jointes, arbitrage (verdict dropdown + justification), actions complémentaires.',
+    audit:'Complet. Drawer riche. Arbitrage avec dropdown verdict (Remboursement/Livraison/Rejet) + justification. Handlers vides (handleValiderDecision, handleDemanderPlusInfos, handleSauvegarderNotes).',
+    actions:['Voir litiges','Arbitrer','Voir détail (drawer)','Exporter'],
+    corrections:['Implémenter les actions d\'arbitrage']
+  },
+  'e-admin-mp-paiements': {
+    id:'e-admin-mp-paiements', name:'Paiements & Escrow', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/paiements-escrow/page.tsx',
+    description:'Suivi paiements : GMV, en séquestre, paiements libérés, bloqués. Trois tables.',
+    audit:'Complet.',
+    actions:['Voir séquestre','Voir bloqués','Voir historique'],
+    corrections:[]
+  },
+  'e-admin-mp-commissions': {
+    id:'e-admin-mp-commissions', name:'Commissions Club M', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/commissions-club-m/page.tsx',
+    description:'Revenus marketplace. Commissions ce mois ($2 485), taux (10%), évolution (+18%).',
+    audit:'Complet. 4 commissions mockées.',
+    actions:['Voir commissions','Rechercher','Exporter'],
+    corrections:[]
+  },
+  'e-admin-mp-alertes': {
+    id:'e-admin-mp-alertes', name:'Alertes Marketplace', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'existing', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/alertes-notifications/page.tsx',
+    description:'Centre alertes. 5 onglets : Toutes, Litiges, Livraisons, Expirations, Nouvelles commandes. 8 alertes mockées.',
+    audit:'Complet. Interface à onglets fonctionnelle.',
+    actions:['Voir alertes par catégorie','Traiter','Marquer comme lues'],
+    corrections:[]
+  },
+  'e-admin-mp-parametres': {
+    id:'e-admin-mp-parametres', name:'Paramètres Marketplace', category:'ecrans', subcategory:'marketplace',
+    priority:'v2', status:'harmonize', role:'admin', blocking:false,
+    fichier:'/app/admin/marketplace/parametres/page.tsx',
+    description:'Configuration : taux commission, délais validation, catégories, notifications auto.',
+    audit:'UI complète mais handleSave vide.',
+    actions:['Modifier taux','Gérer catégories','Activer/désactiver notifications'],
+    corrections:['Connecter handleSave à l\'API']
+  },
+  'e-mb-mp-dashboard': {
+    id:'e-mb-mp-dashboard', name:'Dashboard Marketplace (Membre)', category:'ecrans', subcategory:'marketplace',
+    priority:'mvp', status:'harmonize', role:'membre', blocking:false,
+    fichier:'/app/membre/marketplace/page.tsx',
+    description:'Dashboard marketplace côté membre. Même structure que admin avec les 9 onglets de navigation.',
+    audit:'Complet. Même composants que admin.',
+    actions:['Voir KPIs','Naviguer sections'],
+    corrections:['Adapter vue : masquer données admin (litiges, commissions, escrow)','Montrer catalogue services, mes commandes']
+  },
+  'e-mb-mp-catalogue': {
+    id:'e-mb-mp-catalogue', name:'Catalogue Services (Membre)', category:'ecrans', subcategory:'marketplace',
+    priority:'mvp', status:'missing', role:'membre', blocking:false,
+    fichier:null,
+    description:'Catalogue des services disponibles. Recherche par mot-clé, filtres par catégorie, cards services avec prix et note.',
+    audit:'N\'EXISTE PAS. Les membres n\'ont aucun moyen de parcourir les services.',
+    actions:['Parcourir catalogue','Filtrer','Voir détail service','Commander'],
+    corrections:['CRÉER : Page catalogue avec cards services et filtres']
+  },
+  'e-mb-mp-commande': {
+    id:'e-mb-mp-commande', name:'Passer commande (Membre)', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'missing', role:'membre', blocking:false,
+    fichier:null,
+    description:'Flow de commande : sélection service → détails → paiement → confirmation.',
+    audit:'N\'EXISTE PAS.',
+    actions:['Commander','Payer','Confirmer'],
+    corrections:['CRÉER : Flow commande complet']
+  },
+  'e-business-mp-offre': {
+    id:'e-business-mp-offre', name:'Publier une offre (Business)', category:'ecrans', subcategory:'marketplace',
+    priority:'v1', status:'missing', role:'business', blocking:false,
+    fichier:null,
+    description:'Formulaire de publication d\'un service sur la marketplace (réservé Membres Business).',
+    audit:'N\'EXISTE PAS.',
+    actions:['Créer offre','Définir prix','Publier'],
+    corrections:['CRÉER : Formulaire publication avec catégorie, prix, description']
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // NOTIFICATIONS
+  // ─────────────────────────────────────────────────────────
+  'n-evt-inscription-ok': {
+    id:'n-evt-inscription-ok', name:'Inscription confirmée', category:'notifications', subcategory:'membre',
+    priority:'mvp', status:'missing', role:'membre', blocking:true,
+    declencheur:'Paiement validé pour un événement',
+    canal:'Email + Push in-app',
+    description:'Confirmation envoyée à la membre après paiement réussi.',
+    contenu:'Nom événement, date, lieu, récapitulatif paiement, billet QR code.',
+    corrections:['CRÉER : Template email + notification in-app']
+  },
+  'n-evt-rappel-j1': {
+    id:'n-evt-rappel-j1', name:'Rappel événement J-1', category:'notifications', subcategory:'membre',
+    priority:'mvp', status:'missing', role:'membre', blocking:false,
+    declencheur:'J-1 avant l\'événement',
+    canal:'Email + Push',
+    description:'Rappel envoyé la veille avec infos pratiques.',
+    contenu:'Nom, heure, lieu, plan d\'accès.',
+    corrections:['CRÉER : Template notification rappel']
+  },
+  'n-evt-paiement-recu': {
+    id:'n-evt-paiement-recu', name:'Paiement reçu (Admin)', category:'notifications', subcategory:'admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:false,
+    declencheur:'Nouveau paiement événement',
+    canal:'Push dashboard',
+    description:'Notification admin à chaque paiement reçu.',
+    contenu:'Membre, événement, montant, date.',
+    corrections:['CRÉER : Notification in-app']
+  },
+  'n-evt-nouvelle-inscription': {
+    id:'n-evt-nouvelle-inscription', name:'Nouvelle inscription (Admin)', category:'notifications', subcategory:'admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:false,
+    declencheur:'Inscription finalisée',
+    canal:'Push dashboard + badge sidebar',
+    description:'Alerte admin quand une membre s\'inscrit.',
+    contenu:'Nom membre, événement, billet, montant.',
+    corrections:['CRÉER : Notification in-app + compteur sidebar']
+  },
+  'n-evt-abandon': {
+    id:'n-evt-abandon', name:'Abandon panier événement (Admin)', category:'notifications', subcategory:'admin',
+    priority:'mvp', status:'missing', role:'admin', blocking:false,
+    declencheur:'Inscription commencée mais non finalisée (>30min)',
+    canal:'Dashboard',
+    description:'Alerte admin quand une membre commence l\'inscription mais ne finalise pas.',
+    contenu:'Nom, événement, étape abandonnée, montant potentiel perdu.',
+    corrections:['CRÉER : Système de tracking + notification']
+  },
+  'n-evt-places-limitees': {
+    id:'n-evt-places-limitees', name:'Places limitées (Admin)', category:'notifications', subcategory:'admin',
+    priority:'v1', status:'missing', role:'admin', blocking:false,
+    declencheur:'Places restantes < 20%',
+    canal:'Push dashboard',
+    description:'Alerte quand un événement approche de la capacité max.',
+    contenu:'Événement, places restantes, taux remplissage.',
+    corrections:['CRÉER : Calcul automatique + alerte']
+  },
+  'n-evt-complet': {
+    id:'n-evt-complet', name:'Événement complet (Admin)', category:'notifications', subcategory:'admin',
+    priority:'v1', status:'missing', role:'admin', blocking:false,
+    declencheur:'Toutes les places vendues',
+    canal:'Email + Push',
+    description:'Notification sold out.',
+    contenu:'Événement, CA total, nombre inscrites.',
+    corrections:['CRÉER']
+  },
+  'n-mp-nouvelle-commande': {
+    id:'n-mp-nouvelle-commande', name:'Nouvelle commande (Business)', category:'notifications', subcategory:'membre',
+    priority:'v1', status:'missing', role:'business', blocking:false,
+    declencheur:'Commande passée par un membre',
+    canal:'Email + Push',
+    description:'Notification au prestataire quand il reçoit une commande.',
+    contenu:'Client, service, montant.',
+    corrections:['CRÉER']
+  },
+  'n-mp-confirmation': {
+    id:'n-mp-confirmation', name:'Confirmation commande (Membre)', category:'notifications', subcategory:'membre',
+    priority:'v1', status:'missing', role:'membre', blocking:false,
+    declencheur:'Commande validée',
+    canal:'Email + Push',
+    description:'Confirmation envoyée après commande marketplace.',
+    contenu:'Service, prestataire, montant, délai.',
+    corrections:['CRÉER']
+  },
+  'n-ba-rappel-rdv': {
+    id:'n-ba-rappel-rdv', name:'Rappel RDV Business Aligné', category:'notifications', subcategory:'membre',
+    priority:'v1', status:'missing', role:'membre', blocking:false,
+    declencheur:'J-1 avant RDV BA',
+    canal:'Email + Push',
+    description:'Rappel de rendez-vous Business Aligné.',
+    contenu:'Coach, date, heure, lien visio.',
+    corrections:['CRÉER']
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // WORKFLOWS
+  // ─────────────────────────────────────────────────────────
+  'w-inscription-evt': {
+    id:'w-inscription-evt', name:'Inscription à un événement', category:'workflows', subcategory:'evenement-flow',
+    priority:'mvp', status:'missing', role:'membre', blocking:true,
+    description:'Parcours complet d\'inscription d\'une membre à un événement payant.',
+    etapes:[
+      '1. La membre consulte la liste des événements (/membre/evenements)',
+      '2. Elle clique sur un événement → page détail',
+      '3. Elle voit les détails, intervenantes, prix membre/non-membre',
+      '4. Elle clique "S\'inscrire" → sélection de billet',
+      '5. Si autorisé, elle peut ajouter des invitées',
+      '6. Elle voit le récapitulatif (billet + montant total)',
+      '7. Elle procède au paiement',
+      '8. Elle reçoit confirmation (email + in-app + QR code)',
+      '9. L\'admin voit la nouvelle inscription en temps réel sur son dashboard'
+    ],
+    corrections:[
+      'CRÉER : Tout le workflow (aucun écran d\'inscription n\'existe)',
+      'Les écrans nécessaires : détail événement, sélection billet, récap, paiement, confirmation',
+      'Intégration paiement (ou simulation pour test)'
+    ]
+  },
+  'w-creation-evt': {
+    id:'w-creation-evt', name:'Création événement (Admin)', category:'workflows', subcategory:'evenement-flow',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:true,
+    description:'Parcours admin pour créer un événement de A à Z.',
+    etapes:[
+      '1. Admin clique "Ajouter un événement" depuis la liste',
+      '2. Choisit le type (Atelier, Lunch, Conférence, Formation, Networking, Autre)',
+      '3. Remplit les informations (titre, description, date≥aujourd\'hui, heure, lieu, image)',
+      '4. Ajoute les intervenantes (nom + email, ajout dynamique)',
+      '5. Configure les tickets/prix (nom, prix, quantité, description)',
+      '6. Vérifie le récapitulatif',
+      '7. Publie l\'événement',
+      '8. L\'événement apparaît dans la liste membre'
+    ],
+    corrections:[
+      'Le formulaire 5 étapes existe et fonctionne côté UI',
+      'MAIS : handleSubmit ne sauvegarde rien (juste redirect)',
+      'Manque : objectif financier, coût global, prix membre/non-membre',
+      'Manque : renommer Participants → Intervenantes'
+    ]
+  },
+  'w-pilotage-evt': {
+    id:'w-pilotage-evt', name:'Pilotage événement (Mme Morel)', category:'workflows', subcategory:'evenement-flow',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    description:'Parcours clé pour Mme Morel : piloter un événement de la création au suivi rentabilité.',
+    etapes:[
+      '1. Mme Morel ouvre le dashboard événements',
+      '2. Elle voit d\'un coup d\'œil : nombre total d\'inscriptions, CA réalisé, CA potentiel',
+      '3. Elle identifie les événements à forte/faible conversion',
+      '4. Elle clique sur un événement → détail avec liste inscrites',
+      '5. Elle vérifie le CA réalisé vs l\'objectif financier fixé',
+      '6. Elle détecte les abandons de panier',
+      '7. Elle calcule la rentabilité (CA réalisé - coût global)',
+      '8. Elle peut relancer les abandons'
+    ],
+    corrections:[
+      'CRÉER : Dashboard KPI événements (n\'existe pas)',
+      'CRÉER : Page détail événement admin',
+      'CRÉER : Liste inscrites par événement',
+      'CRÉER : Indicateurs rentabilité (CA - coût)'
+    ]
+  },
+  'w-commande-mp': {
+    id:'w-commande-mp', name:'Commande marketplace', category:'workflows', subcategory:'marketplace-flow',
+    priority:'v1', status:'missing', role:'membre', blocking:false,
+    description:'Parcours de commande d\'un service sur la marketplace.',
+    etapes:[
+      '1. Membre parcourt le catalogue services',
+      '2. Sélectionne un service → détail',
+      '3. Passe commande',
+      '4. Effectue le paiement',
+      '5. Reçoit confirmation',
+      '6. Suit l\'avancement'
+    ],
+    corrections:['CRÉER : Catalogue, détail service, flow commande']
+  },
+  'w-publication-offre': {
+    id:'w-publication-offre', name:'Publication offre (Business)', category:'workflows', subcategory:'marketplace-flow',
+    priority:'v1', status:'missing', role:'business', blocking:false,
+    description:'Parcours d\'un membre business pour publier un service.',
+    etapes:[
+      '1. Membre Business accède à "Mes services"',
+      '2. Clique "Ajouter un service"',
+      '3. Remplit le formulaire (titre, description, prix, catégorie)',
+      '4. Publie',
+      '5. Le service est visible dans le catalogue'
+    ],
+    corrections:['CRÉER : Espace "Mes services" + formulaire publication']
+  },
+  'w-navigation-membre': {
+    id:'w-navigation-membre', name:'Parcours navigation Membre', category:'workflows', subcategory:'navigation',
+    priority:'mvp', status:'harmonize', role:'membre', blocking:true,
+    description:'Parcours type d\'une membre, de la connexion aux actions principales.',
+    etapes:[
+      '1. Connexion (page login)',
+      '2. Dashboard accueil → vue résumée',
+      '3. Accès événements → s\'inscrire',
+      '4. Accès annuaire → voir membres',
+      '5. Accès marketplace → commander',
+      '6. Accès Business Aligné → suivi dossier'
+    ],
+    corrections:[
+      'Page login : à créer ou vérifier',
+      'Masquer liens hors MVP dans sidebar',
+      'Vérifier qu\'aucun lien ne mène vers un écran vide'
+    ]
+  },
+  'w-navigation-admin': {
+    id:'w-navigation-admin', name:'Parcours navigation Admin', category:'workflows', subcategory:'navigation',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:true,
+    description:'Parcours admin, de la connexion au pilotage.',
+    etapes:[
+      '1. Connexion admin',
+      '2. Dashboard global → KPIs',
+      '3. Événements → créer + piloter',
+      '4. Marketplace → suivi commandes',
+      '5. Membres → gestion',
+      '6. Business Aligné → accompagnement'
+    ],
+    corrections:[
+      'Masquer liens BP et Tontines dans sidebar',
+      'Dashboard : masquer KPIs hors périm��tre'
+    ]
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // AMÉLIORATIONS
+  // ─────────────────────────────────────────────────────────
+  'a-auth': {
+    id:'a-auth', name:'Authentification / Login', category:'ameliorations', subcategory:'ux',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    description:'Page de connexion pour admin et membres. Aucune page login trouvée dans le projet. Indispensable pour le test.',
+    audit:'Aucune page de connexion, aucun middleware d\'auth, aucun contexte utilisateur.',
+    corrections:['CRÉER : Page login simple (email + mot de passe)','CRÉER : Redirection selon rôle (admin→/admin, membre→/membre)','Optionnel : token session pour maintenir la connexion']
+  },
+  'a-masquer-modules': {
+    id:'a-masquer-modules', name:'Masquer modules hors MVP', category:'ameliorations', subcategory:'ux',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    description:'Masquer dans les sidebars et dashboards tous les modules exclus du MVP : Business Plan digitalisé, Tontine, Formations, Mon Coach, Messages, Mes Finances.',
+    audit:'Actuellement tout est visible. 6 liens à masquer dans la sidebar admin, 5 dans la sidebar membre. KPIs correspondants à retirer des dashboards.',
+    corrections:[
+      'Sidebar admin : masquer Business Plans, Épargne/Tontines, liens disabled',
+      'Sidebar membre : masquer Mon BP, Épargne, Mes Finances, Mon Coach, Messages',
+      'Dashboard admin : retirer KPIs Tontines, BP',
+      'Dashboard membre : retirer KPIs Tontines, BP'
+    ]
+  },
+  'a-donnees-realistes': {
+    id:'a-donnees-realistes', name:'Données réalistes pour démo', category:'ameliorations', subcategory:'ux',
+    priority:'mvp', status:'missing', role:'admin', blocking:true,
+    description:'Remplacer les données mock par des données réalistes Club M pour la démo Mme Morel.',
+    audit:'100% des données sont mockées avec des valeurs génériques.',
+    corrections:[
+      'Créer 3-5 événements réalistes Club M',
+      'Créer 10-15 profils membres avec noms réalistes',
+      'Mettre des montants cohérents (prix événements, CA, etc.)',
+      'Simuler des inscriptions, commandes, paiements'
+    ]
+  },
+  'a-toast-notifications': {
+    id:'a-toast-notifications', name:'Retours visuels (toasts)', category:'ameliorations', subcategory:'ux',
+    priority:'mvp', status:'harmonize', role:'admin', blocking:false,
+    description:'Sonner (toast library) est installée (v2.0.7) et le composant ToastMain existe, mais les toasts sont peu utilisés. Ajouter des retours visuels après chaque action clé.',
+    audit:'Composant ToastMain présent dans common/containers. Sonner importé. Très peu de toasts déclenchés.',
+    corrections:[
+      'Ajouter toast succès : création événement, inscription, commande',
+      'Ajouter toast erreur : échec paiement, formulaire invalide',
+      'Ajouter toast info : rappel, notification'
+    ]
+  },
+  'a-responsive': {
+    id:'a-responsive', name:'Vérification responsive', category:'ameliorations', subcategory:'technique',
+    priority:'v1', status:'harmonize', role:'admin', blocking:false,
+    description:'Vérifier l\'affichage sur mobile et tablette pour tous les écrans MVP.',
+    audit:'Tailwind responsive utilisé (col-span-12 mobile, lg:col-span-6/8 desktop). Non testé mobile.',
+    corrections:['Test sur mobile','Test sur tablette','Corriger overflow si nécessaire']
+  },
+  'a-api-backend': {
+    id:'a-api-backend', name:'Intégration API Backend', category:'ameliorations', subcategory:'technique',
+    priority:'v1', status:'missing', role:'admin', blocking:false,
+    description:'Connecter toutes les vues aux API backend. Actuellement 0 appel API dans tout le projet — 100% données statiques.',
+    audit:'Aucun fetch/axios trouvé. Pas de fichier services/API. Pas de state management global.',
+    corrections:['Définir endpoints API','Implémenter fetch/axios','Ajouter gestion erreurs réseau','Ajouter loading states']
+  },
+  'a-loading-states': {
+    id:'a-loading-states', name:'États de chargement', category:'ameliorations', subcategory:'technique',
+    priority:'v1', status:'missing', role:'admin', blocking:false,
+    description:'Ajouter des skeleton screens / spinners pendant le chargement des données.',
+    audit:'Aucun loading state. Les données mockées s\'affichent instantanément.',
+    corrections:['Ajouter skeleton screens sur tables et cards']
+  },
+  'a-error-handling': {
+    id:'a-error-handling', name:'Gestion d\'erreurs', category:'ameliorations', subcategory:'technique',
+    priority:'v1', status:'missing', role:'admin', blocking:false,
+    description:'Ajouter des error boundaries et des états d\'erreur pour gérer les cas d\'échec.',
+    audit:'Aucune gestion d\'erreur. Pas d\'error boundary. Pas de page 404 custom.',
+    corrections:['Ajouter error boundaries React','Ajouter page 404','Ajouter fallback UI']
+  },
+  'a-pagination-server': {
+    id:'a-pagination-server', name:'Pagination serveur', category:'ameliorations', subcategory:'technique',
+    priority:'v2', status:'missing', role:'admin', blocking:false,
+    description:'Implémenter la pagination côté serveur pour les grandes listes (membres, commandes, événements).',
+    audit:'Pagination UI présente dans les tables mais côté client uniquement.',
+    corrections:['Implémenter pagination serveur avec offset/limit']
+  }
+};
+
+// ========================================
+// COLONNES KANBAN
+// ========================================
+const columns = [
+  {
+    id: 'ecrans', title: '📱 Écrans', subtitle: 'Pages et vues du projet', class: 'ecrans',
+    subcategories: {
+      'dashboard': { label: '🏠 Tableau de bord & Navigation', class: 'dashboard' },
+      'business-aligne': { label: '💼 Business Aligné', class: 'business-aligne' },
+      'evenements-admin': { label: '🎪 Événements — Admin ⚠️', class: 'evenements-admin' },
+      'evenements-membre': { label: '🎟️ Événements — Membre', class: 'evenements-membre' },
+      'annuaire': { label: '👥 Annuaire / Membres', class: 'annuaire' },
+      'marketplace': { label: '🛒 Marketplace', class: 'marketplace' }
+    }
+  },
+  {
+    id: 'notifications', title: '🔔 Notifications', subtitle: 'Alertes et messages auto', class: 'notifications',
+    subcategories: {
+      'membre': { label: '👩 Notifications Membre', class: 'membre' },
+      'admin': { label: '👑 Notifications Admin', class: 'admin' }
+    }
+  },
+  {
+    id: 'workflows', title: '🔄 Workflows', subtitle: 'Parcours utilisateur', class: 'workflows',
+    subcategories: {
+      'evenement-flow': { label: '🎪 Événements', class: 'evenement-flow' },
+      'marketplace-flow': { label: '🛒 Marketplace', class: 'marketplace-flow' },
+      'navigation': { label: '🧭 Navigation', class: 'navigation' }
+    }
+  },
+  {
+    id: 'ameliorations', title: '🛠️ Améliorations', subtitle: 'UX, technique, optimisation', class: 'ameliorations',
+    subcategories: {
+      'ux': { label: '🎨 UX & Design', class: 'ux' },
+      'technique': { label: '⚙️ Technique', class: 'technique' }
+    }
+  }
+];
+
+// ========================================
+// STATE
+// ========================================
+let currentFilter = 'all';
+let statusFilters = { existing: true, harmonize: true, missing: true };
+let roleFilters = { admin: true, membre: true, business: true };
+
+// ========================================
+// FILTER FUNCTIONS
+// ========================================
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  applyFilters();
+}
+function toggleStatus(s) {
+  statusFilters[s] = !statusFilters[s];
+  document.querySelectorAll('.status-btn').forEach(b => {
+    if (b.classList.contains(s)) { b.classList.toggle('active', statusFilters[s]); b.classList.toggle('inactive', !statusFilters[s]); }
+  });
+  applyFilters();
+}
+function toggleRole(r) {
+  roleFilters[r] = !roleFilters[r];
+  document.querySelectorAll('.role-btn').forEach(b => {
+    if (b.classList.contains(r)) { b.classList.toggle('active', roleFilters[r]); b.classList.toggle('inactive', !roleFilters[r]); }
+  });
+  applyFilters();
+}
+function applyFilters() {
+  document.querySelectorAll('.screen-card').forEach(c => {
+    const p = c.dataset.priority, s = c.dataset.status, r = c.dataset.role;
+    const pOk = currentFilter === 'all' || p === currentFilter;
+    const sOk = statusFilters[s];
+    const rOk = !r || roleFilters[r];
+    c.classList.toggle('hidden', !(pOk && sOk && rOk));
+  });
+  updateCounts();
+}
+
+// ========================================
+// RENDER
+// ========================================
+function render() {
+  const container = document.getElementById('kanban-container');
+  container.innerHTML = '';
+
+  columns.forEach(col => {
+    const items = Object.values(database).filter(d => d.category === col.id);
+    const colEl = document.createElement('div');
+    colEl.className = 'kanban-column';
+    colEl.innerHTML = `
+      <div class="column-header ${col.class}">
+        <div><div class="title">${col.title}</div><span class="subtitle">${col.subtitle}</span></div>
+        <div class="count-badge" id="count-${col.id}">${items.length}</div>
+      </div>
+      <div class="column-body" id="body-${col.id}"></div>`;
+
+    const body = colEl.querySelector('.column-body');
+    Object.entries(col.subcategories).forEach(([subId, subConfig]) => {
+      const subItems = items.filter(d => d.subcategory === subId);
+      if (!subItems.length) return;
+      const group = document.createElement('div');
+      group.className = 'level-group';
+      group.innerHTML = `<div class="level-group-header ${subConfig.class}"><span>${subConfig.label}</span><span class="count">${subItems.length}</span></div>`;
+
+      subItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `screen-card ${item.status}`;
+        card.dataset.priority = item.priority;
+        card.dataset.status = item.status;
+        card.dataset.role = item.role || '';
+        card.onclick = () => openDrawer(item.id);
+        const roleTag = item.role ? `<span class="role-tag ${item.role}">${item.role}</span>` : '';
+        const blockTag = item.blocking ? '<span class="blocking-tag">⛔ Bloquant</span>' : '';
+        const fInfo = item.fichier ? `<span>📁 ${item.fichier.split('/').pop()}</span>` : '<span>📁 À créer</span>';
+        card.innerHTML = `
+          <div class="main-info">
+            <div class="name"><span class="status-indicator"></span>${item.name}</div>
+            <div class="description">${item.description.substring(0, 120)}${item.description.length > 120 ? '…' : ''}</div>
+            <div class="meta">${fInfo}</div>
+          </div>
+          <div class="tags">
+            <span class="priority-tag ${item.priority}">${item.priority.toUpperCase()}</span>
+            ${roleTag}${blockTag}
+          </div>`;
+        group.appendChild(card);
+      });
+      body.appendChild(group);
+    });
+    container.appendChild(colEl);
+  });
+  updateCounts();
+  renderSummary();
+}
+
+// ========================================
+// SUMMARY BAR
+// ========================================
+function renderSummary() {
+  const all = Object.values(database);
+  const ex = all.filter(d => d.status === 'existing').length;
+  const ha = all.filter(d => d.status === 'harmonize').length;
+  const mi = all.filter(d => d.status === 'missing').length;
+  const total = all.length;
+  const bar = document.getElementById('summary-bar');
+  bar.innerHTML = `
+    <div class="summary-block"><div class="sb-label">Total éléments</div><div class="sb-value">${total}</div></div>
+    <div class="summary-divider"></div>
+    <div class="summary-block"><div class="sb-label">✅ Existants</div><div class="sb-value green">${ex}</div></div>
+    <div class="summary-block"><div class="sb-label">🟠 À corriger</div><div class="sb-value orange">${ha}</div></div>
+    <div class="summary-block"><div class="sb-label">🔴 À créer</div><div class="sb-value red">${mi}</div></div>
+    <div class="summary-divider"></div>
+    <div class="summary-block"><div class="sb-label">MVP bloquants</div><div class="sb-value red">${all.filter(d => d.priority === 'mvp' && d.blocking).length}</div></div>
+    <div class="summary-divider"></div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-label">Progression globale</div>
+      <div class="progress-bar">
+        <div class="seg green" style="width:${(ex/total*100).toFixed(1)}%"></div>
+        <div class="seg orange" style="width:${(ha/total*100).toFixed(1)}%"></div>
+        <div class="seg red" style="width:${(mi/total*100).toFixed(1)}%"></div>
+      </div>
+    </div>`;
+}
+
+// ========================================
+// COUNTS
+// ========================================
+function updateCounts() {
+  const all = Object.values(database);
+  const vis = all.filter(i => statusFilters[i.status] && (!i.role || roleFilters[i.role]));
+  document.getElementById('count-all').textContent = vis.length;
+  document.getElementById('count-mvp').textContent = vis.filter(d => d.priority === 'mvp').length;
+  document.getElementById('count-v1').textContent = vis.filter(d => d.priority === 'v1').length;
+  document.getElementById('count-v2').textContent = vis.filter(d => d.priority === 'v2').length;
+  const e = vis.filter(d => d.category === 'ecrans').length;
+  const n = vis.filter(d => d.category === 'notifications').length;
+  const w = vis.filter(d => d.category === 'workflows').length;
+  const a = vis.filter(d => d.category === 'ameliorations').length;
+  document.getElementById('stat-ecrans').textContent = e;
+  document.getElementById('stat-notifs').textContent = n;
+  document.getElementById('stat-workflows').textContent = w;
+  document.getElementById('stat-amelio').textContent = a;
+  document.getElementById('stat-total').textContent = vis.length;
+}
+
+// ========================================
+// DRAWER
+// ========================================
+function openDrawer(id) {
+  const item = database[id];
+  if (!item) return;
+  document.getElementById('drawer-title').textContent = item.name;
+  const meta = document.getElementById('drawer-meta');
+  meta.innerHTML = `
+    <span class="priority-tag ${item.priority}">${item.priority.toUpperCase()}</span>
+    <span class="role-tag ${item.role||'admin'}">${item.role||'global'}</span>
+    ${item.blocking ? '<span class="blocking-tag">⛔ BLOQUANT POUR LE TEST</span>' : ''}`;
+
+  const body = document.getElementById('drawer-body');
+  let h = '';
+  const sL = { existing:'✅ Existant — Écran présent dans le code', harmonize:'🟠 À corriger / harmoniser', missing:'🔴 À créer — N\'existe pas encore' };
+  const sC = { existing:'', harmonize:'warning', missing:'danger' };
+
+  h += `<div class="drawer-section"><h3>Statut</h3><div class="info-card ${sC[item.status]}"><div class="value">${sL[item.status]}</div></div></div>`;
+  h += `<div class="drawer-section"><h3>Priorité</h3><div class="priority-detail ${item.priority}"><div class="badge">${item.priority.toUpperCase()}</div><div>${item.priority==='mvp'?'<strong>Indispensable</strong> pour le test vendredi avec Mme Morel':''}${item.priority==='v1'?'<strong>Post-test</strong> — après validation MVP':''}${item.priority==='v2'?'<strong>Évolution future</strong>':''}</div></div></div>`;
+  h += `<div class="drawer-section"><h3>Description</h3><div class="content">${item.description}</div></div>`;
+
+  if (item.audit) h += `<div class="drawer-section"><h3>Résultat de l'audit</h3><div class="info-card info"><div class="value">${item.audit}</div></div></div>`;
+  if (item.fichier) h += `<div class="drawer-section"><h3>Fichier source</h3><div class="info-card"><div class="label">Chemin</div><div class="value" style="font-family:monospace;font-size:12px">${item.fichier}</div></div></div>`;
+  if (item.actions && item.actions.length) h += `<div class="drawer-section"><h3>Actions / Fonctionnalités</h3><div class="content"><ul>${item.actions.map(a=>`<li>${a}</li>`).join('')}</ul></div></div>`;
+  if (item.etapes && item.etapes.length) h += `<div class="drawer-section"><h3>Étapes du workflow</h3><div class="content"><ul>${item.etapes.map(e=>`<li>${e}</li>`).join('')}</ul></div></div>`;
+  if (item.declencheur) {
+    h += `<div class="drawer-section"><h3>Détails notification</h3>
+      <div class="info-card info"><div class="label">Déclencheur</div><div class="value">${item.declencheur}</div></div>
+      ${item.canal?`<div class="info-card"><div class="label">Canal</div><div class="value">${item.canal}</div></div>`:''}
+      ${item.contenu?`<div class="info-card"><div class="label">Contenu</div><div class="value">${item.contenu}</div></div>`:''}
+    </div>`;
+  }
+  if (item.corrections && item.corrections.length) {
+    h += `<div class="drawer-section"><h3>⚡ Actions requises</h3><div class="content"><ul>${item.corrections.map(c => {
+      const crit = c.startsWith('CRÉER') || c.startsWith('CRITIQUE');
+      return `<li style="${crit?'color:#fca5a5;font-weight:600':''}">${c}</li>`;
+    }).join('')}</ul></div></div>`;
+  }
+
+  body.innerHTML = h;
+  document.getElementById('drawer').classList.add('active');
+  document.getElementById('drawer-overlay').classList.add('active');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('active');
+  document.getElementById('drawer-overlay').classList.remove('active');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+render();
+</script>
+</body>
+</html>
