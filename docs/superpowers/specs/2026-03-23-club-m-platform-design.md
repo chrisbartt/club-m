@@ -1,8 +1,8 @@
 # Club M — Platform Design Specification
 
 **Date:** 2026-03-23
-**Version:** 1.0
-**Status:** Draft
+**Version:** 1.1
+**Status:** Draft — Post spec review
 
 ---
 
@@ -99,7 +99,7 @@ Monolithe modulaire Next.js avec route groups. Un seul projet, un seul deploieme
 | Styling | Tailwind CSS 4 | Utility-first, performant |
 | ORM | Prisma 7 | Type-safe, migrations, excellent DX |
 | Database | PostgreSQL | Robuste, relationnelle, adaptee au modele |
-| Auth | NextAuth 4 | JWT, extensible, bien integre Next.js |
+| Auth | Auth.js (NextAuth v5) | JWT, Server Components natif, App Router |
 | Validation | Zod 4 | Schemas TypeScript-first |
 | Paiements | Architecture abstraite multi-provider | Fintech locale RDC (actuel), extensible |
 | Email | Resend | Transactionnel, API simple |
@@ -179,7 +179,7 @@ club-m-new-version/
 │   ├── api/                         # Route Handlers
 │   │   ├── webhooks/
 │   │   │   └── payment/route.ts     # Webhook PSP
-│   │   └── auth/[...nextauth]/route.ts
+│   │   └── auth/[...nextauth]/route.ts  # Auth.js v5
 │   │
 │   ├── layout.tsx                   # Root layout
 │   └── globals.css
@@ -249,7 +249,8 @@ club-m-new-version/
 │   │       ├── email-verification.tsx
 │   │       ├── order-confirmation.tsx
 │   │       ├── ticket-confirmation.tsx
-│   │       └── kyc-status.tsx
+│   │       ├── kyc-status.tsx
+│   │       └── upgrade-confirmation.tsx
 │   └── storage/
 │       ├── types.ts                 # Interface StorageProvider
 │       ├── index.ts
@@ -362,6 +363,7 @@ model Member {
   businessProfile     BusinessProfile?
   tickets             Ticket[]
   orders              Order[]
+  upgradeRequests     UpgradeRequest[]
 
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
@@ -379,8 +381,11 @@ enum MemberStatus {
   BANNED
 }
 
+// DECLARED = inscription Free (declaration sur l'honneur)
+// PENDING_VERIFICATION = KYC soumis, en attente
+// VERIFIED = KYC valide
+// REJECTED = KYC refuse
 enum VerificationStatus {
-  UNVERIFIED
   DECLARED
   PENDING_VERIFICATION
   VERIFIED
@@ -483,6 +488,7 @@ model Subscription {
   endDate         DateTime
 
   payments        Payment[]
+  upgradeRequest  UpgradeRequest?
 
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
@@ -505,6 +511,7 @@ model BusinessProfile {
   member          Member           @relation(fields: [memberId], references: [id])
 
   businessName    String
+  slug            String           @unique
   description     String
   category        String
   coverImage      String?
@@ -576,6 +583,7 @@ model Event {
   id              String           @id @default(cuid())
 
   title           String
+  slug            String           @unique
   description     String
   coverImage      String?
   location        String
@@ -588,6 +596,8 @@ model Event {
 
   accessLevel     EventAccessLevel @default(PUBLIC)
   status          EventStatus      @default(DRAFT)
+
+  createdById     String           // Admin qui a cree l'evenement
 
   prices          EventPrice[]
   tickets         Ticket[]
@@ -700,7 +710,7 @@ model OrderItem {
 
   quantity        Int
   unitPrice       Decimal
-  currency        Currency         @default(USD)
+  // Currency heritee de Order.currency (pas de multi-devise dans une meme commande)
 }
 
 enum OrderStatus {
@@ -724,7 +734,9 @@ model Payment {
   provider        PaymentProvider
   providerRef     String?
 
-  // Lien polymorphique (un seul rempli)
+  // Lien polymorphique
+  // Order et Ticket : 1:1 (un paiement par commande/ticket)
+  // Subscription : 1:N (un abonnement peut avoir plusieurs paiements — renouvellements)
   orderId         String?          @unique
   order           Order?           @relation(fields: [orderId], references: [id])
   ticketId        String?          @unique
@@ -755,10 +767,11 @@ enum PaymentProvider {
 ### Audit
 
 ```prisma
+// Pas de foreign key sur userId : les logs doivent survivre au soft-delete
 model AuditLog {
   id              String           @id @default(cuid())
 
-  // Qui
+  // Qui (snapshot, pas de FK — voir section "Integrite des donnees")
   userId          String
   userEmail       String
 
@@ -786,6 +799,10 @@ model UpgradeRequest {
   toTier          MemberTier
   status          UpgradeStatus    @default(KYC_PENDING)
 
+  // Lien vers la subscription resultante (rempli apres UPGRADE_COMPLETED)
+  subscriptionId  String?          @unique
+  subscription    Subscription?    @relation(fields: [subscriptionId], references: [id])
+
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
@@ -799,8 +816,6 @@ enum UpgradeStatus {
   CANCELLED
 }
 ```
-
-Note : ajouter `upgradeRequests UpgradeRequest[]` a `Member`.
 
 ### Relations cles
 
@@ -827,8 +842,78 @@ Event ──1:N──> Ticket
 Ticket ──N:1──> Member | Customer (acheteur)
 Ticket ──1:1──> Payment
 
-Payment ──> Order | Ticket | Subscription (polymorphique, un seul rempli)
+UpgradeRequest ──1:1──> Subscription (resultante)
+
+Payment ──> Order | Ticket (1:1) | Subscription (1:N, renouvellements)
 ```
+
+### Index recommandes
+
+Les index Prisma suivants doivent etre ajoutes pour les performances :
+
+```prisma
+// Sur Order
+@@index([memberId])
+@@index([customerId])
+@@index([businessId])
+@@index([status])
+
+// Sur Ticket
+@@index([eventId])
+@@index([memberId])
+@@index([customerId])
+
+// Sur Payment
+@@index([status])
+@@index([providerRef])
+@@index([subscriptionId])
+
+// Sur KycVerification
+@@index([memberId])
+@@index([status])
+
+// Sur Product
+@@index([businessId])
+@@index([isActive])
+
+// Sur Subscription
+@@index([memberId])
+@@index([status])
+
+// Sur AuditLog
+@@index([userId])
+@@index([entity, entityId])
+@@index([createdAt])
+
+// Sur UpgradeRequest
+@@index([memberId])
+@@index([status])
+```
+
+### Integrite des donnees
+
+**Exclusivite mutuelle (appliquee cote application via Zod + guards) :**
+
+- `Order` : exactement un de `memberId` ou `customerId` doit etre rempli (jamais les deux, jamais aucun)
+- `Ticket` : exactement un de `memberId` ou `customerId` doit etre rempli
+- `Payment` : au moins un de `orderId`, `ticketId`, `subscriptionId` doit etre rempli. Pour `orderId` et `ticketId`, la contrainte `@unique` garantit le 1:1. Pour `subscriptionId`, le 1:N est intentionnel (renouvellements).
+
+Ces regles sont validees par les schemas Zod dans les validators de chaque domaine et verifiees dans les Server Actions. Un commentaire dans le schema Prisma documente l'intention.
+
+**AuditLog** : les champs `userId` et `userEmail` sont des strings sans foreign key, par design. Les logs d'audit doivent survivre a la suppression logique d'un utilisateur. Puisque la suppression est soft-delete (`UserStatus.DELETED`), les references restent valides.
+
+### Strategie de suppression
+
+Le projet utilise exclusivement le **soft-delete** :
+- `User.status = DELETED` — le compte est desactive, les donnees sont conservees
+- Aucun `DELETE` en base de donnees dans le fonctionnement normal
+- Les queries filtrent par defaut les entites actives
+- Consequence : les `onDelete: Restrict` (defaut Prisma) sont corrects — on ne supprime jamais les enregistrements parents
+- Exception : `EventPrice` a `onDelete: Cascade` car les prix sont des enfants structurels de l'evenement
+
+### Limitation connue (MVP)
+
+- `Customer.address` est 1:1 (une seule adresse par client). Multi-adresses en V2 si necessaire.
 
 ---
 
@@ -910,7 +995,7 @@ Les chemins proteges sont centralises dans `lib/routes.ts` :
 
 ```typescript
 export const PROTECTED_ROUTES = {
-  member: ['/dashboard', '/profile', '/tickets', '/orders', '/business', '/upgrade'],
+  member: ['/dashboard', '/profile', '/tickets', '/orders', '/business', '/upgrade', '/events', '/directory'],
   admin: ['/admin'],
   auth: ['/login', '/register', '/verify-email', '/kyc'],
 } as const
@@ -997,7 +1082,7 @@ export const ERROR_UX_MAP: Record<string, {
 
 ### Session
 
-- NextAuth avec JWT (pas de session DB pour le MVP)
+- Auth.js (NextAuth v5) avec JWT (pas de session DB pour le MVP)
 - Duree session : 7 jours, refresh automatique
 - Mot de passe : minimum 8 caracteres, hashe avec bcrypt
 - Email : unique par User, confirmation obligatoire
@@ -1234,6 +1319,7 @@ Le provider KYC automatise (Sumsub, Onfido, Persona) est une evolution future. L
 - Confirmation de commande
 - Ticket evenement
 - Statut KYC
+- Confirmation d'upgrade (passage Premium/Business)
 - Code de confirmation livraison
 - Notification nouvelle commande (vendeuse)
 
