@@ -1,71 +1,67 @@
-/**
- * Helpers d'auth côté client (localStorage uniquement).
- * L'accès au contenu du site est géré par le mot de passe dans GateView (sans NextAuth ni API).
- */
-export interface AuthUser {
-  id: string;
-  email: string;
-  name?: string | null;
-  role?: { id: string; label: string } | null;
-}
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+import { compare } from 'bcryptjs'
+import { db } from '@/lib/db'
+import { SESSION_MAX_AGE } from '@/lib/constants'
 
-const AUTH_TOKEN_KEY = "auth_token";
-const AUTH_REFRESH_TOKEN_KEY = "auth_refresh_token";
-const AUTH_USER_KEY = "auth_user";
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [
+    Credentials({
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null
 
-// Fonctions pour gérer le token d'authentification
-export const setAuthToken = (token: string): void => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-  }
-};
+        const email = credentials.email as string
+        const password = credentials.password as string
 
-export const getAuthToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
-  }
-  return null;
-};
+        const user = await db.user.findUnique({
+          where: { email },
+          include: { member: true, customer: true, adminAccount: true },
+        })
 
-// Fonctions pour gérer le refresh token
-export const setRefreshToken = (refreshToken: string): void => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, refreshToken);
-  }
-};
+        if (!user) return null
+        if (user.status !== 'ACTIVE') return null
 
-export const getRefreshToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem(AUTH_REFRESH_TOKEN_KEY);
-  }
-  return null;
-};
+        const passwordValid = await compare(password, user.passwordHash)
+        if (!passwordValid) return null
 
-export const removeAuthToken = (): void => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-  }
-};
-
-// Fonctions pour gérer les informations utilisateur
-export const setAuthUser = (user: AuthUser): void => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-  }
-};
-
-export const getAuthUser = (): AuthUser | null => {
-  if (typeof window !== "undefined") {
-    const userStr = localStorage.getItem(AUTH_USER_KEY);
-    if (userStr) {
-      try {
-        return JSON.parse(userStr) as AuthUser;
-      } catch {
-        return null;
+        return {
+          id: user.id,
+          email: user.email,
+          isMember: !!user.member,
+          isCustomer: !!user.customer,
+          isAdmin: !!user.adminAccount,
+          memberTier: user.member?.tier ?? null,
+          adminRole: user.adminAccount?.role ?? null,
+        }
+      },
+    }),
+  ],
+  session: { strategy: 'jwt', maxAge: SESSION_MAX_AGE },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id as string
+        token.isMember = user.isMember ?? false
+        token.isCustomer = user.isCustomer ?? false
+        token.isAdmin = user.isAdmin ?? false
+        token.memberTier = user.memberTier ?? null
+        token.adminRole = user.adminRole ?? null
       }
-    }
-  }
-  return null;
-};
+      return token
+    },
+    async session({ session, token }) {
+      session.user.id = token.id as string
+      session.user.isMember = token.isMember as boolean
+      session.user.isCustomer = token.isCustomer as boolean
+      session.user.isAdmin = token.isAdmin as boolean
+      session.user.memberTier = token.memberTier as string | null
+      session.user.adminRole = token.adminRole as string | null
+      return session
+    },
+  },
+  pages: { signIn: '/login' },
+})
