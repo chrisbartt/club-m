@@ -18,7 +18,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useDialog } from "@/context/dialog/contextDialog";
+import { useDialog } from "@/context/dialog-context";
 import { Calendar, Plus, X } from "lucide-react";
 import { useState } from "react";
 

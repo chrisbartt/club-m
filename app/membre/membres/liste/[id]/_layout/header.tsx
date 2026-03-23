@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Briefcase, Calendar, Crown, Mail, MapPin, Phone } from "lucide-react";
-import { useDialog } from '@/context/dialog/contextDialog';
+import { useDialog } from '@/context/dialog-context';
 // Types
 interface MemberData {
     initials: string;

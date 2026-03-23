@@ -14,7 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useDialog } from '@/context/dialog/contextDialog';
+import { useDialog } from '@/context/dialog-context';
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown, Crown, Download, Eye, Filter, Gem, Heart, Mail, Search, Sprout, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";

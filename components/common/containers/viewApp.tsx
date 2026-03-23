@@ -1,7 +1,7 @@
 "use client";
 import React, { JSX } from "react";
-import { DrawerProvider } from "@/context/drawer/contextDrawer";
-import { DialogProvider } from "@/context/dialog/contextDialog";
+import { DrawerProvider } from "@/context/drawer-context";
+import { DialogProvider } from "@/context/dialog-context";
 
 /**
  * ViewApp component that wraps its children with several context providers.

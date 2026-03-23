@@ -8,8 +8,8 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { useDialog } from "@/context/dialog/contextDialog";
-import { useDrawer } from "@/context/drawer/contextDrawer";
+import { useDialog } from "@/context/dialog-context";
+import { useDrawer } from "@/context/drawer-context";
 import {
     BarChart3,
     ClipboardList,

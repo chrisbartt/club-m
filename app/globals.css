@@ -292,3 +292,8 @@ table {
 .animate-avatar-slide {
   animation: avatar-slide 12s linear infinite;
 }
+
+.trigger-faq svg {
+  color: white;
+}
+

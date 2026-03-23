@@ -11,8 +11,8 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs";
-import { useDialog } from '@/context/dialog/contextDialog';
-import { useDrawer } from "@/context/drawer/contextDrawer";
+import { useDialog } from '@/context/dialog-context';
+import { useDrawer } from "@/context/drawer-context";
 import { Calendar, Check, Clock, FileText, GraduationCap, MessageCircle, TrendingUp, X } from "lucide-react";
 
 // Mock data

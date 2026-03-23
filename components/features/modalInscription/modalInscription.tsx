@@ -1,4 +1,4 @@
-import { useDialog } from "@/context/dialog/contextDialog";
+import { useDialog } from "@/context/dialog-context";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

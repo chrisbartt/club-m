@@ -1,6 +1,6 @@
 import { Mail } from "lucide-react";
 import Link from "next/link";
-import { useDialog } from '@/context/dialog/contextDialog';
+import { useDialog } from '@/context/dialog-context';
 
 // Types
 interface Membre {

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Lock, Mail } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -28,12 +29,42 @@ const FormLogin = () => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
     setIsSubmitting(true);
-    router.push("/admin");
-    setIsSubmitting(false);
+
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (!res || res.error) {
+        setErrorMessage("Email ou mot de passe incorrect.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Récupérer le rôle pour rediriger
+      let redirectTo = "/membre";
+      try {
+        const meRes = await fetch("/api/membre/me");
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          if (meData?.user?.role === "ADMIN") redirectTo = "/admin";
+        }
+      } catch {
+        // Fallback vers /membre
+      }
+
+      router.push(redirectTo);
+      router.refresh();
+    } catch {
+      setErrorMessage("Email ou mot de passe incorrect.");
+      setIsSubmitting(false);
+    }
   };
 
   return (

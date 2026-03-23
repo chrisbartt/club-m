@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma:*)",
+      "Bash(ls /Users/pedrienkinkani/Documents/GitHub/club-m-new-version/app/api/auth/[...nextauth]/)",
+      "Bash(npx next:*)",
+      "Bash(ls /Users/pedrienkinkani/Documents/GitHub/club-m-new-version/lib/generated/prisma/index*)",
+      "Bash(npm install:*)",
+      "Bash(openssl rand:*)",
+      "Bash(brew list:*)",
+      "Bash(brew install:*)",
+      "Bash(brew services:*)",
+      "Bash(export PATH=\"/opt/homebrew/opt/postgresql@17/bin:$PATH\")",
+      "Bash(createdb clubm:*)",
+      "Bash(psql clubm:*)",
+      "Bash(node -e \":*)",
+      "Bash(npx tsx -e \":*)",
+      "Bash(ls /Users/pedrienkinkani/Documents/GitHub/club-m-new-version/app/api/auth/[...nextauth]/route.ts)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/api/auth/callback/credentials)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/callback/credentials -H 'Content-Type: application/x-www-form-urlencoded' -d \"email=admin@clubm.com&password=Admin@2025\" -D -)",
+      "Bash(curl -s http://localhost:3000/api/auth/providers)",
+      "Bash(curl -s http://localhost:3000/api/auth/csrf)",
+      "Bash(/usr/local/bin/npx next:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(source ~/.zshrc)",
+      "Bash(/usr/bin/tail -5)",
+      "Bash(find /Users/pedrienkinkani/Documents/GitHub/club-m-new-version/app -type d -name \"\\(site\\)\" -o -type d -name \"cahier*\")",
+      "Bash(ls -la /Users/pedrienkinkani/Documents/GitHub/club-m-new-version/app/\\\\\\(site\\\\\\)/cahier-contenus/)",
+      "Bash(wc -l /Users/pedrienkinkani/Documents/GitHub/club-m-new-version/app/\\\\\\(site\\\\\\)/cahier-contenus/page.tsx)",
+      "Bash(grep -rn cahier-contenus /Users/pedrienkinkani/Documents/GitHub/club-m-new-version --include=*.tsx --include=*.ts --include=*.json)"
+    ]
+  }
+}

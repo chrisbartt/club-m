@@ -1,12 +1,12 @@
 "use client";
 
 import React, { JSX, ReactNode } from "react";
-import Sidebar from "../../_layout/sidebar/sidebar";
-import Navbar from "../../_layout/navbar-dashboard/navbar";
-import TabBar from "../../_layout/tabBar/tabBar";
-import { DialogProvider } from "@/context/dialog/contextDialog";
-import { DrawerProvider } from "@/context/drawer/contextDrawer";
-import { SidebarProvider } from "@/context/sidebarContext/sidebarContext";
+import Sidebar from "@/components/layout/sidebar";
+import Navbar from "@/components/layout/navbar-dashboard";
+import TabBar from "@/components/layout/tab-bar";
+import { DialogProvider } from "@/context/dialog-context";
+import { DrawerProvider } from "@/context/drawer-context";
+import { SidebarProvider } from "@/context/sidebar-context";
 
 const Content = ({ children }: { children: ReactNode }) => {
   return (

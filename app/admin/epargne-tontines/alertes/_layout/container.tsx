@@ -3,7 +3,7 @@ import AppContainer from '@/components/common/containers/AppContainer';
 import FilterNavBusinnessPlan from '../../_layout/filterNavEpargneTontine';
 import CardAlert from './cardAlert';
 import ModalNotification, { modalNotificationDialogName } from '@/components/features/tontines/modalNotification/modalNotificationt';
-import { useDialog } from '@/context/dialog/contextDialog';
+import { useDialog } from '@/context/dialog-context';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 

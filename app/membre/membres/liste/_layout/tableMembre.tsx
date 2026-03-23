@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown, Crown, Download, Eye, Filter, Gem, Heart, Mail, Search, Sprout, X } from "lucide-react";
 import { useState } from "react";
-import { useDialog } from '@/context/dialog/contextDialog';
+import { useDialog } from '@/context/dialog-context';
 import Link from "next/link";
 
 // Types

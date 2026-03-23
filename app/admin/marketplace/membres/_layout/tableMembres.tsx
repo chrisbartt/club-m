@@ -14,8 +14,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useDialog } from '@/context/dialog/contextDialog';
-import { useDrawer } from '@/context/drawer/contextDrawer';
+import { useDialog } from '@/context/dialog-context';
+import { useDrawer } from '@/context/drawer-context';
 import {
     ChevronLeft,
     ChevronRight,

@@ -5,7 +5,7 @@ import TableMembres from './tableMembres';
 import CardsWidgets from './cardsWidgets';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
-import { useDialog } from '@/context/dialog/contextDialog';
+import { useDialog } from '@/context/dialog-context';
 import ModalNotification, { modalNotificationDialogName } from '@/components/features/tontines/modalNotification/modalNotificationt';
 
 const Content = () => {

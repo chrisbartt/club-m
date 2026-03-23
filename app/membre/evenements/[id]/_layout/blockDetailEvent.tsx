@@ -8,7 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useDialog } from "@/context/dialog/contextDialog";
+import { useDialog } from "@/context/dialog-context";
 import { Clock, MapPin, UsersRound } from "lucide-react";
 import Image from "next/image";
 

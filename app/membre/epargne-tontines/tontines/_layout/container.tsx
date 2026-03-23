@@ -2,7 +2,7 @@
 import AppContainer from "@/components/common/containers/AppContainer";
 import ModalAddTontine, { addTontineDialogName } from "@/components/features/tontines/modalAddTontine/modalAddTontine";
 import { Button } from "@/components/ui/button";
-import { useDialog } from "@/context/dialog/contextDialog";
+import { useDialog } from "@/context/dialog-context";
 import { Plus } from "lucide-react";
 import FilterNavBusinnessPlan from "../../_layout/filterNavEpargneTontine";
 import TableTontines from "./tableTontines";

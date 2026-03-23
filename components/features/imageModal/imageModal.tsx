@@ -1,5 +1,5 @@
 "use client";
-import { useImageModal } from "@/context/imgModalContext/imageModalContext";
+import { useImageModal } from "@/context/image-modal-context";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect } from "react";
 

@@ -1,8 +1,8 @@
 "use client";
 import React, { JSX, ReactNode } from "react";
-import Sidebar from "@/components/_layout/sidebar/sidebar";
-import { DrawerProvider } from "@/context/drawer/contextDrawer";
-import { DialogProvider } from "@/context/dialog/contextDialog";
+import Sidebar from "@/components/layout/sidebar";
+import { DrawerProvider } from "@/context/drawer-context";
+import { DialogProvider } from "@/context/dialog-context";
 
 const ChatContent = ({ children }: { children: ReactNode }) => {
   return (

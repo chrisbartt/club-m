@@ -2,7 +2,7 @@
 
 import { modalNotificationDialogName } from "@/components/features/tontines/modalNotification/modalNotificationt";
 import { modalRappelPayDialogName } from "@/components/features/tontines/modalRappelPay/modalRappelPay";
-import { useDialog } from "@/context/dialog/contextDialog";
+import { useDialog } from "@/context/dialog-context";
 import { AlarmClock, Calendar, Megaphone, Smartphone } from "lucide-react";
 import React from "react";
 
