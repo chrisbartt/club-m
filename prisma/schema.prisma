@@ -1,0 +1,488 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ACCOUNTS & AUTH ====================
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  emailVerified Boolean    @default(false)
+  status        UserStatus @default(ACTIVE)
+
+  member       Member?
+  customer     Customer?
+  adminAccount AdminAccount?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model Member {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  firstName          String
+  lastName           String
+  phone              String?
+  bio                String?
+  avatar             String?
+  tier               MemberTier         @default(FREE)
+  status             MemberStatus       @default(ACTIVE)
+  verificationStatus VerificationStatus @default(DECLARED)
+
+  kycVerifications KycVerification[]
+  subscriptions    Subscription[]
+  businessProfile  BusinessProfile?
+  tickets          Ticket[]
+  orders           Order[]              @relation("MemberOrders")
+  upgradeRequests  UpgradeRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MemberTier {
+  FREE
+  PREMIUM
+  BUSINESS
+}
+
+enum MemberStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum VerificationStatus {
+  DECLARED
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+}
+
+model Customer {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  firstName String
+  lastName  String
+  phone     String?
+  address   Address?
+
+  orders  Order[]  @relation("CustomerOrders")
+  tickets Ticket[] @relation("CustomerTickets")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  customerId String   @unique
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  street   String
+  city     String
+  commune  String?
+  province String?
+  country  String  @default("CD")
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminAccount {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  role AdminRole @default(ADMIN)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+// ==================== KYC ====================
+
+model KycVerification {
+  id       String @id @default(cuid())
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  idDocumentUrl   String
+  selfieUrl       String
+  status          KycStatus @default(PENDING)
+  provider        String?
+  providerRef     String?
+  rejectionReason String?
+  reviewedBy      String?
+
+  submittedAt DateTime  @default(now())
+  reviewedAt  DateTime?
+
+  @@index([memberId])
+  @@index([status])
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  MANUAL_REVIEW
+}
+
+// ==================== SUBSCRIPTIONS ====================
+
+model Subscription {
+  id       String @id @default(cuid())
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  tier   MemberTier
+  status SubscriptionStatus @default(ACTIVE)
+
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  payments       Payment[]
+  upgradeRequest UpgradeRequest?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PAST_DUE
+}
+
+// ==================== UPGRADE ====================
+
+model UpgradeRequest {
+  id       String @id @default(cuid())
+  memberId String
+  member   Member @relation(fields: [memberId], references: [id])
+
+  fromTier MemberTier
+  toTier   MemberTier
+  status   UpgradeStatus @default(KYC_PENDING)
+
+  subscriptionId String?       @unique
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([status])
+}
+
+enum UpgradeStatus {
+  KYC_PENDING
+  KYC_REJECTED
+  READY_FOR_PAYMENT
+  PAYMENT_PENDING
+  UPGRADE_COMPLETED
+  CANCELLED
+}
+
+// ==================== DIRECTORY & BUSINESS ====================
+
+model BusinessProfile {
+  id       String @id @default(cuid())
+  memberId String @unique
+  member   Member @relation(fields: [memberId], references: [id])
+
+  businessName String
+  slug         String              @unique
+  description  String
+  category     String
+  coverImage   String?
+  images       String[]
+  phone        String?
+  email        String?
+  website      String?
+  whatsapp     String?
+  address      String?
+  profileType  BusinessProfileType @default(SHOWCASE)
+  isPublished  Boolean             @default(false)
+  isApproved   Boolean             @default(false)
+
+  products       Product[]
+  receivedOrders Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum BusinessProfileType {
+  SHOWCASE
+  STORE
+}
+
+model Product {
+  id         String          @id @default(cuid())
+  businessId String
+  business   BusinessProfile @relation(fields: [businessId], references: [id])
+
+  name        String
+  description String
+  price       Decimal
+  currency    Currency    @default(USD)
+  images      String[]
+  type        ProductType @default(PHYSICAL)
+  category    String?
+  isActive    Boolean     @default(true)
+  stock       Int?
+
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([businessId])
+  @@index([isActive])
+}
+
+enum ProductType {
+  PHYSICAL
+  SERVICE
+  DIGITAL
+}
+
+enum Currency {
+  USD
+  CDF
+  EUR
+}
+
+// ==================== EVENTS & TICKETS ====================
+
+model Event {
+  id String @id @default(cuid())
+
+  title           String
+  slug            String           @unique
+  description     String
+  coverImage      String?
+  location        String
+  startDate       DateTime
+  endDate         DateTime
+  capacity        Int
+  waitlistEnabled Boolean          @default(false)
+  accessLevel     EventAccessLevel @default(PUBLIC)
+  status          EventStatus      @default(DRAFT)
+  createdById     String
+
+  prices  EventPrice[]
+  tickets Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EventPrice {
+  id      String @id @default(cuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  targetRole PricingRole
+  price      Decimal
+  currency   Currency    @default(USD)
+
+  @@unique([eventId, targetRole])
+}
+
+model Ticket {
+  id      String @id @default(cuid())
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  memberId   String?
+  member     Member?   @relation(fields: [memberId], references: [id])
+  customerId String?
+  customer   Customer? @relation("CustomerTickets", fields: [customerId], references: [id])
+
+  qrCode String       @unique
+  status TicketStatus  @default(PENDING)
+
+  payment Payment?
+
+  scannedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([eventId])
+  @@index([memberId])
+  @@index([customerId])
+}
+
+enum EventAccessLevel {
+  PUBLIC
+  MEMBERS_ONLY
+  PREMIUM_ONLY
+  BUSINESS_ONLY
+}
+
+enum PricingRole {
+  PUBLIC
+  FREE
+  PREMIUM
+  BUSINESS
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum TicketStatus {
+  PENDING
+  PAID
+  CANCELLED
+  USED
+}
+
+// ==================== ORDERS & PAYMENTS ====================
+
+model Order {
+  id String @id @default(cuid())
+
+  memberId   String?
+  member     Member?   @relation("MemberOrders", fields: [memberId], references: [id])
+  customerId String?
+  customer   Customer? @relation("CustomerOrders", fields: [customerId], references: [id])
+
+  businessId String
+  business   BusinessProfile @relation(fields: [businessId], references: [id])
+
+  totalAmount      Decimal
+  currency         Currency    @default(USD)
+  commission       Decimal
+  confirmationCode String      @unique
+  codeExpiresAt    DateTime
+  codeUsed         Boolean     @default(false)
+  status           OrderStatus @default(PENDING)
+
+  items   OrderItem[]
+  payment Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([customerId])
+  @@index([businessId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  quantity  Int
+  unitPrice Decimal
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  DISPUTED
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  amount   Decimal
+  currency Currency      @default(USD)
+  status   PaymentStatus @default(PENDING)
+
+  provider    PaymentProvider
+  providerRef String?
+
+  orderId        String?       @unique
+  order          Order?        @relation(fields: [orderId], references: [id])
+  ticketId       String?       @unique
+  ticket         Ticket?       @relation(fields: [ticketId], references: [id])
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([providerRef])
+  @@index([subscriptionId])
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  LOCAL_FINTECH
+  STRIPE
+  MOBILE_MONEY
+}
+
+// ==================== AUDIT ====================
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  userId    String
+  userEmail String
+
+  action   String
+  entity   String
+  entityId String
+
+  details Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
