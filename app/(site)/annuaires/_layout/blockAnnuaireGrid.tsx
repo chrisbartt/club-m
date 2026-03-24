@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { PublicProfileListItem } from "@/domains/directory/types";
 
 const MOCK_SERVICES = [
   {
@@ -81,7 +82,29 @@ const MOCK_SERVICES = [
   },
 ];
 
-const BlockAnnuaireGrid = () => {
+interface BlockAnnuaireGridProps {
+  profiles?: PublicProfileListItem[];
+}
+
+function mapProfilesToCards(profiles: PublicProfileListItem[]) {
+  return profiles.map((profile) => ({
+    id: profile.id,
+    title: profile.businessName,
+    category: profile.category,
+    providerName: `${profile.member.firstName} ${profile.member.lastName}`,
+    providerImage: profile.member.avatar || "/images/default-avatar.png",
+    rating: null as number | null,
+    reviewsCount: null as number | null,
+    price: "Voir le profil",
+    image: profile.coverImage || "/images/banner4.jpg",
+    slug: profile.slug,
+  }));
+}
+
+const BlockAnnuaireGrid = ({ profiles }: BlockAnnuaireGridProps) => {
+  const hasProfiles = profiles && profiles.length > 0;
+  const cards = hasProfiles ? mapProfilesToCards(profiles) : MOCK_SERVICES.map((s) => ({ ...s, slug: null as string | null }));
+
   return (
     <section className="py-12 md:py-16  bg-[#f5f5f5]">
       <div className="container mx-auto px-4">
@@ -168,7 +191,7 @@ const BlockAnnuaireGrid = () => {
               <div className="col-span-12 lg:col-span-8">
                 <p className="text-[#6b7280] text-sm mb-8 hidden">
                   <strong className="text-[#1f2937]">
-                    {MOCK_SERVICES.length}
+                    {cards.length}
                   </strong>{" "}
                   services disponibles
                 </p>
@@ -196,10 +219,10 @@ const BlockAnnuaireGrid = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {MOCK_SERVICES.map((service) => (
+              {cards.map((service) => (
                 <Link
                   key={service.id}
-                  href={`/annuaires/${service.id}`}
+                  href={`/annuaires/${service.slug || service.id}`}
                   className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-all duration-300"
                 >
                   <div className="relative aspect-[16/9] overflow-hidden p-2">
@@ -233,7 +256,8 @@ const BlockAnnuaireGrid = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 text-sm">
+                      {service.rating != null && (
+                        <div className="flex items-center gap-1 text-sm">
                           <Star className="w-4 h-4 text-[#e1c593] fill-[#e1c593]" />
                           <span className="font-bold text-[#151516]">
                             {service.rating}
@@ -242,6 +266,7 @@ const BlockAnnuaireGrid = () => {
                             ({service.reviewsCount} avis)
                           </span>
                         </div>
+                      )}
                     </div>
 
                     <p className="text-[#151516]/80 text-sm line-clamp-2 mb-3 group-hover:text-[#1f2937]">

@@ -3,12 +3,17 @@ import AppContainerWebSite from '@/components/common/containers/AppContainerWebS
 import BlockAnnuaireGrid from "./blockAnnuaireGrid";
 import Banner from "./banner";
 import BlockStartMembre from "./blockStartMembre";
+import type { PublicProfileListItem } from "@/domains/directory/types";
 
-const Container = () => {
+interface ContainerProps {
+  profiles?: PublicProfileListItem[];
+}
+
+const Container = ({ profiles }: ContainerProps) => {
   return (
     <AppContainerWebSite>
       <Banner />
-      <section id="ANNUAIRE__S02"><BlockAnnuaireGrid /></section>
+      <section id="ANNUAIRE__S02"><BlockAnnuaireGrid profiles={profiles} /></section>
       <BlockStartMembre/>
     </AppContainerWebSite>
   );

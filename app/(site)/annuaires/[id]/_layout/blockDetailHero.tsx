@@ -4,19 +4,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Star } from "lucide-react";
 import type { ServiceDetail } from "../../_layout/annuaireData";
+import type { ProfileWithProducts } from "@/domains/directory/types";
 
 interface BlockDetailHeroProps {
   service: ServiceDetail;
+  profile?: ProfileWithProducts;
 }
 
-const BlockDetailHero = ({ service }: BlockDetailHeroProps) => {
+const BlockDetailHero = ({ service, profile }: BlockDetailHeroProps) => {
+  const businessName = profile?.businessName || service.title;
+  const description = profile?.description || service.description;
+  const coverImage = profile?.coverImage || "/images/cover2.png";
+
   return (
     <>
       <section className="relative md:min-h-[450px] z-10 min-h-[65vh] flex items-end pb-8 md:pb-32 pt-0">
         <div className="absolute inset-0 -z-20">
           <Image
-            src={"/images/cover2.png"}
-            alt={service.title}
+            src={coverImage}
+            alt={businessName}
             fill
             className="object-cover"
             priority
@@ -35,19 +41,21 @@ const BlockDetailHero = ({ service }: BlockDetailHeroProps) => {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-[#ffffff] text-2xl lg:text-5xl font-semibold mb-2">
-                      Optus studio
+                      {businessName}
                     </h2>
-                    <span className="flex items-center gap-1 text-white/80">
-                      (
-                      <Star className="w-4 h-4 text-[#a55b46] fill-[#a55b46]" />{" "}
-                      4.2)
-                    </span>
+                    {!profile && (
+                      <span className="flex items-center gap-1 text-white/80">
+                        (
+                        <Star className="w-4 h-4 text-[#a55b46] fill-[#a55b46]" />{" "}
+                        {service.rating})
+                      </span>
+                    )}
                   </div>
                   <p className="text-white/80 text-sm lg:text-[18px]">
-                    Agence de publicité et de marketing.
+                    {profile ? profile.category : description}
                   </p>
                 </div>
-                
+
               </div>
             </div>
             <div className="col-span-1"></div>

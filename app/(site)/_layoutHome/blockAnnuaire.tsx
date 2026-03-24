@@ -14,19 +14,21 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SERVICES_DETAIL } from "@/app/(site)/annuaires/_layout/annuaireData";
+import type { PublicProfileListItem } from "@/domains/directory/types";
 
 const AUTOPLAY_DELAY_MS = 5000;
 
-// Dédoublonne par nom de prestataire pour afficher des expertes uniques
-const experts = SERVICES_DETAIL.reduce<
+// Fallback: dédoublonne par nom de prestataire pour afficher des expertes uniques
+const fallbackExperts = SERVICES_DETAIL.reduce<
   {
     id: string;
     name: string;
     image: string;
     role: string;
     category: string;
-    rating: number;
-    reviewsCount: number;
+    rating: number | null;
+    reviewsCount: number | null;
+    slug: string | null;
   }[]
 >((acc, service) => {
   if (acc.some((e) => e.name === service.providerName)) return acc;
@@ -38,13 +40,31 @@ const experts = SERVICES_DETAIL.reduce<
     category: service.category,
     rating: service.rating,
     reviewsCount: service.reviewsCount,
+    slug: null,
   });
   return acc;
 }, []);
 
-const BlockAnnuaire = () => {
+interface BlockAnnuaireProps {
+  profiles?: PublicProfileListItem[];
+}
+
+const BlockAnnuaire = ({ profiles }: BlockAnnuaireProps) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+
+  const experts = (profiles && profiles.length > 0)
+    ? profiles.map((p) => ({
+        id: p.id,
+        name: `${p.member.firstName} ${p.member.lastName}`,
+        image: p.member.avatar || "/images/default-avatar.png",
+        role: p.category,
+        category: p.category,
+        rating: null as number | null,
+        reviewsCount: null as number | null,
+        slug: p.slug,
+      }))
+    : fallbackExperts;
 
   useEffect(() => {
     if (!api || isPaused) return;
@@ -59,15 +79,15 @@ const BlockAnnuaire = () => {
       <div className="container px-4 mx-auto relative z-10">
         <div className="text-center lg:max-w-xl mx-auto lg:mb-14">
           <h3 className="text-sm lg:text-base uppercase font-medium text-[#a55b46] mb-3 relative inline-block pb-3">
-          Business et Opportunités 
+          Business et Opportunités
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[25%] h-[3px] bg-[#a55b46]"></span>
           </h3>
           <h2 className="text-2xl lg:text-[48px] leading-[1.2] font-semibold text-center text-[#091626] mb-2 lg:mb-4">
           Découvre les femmes qui font vivre le Club M
           </h2>
           <p className="mb-6 md:mb-6 lg:text-[18px] text-[16px] text-[#091626]/70">
-          Le Club M, ce n’est pas qu’un réseau. 
-          Ce sont des entrepreneures engagées qui développent des projets concrets. 
+          Le Club M, ce n&apos;est pas qu&apos;un réseau.
+          Ce sont des entrepreneures engagées qui développent des projets concrets.
           </p>
         </div>
 
@@ -89,7 +109,7 @@ const BlockAnnuaire = () => {
                     key={expert.id}
                     className="basis-1/2 lg:basis-1/3 2xl:basis-1/4"
                   >
-                    <Link href={`/annuaires/${expert.id}`} className="card relative rounded-2xl overflow-hidden block">
+                    <Link href={`/annuaires/${expert.slug || expert.id}`} className="card relative rounded-2xl overflow-hidden block">
                       <div className="relative lg:h-[470px] h-[200px] w-full mx-auto rounded-2xl overflow-hidden">
                         <Image
                           src={expert.image}
@@ -97,13 +117,14 @@ const BlockAnnuaire = () => {
                           fill
                           className="object-cover"
                         />
-                        <div className="flex items-center gap-1 justify-center absolute top-4 right-4 w-[60px] h-[40px] bg-black/50 backdrop-blur-[10px] rounded-full">
-                          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                          <span className="text-base text-white font-medium">
-                            {expert.rating}
-                          </span>
-                          
-                        </div>
+                        {expert.rating != null && (
+                          <div className="flex items-center gap-1 justify-center absolute top-4 right-4 w-[60px] h-[40px] bg-black/50 backdrop-blur-[10px] rounded-full">
+                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                            <span className="text-base text-white font-medium">
+                              {expert.rating}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="p-4 lg:p-6 absolute bottom-0 left-0 right-0 bg-linear-to-b from-transparent to-black/90">

@@ -71,6 +71,16 @@ export async function getCategories(): Promise<string[]> {
   return results.map((r) => r.category)
 }
 
+export async function getProfileById(id: string): Promise<ProfileWithProducts | null> {
+  return db.businessProfile.findUnique({
+    where: { id },
+    include: {
+      member: { select: memberSelect },
+      products: { where: { isActive: true }, orderBy: { createdAt: 'desc' } },
+    },
+  })
+}
+
 export async function getAdminProfiles(filters?: {
   approved?: boolean
 }): Promise<ProfileWithMember[]> {

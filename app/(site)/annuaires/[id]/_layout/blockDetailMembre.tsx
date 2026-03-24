@@ -29,14 +29,37 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-const SLIDES = [
+import type { ProfileWithProducts } from "@/domains/directory/types";
+
+const DEFAULT_SLIDES = [
   { src: "/images/cover2.png", alt: "Banner 1" },
   { src: "/images/cover3.png", alt: "Banner 2" },
 ];
 
 const AUTOPLAY_DELAY_MS = 5000;
 
-const BlockDetailMembre = () => {
+interface BlockDetailMembreProps {
+  profile?: ProfileWithProducts;
+}
+
+const BlockDetailMembre = ({ profile }: BlockDetailMembreProps) => {
+  const memberName = profile
+    ? `${profile.member.firstName} ${profile.member.lastName}`
+    : "Maurelle Kitebi";
+  const memberFirstName = profile?.member.firstName || "Maurelle";
+  const memberAvatar = profile?.member.avatar
+    || "https://images.pexels.com/photos/1674752/pexels-photo-1674752.jpeg";
+  const businessDescription = profile?.description
+    || "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.";
+  const memberPhone = profile?.phone || "+243 6 99 99 99 99";
+  const memberEmail = profile?.email || "info@businessclubm.com";
+  const memberAddress = profile?.address || "Kinshasa, Gombe, RDC";
+  const memberWebsite = profile?.website || "www.businessclubm.com";
+  const memberWhatsapp = profile?.whatsapp || memberPhone;
+  const SLIDES = (profile?.images && profile.images.length > 0)
+    ? profile.images.map((url, i) => ({ src: url, alt: `Image ${i + 1}` }))
+    : DEFAULT_SLIDES;
+  const products = profile?.products || [];
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -81,17 +104,15 @@ const BlockDetailMembre = () => {
                           <BadgeCheck className="w-4 h-4 text-white" />
                         </div>
                         <Image
-                          src={
-                            "https://images.pexels.com/photos/1674752/pexels-photo-1674752.jpeg"
-                          }
+                          src={memberAvatar}
                           fill
                           className="object-cover rounded-full"
-                          alt="Membre Business Club M"
+                          alt={memberName}
                         />
                       </div>
                       <div>
                         <h2 className="text-xl text-[#091626] font-semibold">
-                          Maurelle Kitebi
+                          {memberName}
                         </h2>
                         <p className="text-muted-foreground text-sm mb-1">
                           Membre Business
@@ -105,8 +126,7 @@ const BlockDetailMembre = () => {
                       Bio
                     </h4>
                     <p className="text-muted-foreground text-sm mb-2">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quisquam, quos.
+                      {businessDescription}
                     </p>
                     <Link
                       href="/annuaires/1"
@@ -125,7 +145,7 @@ const BlockDetailMembre = () => {
                           <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"></path>
                         </svg>
                         <span className="text-white text-sm font-medium">
-                          Ecrire à Maurelle
+                          Ecrire à {memberFirstName}
                         </span>
                       </Button>
                     </div>
@@ -237,17 +257,17 @@ const BlockDetailMembre = () => {
                         <div className="col-span-12 lg:col-span-6">
                           <div className="card-img relative w-full lg:w-[90%] h-full lg:min-h-[350px] min-h-[200px] overflow-hidden rounded-xl">
                             <Image
-                              src="https://images.pexels.com/photos/1674752/pexels-photo-1674752.jpeg"
+                              src={memberAvatar}
                               fill
                               className="object-cover rounded-xl"
-                              alt="A propos"
+                              alt={memberName}
                             />
                           </div>
                         </div>
                         <div className="col-span-12 lg:col-span-6">
                           <div className="flex flex-col h-full">
                             <h5 className="text-4xl font-semibold text-[#091626] mb-2">
-                              Maurelle Kitebi
+                              {memberName}
                             </h5>
                             <p className="text-muted-foreground text-base mb-3">
                               Entrepreneure dans l&apos;immobilier, Maurelle
@@ -319,10 +339,10 @@ const BlockDetailMembre = () => {
                                 Téléphone
                               </p>
                               <a
-                                href="tel:+243699999999"
+                                href={`tel:${memberPhone.replace(/\s/g, '')}`}
                                 className="text-[#091626] font-medium hover:text-[#a55b46] transition-colors"
                               >
-                                +243 6 99 99 99 99
+                                {memberPhone}
                               </a>
                             </div>
                           </div>
@@ -335,10 +355,10 @@ const BlockDetailMembre = () => {
                                 Email
                               </p>
                               <a
-                                href="mailto:info@businessclubm.com"
+                                href={`mailto:${memberEmail}`}
                                 className="text-[#091626] font-medium hover:text-[#a55b46] transition-colors"
                               >
-                                info@businessclubm.com
+                                {memberEmail}
                               </a>
                             </div>
                           </div>
@@ -351,7 +371,7 @@ const BlockDetailMembre = () => {
                                 Adresse
                               </p>
                               <p className="text-[#091626] font-medium">
-                                Kinshasa, Gombe, RDC
+                                {memberAddress}
                               </p>
                             </div>
                           </div>
@@ -364,12 +384,12 @@ const BlockDetailMembre = () => {
                                 Site web
                               </p>
                               <a
-                                href="https://www.google.com"
+                                href={memberWebsite.startsWith('http') ? memberWebsite : `https://${memberWebsite}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-[#091626] font-medium hover:text-[#a55b46] transition-colors"
                               >
-                                www.businessclubm.com
+                                {memberWebsite}
                               </a>
                             </div>
                           </div>
