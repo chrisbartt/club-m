@@ -3,14 +3,21 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getProfileByMemberId } from '@/domains/directory/queries'
-import { TIER_LABELS } from '@/lib/constants'
+import {
+  getBusinessDashboardStats,
+  getBusinessRecentOrders,
+  getBusinessRevenueByMonth,
+} from '@/domains/business/dashboard-queries'
+import { TIER_LABELS, CURRENCY_SYMBOLS } from '@/lib/constants'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BusinessProfileForm } from '@/components/directory/business-profile-form'
 import { PublishToggle } from '@/components/directory/publish-toggle'
+import { KpiCard } from '@/components/business/kpi-card'
+import { RevenueChart } from '@/components/business/revenue-chart'
 import { hasMinTier } from '@/lib/permissions'
-import type { MemberTier } from '@/lib/generated/prisma/client'
+import type { MemberTier, Currency } from '@/lib/generated/prisma/client'
 
 export const metadata = {
   title: 'Mon business | Club M',
@@ -64,6 +71,16 @@ export default async function MonBusinessPage() {
     )
   }
 
+  // Load dashboard data for STORE profiles
+  const isStore = profile.profileType === 'STORE'
+  const [stats, recentOrders, revenueByMonth] = isStore
+    ? await Promise.all([
+        getBusinessDashboardStats(profile.id),
+        getBusinessRecentOrders(profile.id, 5),
+        getBusinessRevenueByMonth(profile.id),
+      ])
+    : [null, null, null]
+
   // Has profile — show management view
   return (
     <div className="space-y-6">
@@ -75,6 +92,103 @@ export default async function MonBusinessPage() {
           isApproved={profile.isApproved}
         />
       </div>
+
+      {/* Dashboard section for STORE profiles */}
+      {isStore && stats && recentOrders && revenueByMonth && (
+        <>
+          {/* KPI Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiCard
+              label="Chiffre d'affaires"
+              value={`${stats.totalRevenue.toLocaleString('fr-FR')}$`}
+            />
+            <KpiCard
+              label="Commandes"
+              value={stats.totalOrders}
+            />
+            <KpiCard
+              label="En cours"
+              value={stats.pendingOrders}
+            />
+            <KpiCard
+              label="Completees"
+              value={stats.completedOrders}
+            />
+          </div>
+
+          {/* Revenue chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Revenus (6 derniers mois)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RevenueChart data={revenueByMonth} />
+            </CardContent>
+          </Card>
+
+          {/* Recent orders */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg">Commandes recentes</CardTitle>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/mon-business/commandes">Voir tout</Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {recentOrders.length === 0 ? (
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                  Aucune commande pour le moment.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {recentOrders.map((order) => {
+                    const buyer = order.member ?? order.customer
+                    const buyerName = buyer
+                      ? `${buyer.firstName} ${buyer.lastName}`
+                      : 'Client'
+                    const itemNames = order.items
+                      .map((i) => i.product.name)
+                      .join(', ')
+                    return (
+                      <Link
+                        key={order.id}
+                        href={`/mon-business/commandes/${order.id}`}
+                        className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted/50"
+                      >
+                        <div>
+                          <span className="font-medium">{buyerName}</span>
+                          <span className="ml-2 text-muted-foreground">
+                            {itemNames}
+                          </span>
+                        </div>
+                        <span className="font-medium">
+                          {Number(order.totalAmount).toLocaleString('fr-FR')}$
+                        </span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Quick action links */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Button asChild variant="outline" className="justify-start">
+              <Link href="/mon-business/produits">Tous mes produits</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start">
+              <Link href="/mon-business/commandes">Toutes mes commandes</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start">
+              <Link href="/mon-business/clients">Mes clients</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start">
+              <Link href="/mon-business/revenus">Mes revenus</Link>
+            </Button>
+          </div>
+        </>
+      )}
 
       {/* Status summary */}
       <Card>
