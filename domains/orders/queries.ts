@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import type { OrderStatus } from '@/lib/generated/prisma/client'
-import type { OrderForBuyer, OrderForSeller, OrderWithItems } from './types'
+import type { OrderForAdmin, OrderForBuyer, OrderForSeller, OrderWithItems } from './types'
 
 const orderItemsInclude = {
   items: {
@@ -70,7 +70,7 @@ export async function getOrderById(orderId: string): Promise<OrderWithItems | nu
 
 export async function getAdminOrders(filters?: {
   status?: OrderStatus
-}): Promise<OrderForSeller[]> {
+}): Promise<OrderForAdmin[]> {
   return db.order.findMany({
     where: {
       ...(filters?.status ? { status: filters.status } : {}),
@@ -82,6 +82,9 @@ export async function getAdminOrders(filters?: {
       },
       customer: {
         select: { id: true, firstName: true, lastName: true },
+      },
+      business: {
+        select: { id: true, businessName: true, slug: true },
       },
     },
     orderBy: { createdAt: 'desc' },

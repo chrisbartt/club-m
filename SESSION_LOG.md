@@ -88,3 +88,21 @@
 
 ### Next
 - Plan 3C: Orders, code confirmation, business dashboard
+
+## Session 5 — 2026-03-24 (continued)
+
+### Actions
+- Executed Plan 3C (4 blocks):
+  1. Orders domain + Dashboard queries (types, queries, actions, validators, dashboard-queries)
+  2. Product detail page + Buyer purchases page (with confirmation codes)
+  3. Seller orders management + Business dashboard (KPIs, revenue chart, clients, recent orders)
+  4. Admin orders supervision page + Continuity files update
+
+### Decisions
+- Confirmation code: 6-char alphanumeric, expires in 14 days
+- Commission rate: 10% on each order
+- Admin orders includes business relation for seller visibility
+- OrderForAdmin type extends OrderForSeller with business info
+
+### Next
+- Plan 4: Admin panel complete, public site optimization, polish

@@ -25,3 +25,7 @@ export type OrderForSeller = OrderWithItems & {
   member: Pick<Member, 'id' | 'firstName' | 'lastName'> | null
   customer: Pick<Customer, 'id' | 'firstName' | 'lastName'> | null
 }
+
+export type OrderForAdmin = OrderForSeller & {
+  business: Pick<BusinessProfile, 'id' | 'businessName' | 'slug'>
+}

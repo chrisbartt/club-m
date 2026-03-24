@@ -45,11 +45,17 @@ Community platform for women entrepreneurs in Kinshasa (RDC).
 - Admin annuaire moderation (approve/reject profiles, filter by status)
 - Member annuaire (directory view with enhanced contact info)
 
+- Orders domain (purchase, shipping, delivery confirmation with code)
+- Product detail page with purchase
+- Buyer purchases page with confirmation codes
+- Seller orders management with delivery confirmation
+- Business dashboard (KPIs, revenue chart, clients, recent orders)
+- Admin orders supervision
+
 ## In Progress
-- Plan 3C: Orders, code confirmation, business dashboard
+- Plan 4
 
 ## Remaining
-- Plan 3C: Orders, code confirmation, business dashboard
 - Plan 4: Admin panel complete, public site optimization, polish
 
 ## Known Issues
