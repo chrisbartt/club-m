@@ -1,10 +1,11 @@
-import { Navbar } from '@/components/shared/navbar'
+"use client";
+
+import AppContainerWebSite from "@/components/common/containers/AppContainerWebSite";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <Navbar />
-      <main>{children}</main>
-    </>
-  )
+    <AppContainerWebSite>
+      {children}
+    </AppContainerWebSite>
+  );
 }
