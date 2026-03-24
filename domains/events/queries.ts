@@ -22,6 +22,16 @@ export async function getEventBySlug(slug: string) {
   })
 }
 
+export async function getEventById(id: string) {
+  return db.event.findUnique({
+    where: { id },
+    include: {
+      prices: true,
+      _count: { select: { tickets: { where: { status: { in: ['PAID', 'PENDING'] } } } } },
+    },
+  })
+}
+
 export async function getAvailableSeats(eventId: string): Promise<number> {
   const event = await db.event.findUnique({
     where: { id: eventId },

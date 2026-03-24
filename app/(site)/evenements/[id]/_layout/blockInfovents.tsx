@@ -14,8 +14,43 @@ import {
 import { Clock, MapPin, UsersRound, Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { CURRENCY_SYMBOLS } from "@/lib/constants";
 
-const BlockInfoEvent = () => {
+type SerializedEvent = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  coverImage: string | null;
+  location: string;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  status: string;
+  accessLevel: string;
+  prices: { price: number; currency: string; targetRole: string }[];
+  ticketsSold: number;
+};
+
+function formatEventDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function formatEventTime(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatPrice(prices: SerializedEvent["prices"]): string {
+  if (!prices || prices.length === 0) return "Gratuit";
+  const p = prices[0];
+  if (p.price === 0) return "Gratuit";
+  const symbol = CURRENCY_SYMBOLS[p.currency as keyof typeof CURRENCY_SYMBOLS] ?? p.currency;
+  return `${p.price} ${symbol}`;
+}
+
+const BlockInfoEvent = ({ event }: { event?: SerializedEvent }) => {
   const { openDialog } = useDialog();
   const { openModal } = useImageModal();
   const hotes = [
@@ -393,7 +428,7 @@ const BlockInfoEvent = () => {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                     <p className="text-[#a55b46] font-medium text-sm">Ticket</p>
-                    <p className="text-2xl font-semibold">60 $</p>
+                    <p className="text-2xl font-semibold">{event ? formatPrice(event.prices) : "60 $"}</p>
                   </div>
                   <Button
                     className="bg-[#a55b46] text-white h-12 hover:bg-[#a55b46]/90 w-full sm:w-auto shrink-0 px-8"
@@ -416,16 +451,7 @@ const BlockInfoEvent = () => {
                   Description de l&apos;événement
                 </div>
                 <p className="text-[#091626] opacity-70 lg:text-[18px] text-sm md:mt-2 mt-1">
-                  L&apos;événement où les femmes entrepreneures se connectent,
-                  apprennent et transforment chaque rencontre en opportunité de
-                  business. Cet événement est organisé par le Club M, un réseau
-                  qui a pour mission de soutenir l&apos;entrepreneuriat féminin.
-                </p>
-                <p className="text-[#091626] opacity-70 lg:text-[18px] text-sm md:mt-2 mt-1">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-                  nisi eos, ipsum repellendus ut ducimus assumenda expedita rem
-                  aliquam corrupti quae sequi reiciendis praesentium possimus
-                  officiis veniam consequuntur sed fuga!
+                  {event?.description ?? "L\u2019\u00e9v\u00e9nement o\u00f9 les femmes entrepreneures se connectent, apprennent et transforment chaque rencontre en opportunit\u00e9 de business. Cet \u00e9v\u00e9nement est organis\u00e9 par le Club M, un r\u00e9seau qui a pour mission de soutenir l\u2019entrepreneuriat f\u00e9minin."}
                 </p>
               </div>
               <div>
@@ -763,7 +789,7 @@ Ne manque pas le prochain événement du Club M.
                     Ticket
                   </div>
                   <p className="text-[#ffffff] text-2xl md:text-4xl lg:text-5xl font-semibold mt-1 text-center mb-3 lg:mb-6">
-                    60 $
+                    {event ? formatPrice(event.prices) : "60 $"}
                   </p>
                   <Button
                     className="bg-[#a55b46] text-white h-12 hover:bg-[#a55b46] hover:text-white cursor-pointer transition-all duration-300 rounded-lg w-full mb-4"
@@ -779,26 +805,26 @@ Ne manque pas le prochain événement du Club M.
               </div>
               <div className="card bg-[#ececec] rounded-2xl p-5">
                 <div className="title text-[#091626] lg:text-[20px] text-2xl font-medium leading-[100%] mb-2">
-                  Business Women Lunch
+                  {event?.title ?? "Business Women Lunch"}
                 </div>
                 <p className="text-[#091626] opacity-70 lg:text-base text-sm mt-1">
-                  Comment transformer ses abonnés en clients ?
+                  {event?.description ? event.description.slice(0, 80) + (event.description.length > 80 ? "..." : "") : "Comment transformer ses abonnés en clients ?"}
                 </p>
                 <div className="flex flex-col gap-3 mt-3">
                   <div className="flex items-center gap-1">
                     <Clock size={16} className="text-[#091626]" />
-                    <div className="text-[#091626] text-base">12h - 16h</div>
+                    <div className="text-[#091626] text-base">{event ? `${formatEventTime(event.startDate)} - ${formatEventTime(event.endDate)}` : "12h - 16h"}</div>
                   </div>
                   <div className="flex items-center gap-1">
                     <MapPin size={16} className="text-[#091626]" />
                     <div className="text-[#091626] text-base">
-                      La Maison Hobah
+                      {event?.location ?? "La Maison Hobah"}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <UsersRound size={16} className="text-[#091626]" />
                     <div className="text-[#091626] text-base">
-                      35 participantes
+                      {event ? `${event.capacity} participantes` : "35 participantes"}
                     </div>
                   </div>
                 </div>
