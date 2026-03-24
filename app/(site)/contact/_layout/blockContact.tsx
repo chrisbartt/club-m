@@ -3,9 +3,41 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Instagram, Youtube, Facebook } from "lucide-react";
+import { Instagram, Youtube, Facebook, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
+import { submitContactForm } from "@/domains/contact/actions";
+
 const BlockContact = () => {
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const nom = (data.get("nom") as string) ?? "";
+    const prenom = (data.get("prenom") as string) ?? "";
+
+    const result = await submitContactForm({
+      name: `${prenom} ${nom}`.trim(),
+      email: data.get("email") as string,
+      subject: data.get("objet") as string,
+      message: data.get("message") as string,
+    });
+
+    setLoading(false);
+
+    if (result.success) {
+      toast.success("Message envoyé avec succès !");
+      form.reset();
+    } else {
+      toast.error(result.error);
+    }
+  }
+
   return (
     <div className="block-contact lg:py-[100px] py-[50px] bg-[#f5f5f5]">
       <div className="container px-4 mx-auto">
@@ -17,7 +49,7 @@ const BlockContact = () => {
               activités ?
             </h4>
             <h5 className="text-2xl lg:text-[32px] leading-[1.2] font-medium italic text-[#091626] mb-2 lg:mb-4 tracking-[-0.02em]">
-              Nous serons ravies d’échanger avec toi.
+              Nous serons ravies d'échanger avec toi.
             </h5>
           </div>
           <div className="col-span-12 lg:col-span-6">
@@ -32,6 +64,7 @@ const BlockContact = () => {
                     <p className="text-[#091626]/70 mb-3 lg:mb-10 lg:text-[18px] text-[16px]">
                       Nous te répondrons dans les meilleurs délais.
                     </p>
+                    <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-12 lg:gap-10 gap-6">
                       <div className="col-span-12 ">
                         <div className="flex flex-col gap-4">
@@ -116,13 +149,19 @@ const BlockContact = () => {
                             />
                           </div>
                           <div className="flex justify-end mt-4">
-                            <Button className="bg-[#a55b46] text-white h-14 hover:bg-[#a55b46]/80 hover:text-white cursor-pointer transition-all duration-300 rounded-xl">
+                            <Button
+                              type="submit"
+                              disabled={loading}
+                              className="bg-[#a55b46] text-white h-14 hover:bg-[#a55b46]/80 hover:text-white cursor-pointer transition-all duration-300 rounded-xl"
+                            >
+                              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                               Envoyer votre message
                             </Button>
                           </div>
                         </div>
                       </div>
                     </div>
+                    </form>
                   </div>
                 </div>
               </div>
