@@ -25,7 +25,7 @@ export default async function MemberLayout({ children }: { children: React.React
 
   return (
     <div className="flex h-screen">
-      <MemberSidebar memberTier={user.member.tier} />
+      <MemberSidebar memberTier={user.member.tier} verificationStatus={user.member.verificationStatus} />
       <main className="flex-1 overflow-y-auto p-6">{children}</main>
     </div>
   )

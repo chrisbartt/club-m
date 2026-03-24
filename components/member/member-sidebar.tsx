@@ -11,13 +11,17 @@ import {
   Ticket,
   ShoppingBag,
   Briefcase,
+  ArrowUpCircle,
+  ShieldCheck,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { VerifiedBadge } from '@/components/member/verified-badge'
 
 interface MemberSidebarProps {
   memberTier: string
+  verificationStatus: string
 }
 
 const baseLinks = [
@@ -29,19 +33,32 @@ const baseLinks = [
   { href: '/achats', label: 'Mes achats', icon: ShoppingBag },
 ]
 
-export function MemberSidebar({ memberTier }: MemberSidebarProps) {
+export function MemberSidebar({ memberTier, verificationStatus }: MemberSidebarProps) {
   const pathname = usePathname()
+  const isVerified = verificationStatus === 'VERIFIED'
+  const showUpgrade = memberTier === 'FREE' || memberTier === 'PREMIUM'
+  const showKyc = !isVerified
 
-  const links = memberTier === 'BUSINESS'
-    ? [...baseLinks, { href: '/mon-business', label: 'Mon business', icon: Briefcase }]
-    : baseLinks
+  const links = [
+    ...baseLinks,
+    ...(memberTier === 'BUSINESS'
+      ? [{ href: '/mon-business', label: 'Mon business', icon: Briefcase }]
+      : []),
+    ...(showUpgrade
+      ? [{ href: '/upgrade', label: 'Upgrade', icon: ArrowUpCircle }]
+      : []),
+    ...(showKyc
+      ? [{ href: '/kyc', label: 'Verification', icon: ShieldCheck }]
+      : []),
+  ]
 
   return (
     <aside className="flex h-full w-64 flex-col border-r bg-background">
-      <div className="flex h-14 items-center border-b px-4">
+      <div className="flex h-14 items-center justify-between border-b px-4">
         <Link href="/dashboard" className="text-xl font-bold tracking-tight">
           Club M
         </Link>
+        {isVerified && <VerifiedBadge />}
       </div>
       <nav className="flex-1 space-y-1 p-4">
         {links.map((link) => {
