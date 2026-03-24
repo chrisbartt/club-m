@@ -1,5 +1,5 @@
-import Container from "./_layout/container";
+import { redirect } from "next/navigation";
 
 export default function InscriptionMembrePage() {
-  return <Container />;
+  redirect("/register");
 }

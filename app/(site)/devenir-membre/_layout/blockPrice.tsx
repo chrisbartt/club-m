@@ -75,7 +75,7 @@ const BlockPrice = () => {
                     className="w-full  bg-transparent text-[#a55b46] border border-[#a55b46] h-14 hover:bg-[#a55b46] hover:text-[#ffffff] transition-all duration-300 rounded-xl"
                     asChild
                   >
-                    <Link href="/inscription?plan=free">
+                    <Link href="/register">
                       Rejoins le Club M
                     </Link>
                   </Button>
@@ -147,7 +147,7 @@ const BlockPrice = () => {
                       className="w-full bg-[#a55b46] text-[#ffffff] border border-[#a55b46] h-14 hover:bg-[#a55b46]/80 hover:text-[#ffffff] transition-all duration-300 rounded-xl"
                       asChild
                     >
-                      <Link href="/inscription?plan=premium">
+                      <Link href="/register">
                         Rejoins le Club M
                       </Link>
                     </Button>
@@ -227,7 +227,7 @@ const BlockPrice = () => {
                     className="w-full  bg-transparent text-[#a55b46] border border-[#a55b46] h-14 hover:bg-[#a55b46] hover:text-[#ffffff] transition-all duration-300 rounded-xl"
                     asChild
                   >
-                    <Link href="/inscription?plan=business">
+                    <Link href="/register">
                       Rejoins le Club M
                     </Link>
                   </Button>
