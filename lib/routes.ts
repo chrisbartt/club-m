@@ -1,7 +1,7 @@
 export const PROTECTED_ROUTES = {
-  member: ['/dashboard', '/profile', '/tickets', '/orders', '/business', '/upgrade', '/events', '/directory'],
+  member: ['/dashboard', '/profil', '/tickets', '/achats', '/mon-business', '/upgrade', '/evenements', '/annuaire', '/kyc'],
   admin: ['/admin'],
-  auth: ['/login', '/register', '/verify-email', '/kyc'],
+  auth: ['/login', '/register', '/verify-email'],
 } as const
 
 export function isProtectedMemberRoute(path: string): boolean {
