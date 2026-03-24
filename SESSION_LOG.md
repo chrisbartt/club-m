@@ -42,3 +42,22 @@
 
 ### Next Session
 - Write and execute Plan 3 (Events + Directory + Boutique)
+
+## Session 3 — 2026-03-24 (continued)
+
+### Actions
+- Wrote Plan 3A (Events & Ticketing)
+- Executed Plan 3A (4 blocks):
+  1. Events + Tickets domains (8 files)
+  2. Admin events pages (5 files)
+  3. Public + Member events + Tickets (9 files)
+  4. Continuity update
+
+### Decisions
+- Plan 3 split into 3A (Events), 3B (Directory), 3C (Orders + Business Dashboard)
+- QR code displayed as monospace text for MVP
+- Ticket goes directly to PAID (payment stub)
+- Events use slug + timestamp for URL uniqueness
+
+### Next
+- Plan 3B: Directory + Business Profiles

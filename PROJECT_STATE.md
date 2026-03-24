@@ -30,11 +30,19 @@ Community platform for women entrepreneurs in Kinshasa (RDC).
 - Admin member detail (KYC review, suspend/reactivate, change tier)
 - Sidebar with dynamic links (upgrade, KYC, verified badge)
 
+- Events domain (CRUD, pricing dynamique, admin queries)
+- Tickets domain (booking, QR generation, scanning)
+- Admin events pages (list, create, detail with pricing and tickets)
+- Public events pages (listing, detail with pricing display)
+- Member events (booking with tier pricing, access control)
+- Tickets page (QR codes, upcoming/past grouping)
+
 ## In Progress
-- Plan 3: Events + Directory + Boutique
+- Plan 3B: Directory + Business Profiles
 
 ## Remaining
-- Plan 3: Events CRUD, directory/annuaire, products, orders, business dashboard
+- Plan 3B: Annuaire public, fiches business, mini-boutique
+- Plan 3C: Orders, code confirmation, business dashboard
 - Plan 4: Admin panel complete, public site optimization, polish
 
 ## Known Issues
