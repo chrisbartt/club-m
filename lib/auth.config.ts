@@ -3,30 +3,32 @@ import { SESSION_MAX_AGE } from '@/lib/constants'
 
 // Shared auth config — NO database imports.
 // Used by middleware (Edge Runtime) and by the full auth config.
-export const authConfig: NextAuthConfig = {
+export const authConfig = {
   pages: { signIn: '/login' },
   session: { strategy: 'jwt', maxAge: SESSION_MAX_AGE },
   callbacks: {
-    async jwt({ token, user }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async jwt({ token, user }: any) {
       if (user) {
-        token.id = user.id as string
-        token.isMember = (user as Record<string, unknown>).isMember ?? false
-        token.isCustomer = (user as Record<string, unknown>).isCustomer ?? false
-        token.isAdmin = (user as Record<string, unknown>).isAdmin ?? false
-        token.memberTier = (user as Record<string, unknown>).memberTier ?? null
-        token.adminRole = (user as Record<string, unknown>).adminRole ?? null
+        token.id = user.id
+        token.isMember = user.isMember ?? false
+        token.isCustomer = user.isCustomer ?? false
+        token.isAdmin = user.isAdmin ?? false
+        token.memberTier = user.memberTier ?? null
+        token.adminRole = user.adminRole ?? null
       }
       return token
     },
-    async session({ session, token }) {
-      session.user.id = token.id as string
-      session.user.isMember = token.isMember as boolean
-      session.user.isCustomer = token.isCustomer as boolean
-      session.user.isAdmin = token.isAdmin as boolean
-      session.user.memberTier = token.memberTier as string | null
-      session.user.adminRole = token.adminRole as string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async session({ session, token }: any) {
+      session.user.id = token.id
+      session.user.isMember = token.isMember
+      session.user.isCustomer = token.isCustomer
+      session.user.isAdmin = token.isAdmin
+      session.user.memberTier = token.memberTier
+      session.user.adminRole = token.adminRole
       return session
     },
   },
   providers: [], // Providers added in auth.ts (server-only)
-}
+} satisfies NextAuthConfig

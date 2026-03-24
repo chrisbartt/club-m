@@ -22,6 +22,24 @@ Monolithic Next.js 16 app with route groups: (public), (auth), (member), (admin)
 - Design spec: `docs/superpowers/specs/2026-03-23-club-m-platform-design.md`
 - Plan 1 (Foundation): `docs/superpowers/plans/2026-03-23-plan-1-foundation.md`
 
+## Site Structure
+
+- `app/(public)/` — New public pages (homepage, events, annuaire)
+- `app/(site)/` — Original site vitrine (a-propos, contact, devenir-membre, etc.) — kept as-is
+- `app/(auth)/` — Authentication pages
+- `app/(member)/` — Member space (protected)
+- `app/(admin)/admin/` — Admin panel (protected, URLs at /admin/*)
+
+## MVP Status
+
+MVP is complete as of 2026-03-24. All 4 plans executed:
+- Plan 1: Foundation (DB, auth, guards, middleware)
+- Plan 2: Member space + KYC + Upgrade
+- Plan 3A: Events & Ticketing
+- Plan 3B: Directory & Business Profiles
+- Plan 3C: Orders & Business Dashboard
+- Plan 4: Admin Complete + Polish
+
 ## Test Accounts (dev)
 
 - Admin: `admin@clubm.cd` / `admin123`
