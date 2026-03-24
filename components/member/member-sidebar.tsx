@@ -41,7 +41,7 @@ export function MemberSidebar({ memberTier, verificationStatus }: MemberSidebarP
 
   const links = [
     ...baseLinks,
-    ...(memberTier === 'BUSINESS'
+    ...(memberTier === 'PREMIUM' || memberTier === 'BUSINESS'
       ? [{ href: '/mon-business', label: 'Mon business', icon: Briefcase }]
       : []),
     ...(showUpgrade
