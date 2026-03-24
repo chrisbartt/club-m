@@ -61,3 +61,30 @@
 
 ### Next
 - Plan 3B: Directory + Business Profiles
+
+## Session 4 — 2026-03-24 (continued)
+
+### Actions
+- Executed Plan 3B (3 blocks):
+  1. Directory + Business domains (queries, actions, validators, types)
+  2. Public annuaire + Member business profile pages + components
+  3. Products management, admin annuaire moderation, member annuaire
+
+### Files Created (Block 3)
+- components/directory/product-card.tsx — Product display card (server component)
+- components/directory/product-form.tsx — Create/edit product form (client component)
+- components/directory/toggle-active-button.tsx — Toggle product active state (client component)
+- app/(member)/mon-business/produits/page.tsx — Products list page
+- app/(member)/mon-business/produits/nouveau/page.tsx — New product page
+- app/(member)/mon-business/produits/[id]/page.tsx — Edit product page
+- components/admin/profile-moderation-actions.tsx — Approve/reject profile buttons
+- app/(admin)/admin/annuaire/page.tsx — Admin directory moderation page
+- app/(member)/annuaire/page.tsx — Member annuaire page
+
+### Decisions
+- Product images use comma-separated URLs for MVP
+- Admin annuaire uses simple link-based filter (all/pending/approved)
+- Member annuaire reuses DirectoryFilters component from public annuaire
+
+### Next
+- Plan 3C: Orders, code confirmation, business dashboard

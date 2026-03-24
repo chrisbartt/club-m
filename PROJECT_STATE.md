@@ -37,11 +37,18 @@ Community platform for women entrepreneurs in Kinshasa (RDC).
 - Member events (booking with tier pricing, access control)
 - Tickets page (QR codes, upcoming/past grouping)
 
+- Directory domain (queries, actions, admin-actions, validators, types)
+- Business domain (product queries, actions, validators, types)
+- Public annuaire (listing with filters, profile detail with mini-boutique)
+- Member business profile (create/edit, publish toggle, profile type)
+- Member products management (list, create, edit, toggle active)
+- Admin annuaire moderation (approve/reject profiles, filter by status)
+- Member annuaire (directory view with enhanced contact info)
+
 ## In Progress
-- Plan 3B: Directory + Business Profiles
+- Plan 3C: Orders, code confirmation, business dashboard
 
 ## Remaining
-- Plan 3B: Annuaire public, fiches business, mini-boutique
 - Plan 3C: Orders, code confirmation, business dashboard
 - Plan 4: Admin panel complete, public site optimization, polish
 
