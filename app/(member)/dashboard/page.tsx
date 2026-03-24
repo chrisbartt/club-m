@@ -1,29 +1,25 @@
 import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
 import { redirect } from 'next/navigation'
+import { getMemberProfile, getMemberStats } from '@/domains/members/profile-queries'
+import { DashboardFree } from '@/components/member/dashboard-free'
+import { DashboardPremium } from '@/components/member/dashboard-premium'
+import { DashboardBusiness } from '@/components/member/dashboard-business'
 
-export default async function MemberDashboardPage() {
+export default async function DashboardPage() {
   const session = await auth()
+  if (!session?.user?.id) redirect('/login')
 
-  if (!session?.user?.id) {
-    redirect('/login')
+  const profile = await getMemberProfile(session.user.id)
+  if (!profile) redirect('/')
+
+  const stats = await getMemberStats(profile.id)
+
+  switch (profile.tier) {
+    case 'BUSINESS':
+      return <DashboardBusiness profile={profile} stats={stats} />
+    case 'PREMIUM':
+      return <DashboardPremium profile={profile} stats={stats} />
+    default:
+      return <DashboardFree profile={profile} stats={stats} />
   }
-
-  const member = await db.member.findUnique({
-    where: { userId: session.user.id },
-  })
-
-  if (!member) {
-    redirect('/')
-  }
-
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Bonjour, {member.firstName} !</h1>
-      <p className="text-muted-foreground">
-        Votre abonnement : <span className="font-medium">{member.tier}</span>
-      </p>
-      <p className="text-muted-foreground">Tableau de bord en construction.</p>
-    </div>
-  )
 }
