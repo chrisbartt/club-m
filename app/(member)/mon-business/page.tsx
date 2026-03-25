@@ -21,6 +21,7 @@ import { OrdersStatusChart } from '@/components/business/orders-status-chart'
 import { RecentOrdersTable } from '@/components/business/recent-orders-table'
 import { QuickActions } from '@/components/business/quick-actions'
 import { AlertsSidebar } from '@/components/business/alerts-sidebar'
+import { ActivityFeed } from '@/components/business/activity-feed'
 import {
   DollarSign,
   ShoppingCart,
@@ -28,6 +29,10 @@ import {
   CheckCircle2,
   ArrowRight,
   Users,
+  Clock,
+  Truck,
+  CalendarDays,
+  Activity,
 } from 'lucide-react'
 
 export const metadata = {
@@ -139,7 +144,29 @@ export default async function MonBusinessPage() {
   today.setHours(0, 0, 0, 0)
   const ordersToday = allOrders.filter(
     (o) => new Date(o.createdAt) >= today,
-  ).length
+  )
+  const revenueToday = ordersToday
+    .filter((o) =>
+      ['PAID', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(o.status),
+    )
+    .reduce((sum, o) => sum + Number(o.totalAmount), 0)
+
+  // Orders this week
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  weekAgo.setHours(0, 0, 0, 0)
+  const ordersThisWeek = allOrders.filter(
+    (o) => new Date(o.createdAt) >= weekAgo,
+  )
+  const revenueThisWeek = ordersThisWeek
+    .filter((o) =>
+      ['PAID', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(o.status),
+    )
+    .reduce((sum, o) => sum + Number(o.totalAmount), 0)
+
+  // Actionable counts
+  const pendingActionCount = allOrders.filter((o) => o.status === 'PAID').length
+  const shippedCount = allOrders.filter((o) => o.status === 'SHIPPED').length
 
   // Order status counts for pie chart
   const statusCounts = allOrders.reduce(
@@ -159,9 +186,9 @@ export default async function MonBusinessPage() {
     { name: 'Annulée', value: statusCounts['CANCELLED'] || 0, color: '#ef4444' },
   ].filter((d) => d.value > 0)
 
-  // Low stock products (stock <= 5)
+  // Low stock products (stock < 5)
   const lowStockProducts = products
-    .filter((p) => p.stock !== null && p.stock <= 5 && p.isActive)
+    .filter((p) => p.stock !== null && p.stock < 5 && p.isActive)
     .sort((a, b) => (a.stock ?? 0) - (b.stock ?? 0))
     .slice(0, 5)
 
@@ -194,21 +221,41 @@ export default async function MonBusinessPage() {
   const alertsCount =
     lowStockProducts.length + (stats.pendingOrders > 0 ? 1 : 0)
 
-  // Prepare orders for client table component
+  // Prepare orders for table component
   const tableOrders = recentOrders.map((order) => {
     const buyer = order.member ?? order.customer
     const buyerName = buyer
       ? `${buyer.firstName} ${buyer.lastName}`
       : 'Client'
+    const buyerPhone = buyer?.phone ?? null
+    const buyerCommune =
+      order.customer?.address?.commune ?? null
     return {
       id: order.id,
       buyerName,
-      buyerEmail: null as string | null,
+      buyerPhone,
+      buyerCommune,
       amount: Number(order.totalAmount),
       status: order.status,
       date: formatDate(order.createdAt),
     }
   })
+
+  // Activity feed: last 8 orders sorted by date
+  const activityItems = allOrders
+    .slice(0, 8)
+    .map((order) => {
+      const buyer = order.member ?? order.customer
+      return {
+        id: order.id,
+        type: order.status,
+        buyerName: buyer
+          ? `${buyer.firstName} ${buyer.lastName}`
+          : 'Client',
+        amount: Number(order.totalAmount),
+        date: order.createdAt,
+      }
+    })
 
   return (
     <div className="min-h-screen bg-[#0f0f12] p-4 lg:p-6">
@@ -221,7 +268,7 @@ export default async function MonBusinessPage() {
           </p>
         </div>
 
-        {/* Row 1: KPI Cards */}
+        {/* Row 1: Main KPI Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
             label="Chiffre d'affaires"
@@ -230,6 +277,7 @@ export default async function MonBusinessPage() {
             icon={<DollarSign className="h-5 w-5" />}
             iconBg="bg-purple-500/10"
             iconColor="text-purple-500"
+            href="/mon-business/revenus"
             trend={
               paidOrders > 0
                 ? { value: `${paidOrders} payées`, positive: true }
@@ -240,10 +288,11 @@ export default async function MonBusinessPage() {
           <KpiCard
             label="Commandes"
             value={String(stats.totalOrders)}
-            subtitle={`${ordersToday} aujourd'hui`}
+            subtitle={`${ordersToday.length} aujourd'hui`}
             icon={<ShoppingCart className="h-5 w-5" />}
             iconBg="bg-blue-500/10"
             iconColor="text-blue-500"
+            href="/mon-business/commandes"
           />
 
           <KpiCard
@@ -253,6 +302,7 @@ export default async function MonBusinessPage() {
             icon={<TrendingUp className="h-5 w-5" />}
             iconBg="bg-orange-500/10"
             iconColor="text-orange-500"
+            href="/mon-business/revenus"
           />
 
           <KpiCard
@@ -270,10 +320,66 @@ export default async function MonBusinessPage() {
           />
         </div>
 
-        {/* Row 2: Quick Actions */}
+        {/* Row 2: Actionable KPI Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <KpiCard
+            label="CA aujourd'hui"
+            value={formatCurrency(revenueToday)}
+            subtitle={`${ordersToday.length} commande${ordersToday.length > 1 ? 's' : ''}`}
+            icon={<CalendarDays className="h-5 w-5" />}
+            iconBg="bg-cyan-500/10"
+            iconColor="text-cyan-500"
+            href="/mon-business/commandes"
+          />
+
+          <KpiCard
+            label="CA cette semaine"
+            value={formatCurrency(revenueThisWeek)}
+            subtitle={`${ordersThisWeek.length} commande${ordersThisWeek.length > 1 ? 's' : ''}`}
+            icon={<TrendingUp className="h-5 w-5" />}
+            iconBg="bg-indigo-500/10"
+            iconColor="text-indigo-500"
+            href="/mon-business/revenus"
+          />
+
+          <KpiCard
+            label="Commandes en attente"
+            value={String(pendingActionCount)}
+            subtitle="a traiter"
+            icon={<Clock className="h-5 w-5" />}
+            iconBg="bg-amber-500/10"
+            iconColor="text-amber-500"
+            href="/mon-business/commandes?status=PAID"
+            trend={
+              pendingActionCount > 0
+                ? {
+                    value: `${pendingActionCount} en attente`,
+                    positive: false,
+                  }
+                : undefined
+            }
+          />
+
+          <KpiCard
+            label="Commandes a livrer"
+            value={String(shippedCount)}
+            subtitle="en cours de livraison"
+            icon={<Truck className="h-5 w-5" />}
+            iconBg="bg-purple-500/10"
+            iconColor="text-purple-500"
+            href="/mon-business/commandes?status=SHIPPED"
+            trend={
+              shippedCount > 0
+                ? { value: `${shippedCount} expediée${shippedCount > 1 ? 's' : ''}`, positive: true }
+                : undefined
+            }
+          />
+        </div>
+
+        {/* Row 3: Quick Actions */}
         <QuickActions alertsCount={alertsCount} />
 
-        {/* Row 3: Charts */}
+        {/* Row 4: Charts */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Revenue Chart */}
           <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-7">
@@ -303,7 +409,7 @@ export default async function MonBusinessPage() {
           </div>
         </div>
 
-        {/* Row 4: Recent Orders + Sidebar */}
+        {/* Row 5: Recent Orders + Activity Feed */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Recent Orders Table */}
           <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-8">
@@ -327,8 +433,22 @@ export default async function MonBusinessPage() {
             <RecentOrdersTable orders={tableOrders} />
           </div>
 
-          {/* Right Sidebar */}
-          <div className="lg:col-span-4">
+          {/* Activity Feed */}
+          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-4">
+            <div className="mb-4 flex items-center gap-2">
+              <Activity className="h-4 w-4 text-purple-400" />
+              <h2 className="text-base font-semibold text-white">
+                Activité récente
+              </h2>
+            </div>
+            <ActivityFeed activities={activityItems} />
+          </div>
+        </div>
+
+        {/* Row 6: Alerts Sidebar + Clients */}
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* Alerts Sidebar */}
+          <div className="lg:col-span-8">
             <AlertsSidebar
               pendingOrders={stats.pendingOrders}
               lowStockProducts={lowStockProducts.map((p) => ({
@@ -338,9 +458,11 @@ export default async function MonBusinessPage() {
               }))}
               topProducts={topProducts}
             />
+          </div>
 
-            {/* Clients card */}
-            <div className="mt-4 rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+          {/* Clients card */}
+          <div className="lg:col-span-4">
+            <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/10">

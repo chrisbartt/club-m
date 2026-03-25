@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 interface KpiCardProps {
   label: string
   value: string
@@ -6,6 +8,7 @@ interface KpiCardProps {
   iconBg?: string
   iconColor?: string
   trend?: { value: string; positive: boolean }
+  href?: string
 }
 
 export function KpiCard({
@@ -16,9 +19,10 @@ export function KpiCard({
   iconBg,
   iconColor,
   trend,
+  href,
 }: KpiCardProps) {
-  return (
-    <div className="relative rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+  const content = (
+    <>
       {/* Top-right icon */}
       {icon && (
         <div
@@ -53,6 +57,22 @@ export function KpiCard({
           {trend.positive ? '↗' : '↘'} {trend.value}
         </div>
       )}
-    </div>
+    </>
   )
+
+  const baseClasses =
+    'relative rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5'
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={`${baseClasses} block transition-colors hover:border-white/[0.12] hover:bg-[#1e1e2a]`}
+      >
+        {content}
+      </Link>
+    )
+  }
+
+  return <div className={baseClasses}>{content}</div>
 }

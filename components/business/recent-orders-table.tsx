@@ -1,12 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { Eye } from 'lucide-react'
 
 interface OrderRow {
   id: string
   buyerName: string
-  buyerEmail: string | null
+  buyerPhone: string | null
+  buyerCommune: string | null
   amount: number
   status: string
   date: string
@@ -56,17 +56,17 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
             <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Client
             </th>
+            <th className="hidden pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground sm:table-cell">
+              Commune
+            </th>
             <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Montant
             </th>
             <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Statut
             </th>
-            <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <th className="hidden pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground md:table-cell">
               Date
-            </th>
-            <th className="pb-3 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              &nbsp;
             </th>
           </tr>
         </thead>
@@ -76,15 +76,36 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
             return (
               <tr key={order.id} className="group transition-colors hover:bg-white/[0.02]">
                 <td className="py-3 pr-4">
-                  <p className="font-medium text-white">{order.buyerName}</p>
-                  {order.buyerEmail && (
-                    <p className="mt-0.5 text-[12px] text-muted-foreground">
-                      {order.buyerEmail}
+                  <Link
+                    href={`/mon-business/commandes/${order.id}`}
+                    className="block"
+                  >
+                    <p className="font-medium text-white group-hover:text-purple-400 transition-colors">
+                      {order.buyerName}
                     </p>
+                    {order.buyerPhone && (
+                      <p className="mt-0.5 text-[12px] text-muted-foreground">
+                        {order.buyerPhone}
+                      </p>
+                    )}
+                  </Link>
+                </td>
+                <td className="hidden py-3 pr-4 sm:table-cell">
+                  {order.buyerCommune ? (
+                    <span className="text-[12px] text-muted-foreground">
+                      {order.buyerCommune}
+                    </span>
+                  ) : (
+                    <span className="text-[12px] text-white/20">--</span>
                   )}
                 </td>
-                <td className="py-3 pr-4 font-medium text-white">
-                  {formatCurrency(order.amount)}
+                <td className="py-3 pr-4">
+                  <Link
+                    href={`/mon-business/commandes/${order.id}`}
+                    className="font-medium text-white"
+                  >
+                    {formatCurrency(order.amount)}
+                  </Link>
                 </td>
                 <td className="py-3 pr-4">
                   <span
@@ -93,17 +114,8 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
                     {statusConfig.label}
                   </span>
                 </td>
-                <td className="py-3 pr-4 text-[13px] text-muted-foreground">
+                <td className="hidden py-3 pr-4 text-[13px] text-muted-foreground md:table-cell">
                   {order.date}
-                </td>
-                <td className="py-3 text-right">
-                  <Link
-                    href={`/mon-business/commandes/${order.id}`}
-                    className="inline-flex items-center gap-1.5 text-[12px] font-medium text-purple-400 transition-colors hover:text-purple-300"
-                  >
-                    <Eye size={14} />
-                    Voir
-                  </Link>
                 </td>
               </tr>
             )
