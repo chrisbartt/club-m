@@ -13,6 +13,10 @@ Phase 1 addresses 6 critical gaps that block Club M from going to production. Th
 **Estimated effort** : ~4.5 days
 **Dependencies** : None (builds on existing MVP)
 
+### New domain: `domains/auth/`
+
+This creates a new `domains/auth/` domain (13th domain) for authentication lifecycle actions: password reset, email verification, email change. Registration remains in `domains/members/`. Login/session management remains in `lib/auth.ts`.
+
 ---
 
 ## Chantier 1 — Password Reset
@@ -32,6 +36,9 @@ model PasswordResetToken {
   expiresAt DateTime                  // now() + 24h (context RDC, connexions lentes)
   usedAt    DateTime?                 // null until consumed
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 ```
 
@@ -57,6 +64,8 @@ model PasswordResetToken {
 - Single active token per user (previous tokens invalidated on new request)
 - Same response whether email exists or not (prevent enumeration)
 - New password validated with Zod (min 8 chars, confirmation match)
+- Rate limit: max 1 request per email per 5 minutes
+- Token invalidation = set `usedAt = now()` on all existing tokens for this user (soft-delete convention)
 
 **Files to create/modify:**
 - `prisma/schema.prisma` — add PasswordResetToken model
@@ -86,6 +95,9 @@ model EmailVerificationToken {
   expiresAt DateTime                  // now() + 24h
   usedAt    DateTime?
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 ```
 
@@ -121,9 +133,14 @@ model EmailVerificationToken {
 
 **Modifier email:**
 - Accessible depuis le bandeau de verification
+- Requires current password re-entry (re-authentication, security)
 - Valide nouvel email avec Zod (format + unicite)
-- Invalide ancien token, genere nouveau, envoie a la nouvelle adresse
+- Invalide ancien token (set usedAt = now()), genere nouveau, envoie a la nouvelle adresse
 - Met a jour user.email
+
+**Progressive blocking logic:**
+- Uses `user.createdAt` to determine time since registration (emailVerified is Boolean, not DateTime)
+- Banner component receives `createdAt` and `emailVerified` from session/server props
 
 **Files to create/modify:**
 - `prisma/schema.prisma` — add EmailVerificationToken model
@@ -218,7 +235,7 @@ Admin must navigate to individual member pages to review KYC. No centralized vie
 
 ---
 
-## Chantier 5 — Page admin detail boutique (`/admin/boutiques/[id]`)
+## Chantier 5 — Page admin detail boutique (`/admin/annuaire/[id]`)
 
 ### Problem
 Admin can approve/reject profiles from the directory list but has no detail view to inspect a business before deciding.
@@ -255,7 +272,7 @@ Admin can approve/reject profiles from the directory list but has no detail view
 - All actions logged to audit
 
 **Files to create/modify:**
-- `app/(admin)/admin/boutiques/[id]/page.tsx` — detail page
+- `app/(admin)/admin/annuaire/[id]/page.tsx` — detail page (consistent URL with listing at /admin/annuaire)
 - `domains/directory/queries.ts` — add getProfileWithStats(id)
 - `domains/directory/admin-actions.ts` — add suspendProfile if not exists
 - `app/(admin)/admin/annuaire/page.tsx` — add link to detail page per row
@@ -296,6 +313,7 @@ Buyers can see their order list but cannot view the detail of a specific order. 
 **Delivery address:**
 - Commune, quartier, avenue, repere
 - Phone number
+- Note: `createCartOrder` accepts delivery address but does NOT persist it in DB. As prerequisite, add delivery address fields to the `Order` model: `deliveryPhone`, `deliveryCommune`, `deliveryQuartier`, `deliveryAvenue`, `deliveryRepere` (nullable strings). Update `createCartOrder` to save these fields.
 
 **Seller info:**
 - Business name (link to boutique)
@@ -307,6 +325,7 @@ Buyers can see their order list but cannot view the detail of a specific order. 
 - Each step shows date/time when reached
 - Current step highlighted
 - Future steps grayed out
+- Note: currently `confirmDelivery` sets status to COMPLETED. Update to set DELIVERED instead. COMPLETED will be reserved for future use (e.g., payout processed). Add `shippedAt` and `deliveredAt` DateTime? fields to Order model for timeline dates.
 
 **Security — Confirmation code:**
 - Code unique per order (uniqueness check on generation, retry if collision)
@@ -326,7 +345,10 @@ Buyers can see their order list but cannot view the detail of a specific order. 
 ## Cross-cutting concerns
 
 ### Prisma migration
-- Single migration for both new models (PasswordResetToken + EmailVerificationToken)
+Single migration covering:
+- New models: `PasswordResetToken`, `EmailVerificationToken` (with @@index on userId, expiresAt)
+- New fields on `Order`: `deliveryPhone`, `deliveryCommune`, `deliveryQuartier`, `deliveryAvenue`, `deliveryRepere` (all String?), `shippedAt` (DateTime?), `deliveredAt` (DateTime?)
+- New relation on `User`: passwordResetTokens[], emailVerificationTokens[]
 - Run `prisma migrate dev` to generate and apply
 
 ### Audit logging
@@ -336,12 +358,32 @@ Buyers can see their order list but cannot view the detail of a specific order. 
 ### Error handling pattern
 - All actions follow existing return-value pattern: `{ success: true, data } | { success: false, error, details? }`
 - Never throw from server actions
-- Email failures never block main action flow
+- All new server actions must wrap their body in try/catch, catching AuthError/BusinessError and converting to `{ success: false, error: ... }`, consistent with existing actions like `purchaseProduct`
+- Email failures never block main action flow (try/catch inside email sends)
 - Zod validation on all inputs
+
+### Audit logging additions
+- All new server actions must call `createAuditLog()`
+- `markAsShipped` currently has no audit log — add one as part of this work
+- `purchaseProduct` and `createCartOrder` also need audit log calls added
+- Actions: PASSWORD_RESET_REQUESTED, PASSWORD_RESET_COMPLETED, EMAIL_VERIFIED, EMAIL_VERIFICATION_RESENT, KYC_REVIEWED (exists), PROFILE_APPROVED/REJECTED (exists), ORDER_CREATED, ORDER_SHIPPED, ORDER_DELIVERED
+
+### New constants (`lib/constants.ts`)
+- `PASSWORD_RESET_TOKEN_EXPIRY_HOURS = 24`
+- `EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24`
+- `EMAIL_RESEND_COOLDOWN_MINUTES = 2`
+- `PASSWORD_RESET_COOLDOWN_MINUTES = 5`
+- `TOKEN_LENGTH = 64`
+
+### Order number display format
+- Display as `CM-XXXXXXXX` (prefix "CM-" + first 8 chars of cuid ID)
+- Used only for display, not for lookups (use full ID internally)
 
 ### Existing patterns to follow
 - Guards: `requireAuth()`, `requireMember()`, `requireAdmin()` at start of every action
 - DB truth: guards always read DB, never trust JWT alone
 - Soft-delete: never hard-delete records
-- French URLs: `/achats/[id]`, `/admin/kyc`
+- Token invalidation: set `usedAt = now()` (not hard-delete)
+- French URLs: `/achats/[id]`, `/admin/kyc`, `/admin/annuaire/[id]`
 - Prisma imports from `@/lib/generated/prisma/client`
+- Admin sidebar: `components/admin/admin-sidebar.tsx` (add KYC badge here)
