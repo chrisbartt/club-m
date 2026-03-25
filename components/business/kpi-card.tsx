@@ -1,29 +1,58 @@
-import { Card, CardContent } from '@/components/ui/card'
-
 interface KpiCardProps {
   label: string
-  value: string | number
+  value: string
   subtitle?: string
   icon?: React.ReactNode
+  iconBg?: string
+  iconColor?: string
+  trend?: { value: string; positive: boolean }
 }
 
-export function KpiCard({ label, value, subtitle, icon }: KpiCardProps) {
+export function KpiCard({
+  label,
+  value,
+  subtitle,
+  icon,
+  iconBg,
+  iconColor,
+  trend,
+}: KpiCardProps) {
   return (
-    <Card>
-      <CardContent className="flex items-start gap-3 py-4">
-        {icon && (
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            {icon}
-          </div>
-        )}
-        <div className="space-y-0.5">
-          <p className="text-2xl font-bold tracking-tight">{value}</p>
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
+    <div className="relative rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+      {/* Top-right icon */}
+      {icon && (
+        <div
+          className={`absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full ${iconBg ?? ''}`}
+        >
+          <div className={iconColor ?? ''}>{icon}</div>
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {/* Label */}
+      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+
+      {/* Value */}
+      <p className="mt-1 text-[28px] font-bold leading-tight text-white">{value}</p>
+
+      {/* Subtitle */}
+      {subtitle && (
+        <p className="mt-0.5 text-[12px] text-muted-foreground">{subtitle}</p>
+      )}
+
+      {/* Trend badge */}
+      {trend && (
+        <div
+          className={`mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+            trend.positive
+              ? 'bg-emerald-500/10 text-emerald-400'
+              : 'bg-red-500/10 text-red-400'
+          }`}
+        >
+          {trend.positive ? '↗' : '↘'} {trend.value}
+        </div>
+      )}
+    </div>
   )
 }

@@ -7,21 +7,22 @@ import {
   YAxis,
   Tooltip,
   Area,
+  CartesianGrid,
 } from 'recharts'
 
 const MONTH_LABELS: Record<string, string> = {
-  '01': 'jan',
-  '02': 'fev',
-  '03': 'mar',
-  '04': 'avr',
-  '05': 'mai',
-  '06': 'jun',
-  '07': 'jul',
-  '08': 'aou',
-  '09': 'sep',
-  '10': 'oct',
-  '11': 'nov',
-  '12': 'dec',
+  '01': 'Jan',
+  '02': 'Fév',
+  '03': 'Mar',
+  '04': 'Avr',
+  '05': 'Mai',
+  '06': 'Jun',
+  '07': 'Jul',
+  '08': 'Aoû',
+  '09': 'Sep',
+  '10': 'Oct',
+  '11': 'Nov',
+  '12': 'Déc',
 }
 
 interface RevenueChartProps {
@@ -40,43 +41,58 @@ export function RevenueChart({ data }: RevenueChartProps) {
   }))
 
   return (
-    <div className="h-[250px] w-full">
+    <div className="h-[280px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+        <AreaChart
+          data={chartData}
+          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+        >
           <defs>
-            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+            <linearGradient id="purpleGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
+              <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
             </linearGradient>
           </defs>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(255,255,255,0.06)"
+            vertical={false}
+          />
           <XAxis
             dataKey="label"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-            tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)}
+            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }}
+            tickFormatter={(v: number) =>
+              v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)
+            }
+            width={45}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
+              backgroundColor: '#1a1a24',
+              border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '8px',
-              color: 'hsl(var(--foreground))',
+              color: '#fff',
+              fontSize: '13px',
             }}
-            formatter={(value: number) => [`${value.toLocaleString('fr-FR')}$`, 'Revenu']}
+            formatter={(value: number) => [
+              `${value.toLocaleString('fr-FR')} $US`,
+              'Revenu',
+            ]}
             labelFormatter={(label: string) => label}
           />
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="hsl(var(--primary))"
+            stroke="#8b5cf6"
             strokeWidth={2}
-            fill="url(#revenueGradient)"
+            fill="url(#purpleGradient)"
           />
         </AreaChart>
       </ResponsiveContainer>

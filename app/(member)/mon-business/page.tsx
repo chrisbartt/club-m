@@ -12,23 +12,22 @@ import {
 import { getProductsByBusiness } from '@/domains/business/queries'
 import { getSellerOrders } from '@/domains/orders/queries'
 import { hasMinTier } from '@/lib/permissions'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { BusinessProfileForm } from '@/components/directory/business-profile-form'
+import { KpiCard } from '@/components/business/kpi-card'
 import { RevenueChart } from '@/components/business/revenue-chart'
 import { OrdersStatusChart } from '@/components/business/orders-status-chart'
+import { RecentOrdersTable } from '@/components/business/recent-orders-table'
+import { QuickActions } from '@/components/business/quick-actions'
+import { AlertsSidebar } from '@/components/business/alerts-sidebar'
 import {
   DollarSign,
   ShoppingCart,
   TrendingUp,
   CheckCircle2,
-  Plus,
-  Package,
-  Download,
-  Bell,
-  AlertTriangle,
-  Eye,
+  ArrowRight,
+  Users,
 } from 'lucide-react'
 
 export const metadata = {
@@ -36,34 +35,15 @@ export const metadata = {
 }
 
 function formatCurrency(amount: number) {
-  return amount.toLocaleString('fr-FR') + '$'
+  return amount.toLocaleString('fr-FR') + ' $US'
 }
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat('fr-FR', {
     day: '2-digit',
-    month: 'short',
+    month: '2-digit',
     year: 'numeric',
   }).format(date)
-}
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case 'PAID':
-      return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20">Payée</Badge>
-    case 'PENDING':
-      return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20">En attente</Badge>
-    case 'SHIPPED':
-      return <Badge className="bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500/20">Expédiée</Badge>
-    case 'DELIVERED':
-      return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20">Livrée</Badge>
-    case 'COMPLETED':
-      return <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20">Complétée</Badge>
-    case 'CANCELLED':
-      return <Badge className="bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20">Annulée</Badge>
-    default:
-      return <Badge variant="secondary">{status}</Badge>
-  }
 }
 
 export default async function MonBusinessPage() {
@@ -141,21 +121,25 @@ export default async function MonBusinessPage() {
     ])
 
   // Calculate KPIs
-  const avgBasket = stats.totalOrders > 0
-    ? Math.round(stats.totalRevenue / stats.totalOrders)
-    : 0
+  const avgBasket =
+    stats.totalOrders > 0
+      ? Math.round(stats.totalRevenue / stats.totalOrders)
+      : 0
 
   const paidOrders = allOrders.filter((o) =>
-    ['PAID', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(o.status)
+    ['PAID', 'SHIPPED', 'DELIVERED', 'COMPLETED'].includes(o.status),
   ).length
-  const paymentRate = stats.totalOrders > 0
-    ? Math.round((paidOrders / stats.totalOrders) * 100)
-    : 0
+  const paymentRate =
+    stats.totalOrders > 0
+      ? Math.round((paidOrders / stats.totalOrders) * 100)
+      : 0
 
   // Orders today
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const ordersToday = allOrders.filter((o) => new Date(o.createdAt) >= today).length
+  const ordersToday = allOrders.filter(
+    (o) => new Date(o.createdAt) >= today,
+  ).length
 
   // Order status counts for pie chart
   const statusCounts = allOrders.reduce(
@@ -167,10 +151,10 @@ export default async function MonBusinessPage() {
   )
 
   const statusChartData = [
-    { name: 'Payée', value: statusCounts['PAID'] || 0, color: '#10b981' },
+    { name: 'Livrée', value: statusCounts['DELIVERED'] || 0, color: '#22c55e' },
+    { name: 'Payée', value: statusCounts['PAID'] || 0, color: '#4ade80' },
     { name: 'En attente', value: statusCounts['PENDING'] || 0, color: '#f59e0b' },
-    { name: 'Expédiée', value: statusCounts['SHIPPED'] || 0, color: '#a855f7' },
-    { name: 'Livrée', value: statusCounts['DELIVERED'] || 0, color: '#3b82f6' },
+    { name: 'Expédiée', value: statusCounts['SHIPPED'] || 0, color: '#8b5cf6' },
     { name: 'Complétée', value: statusCounts['COMPLETED'] || 0, color: '#06b6d4' },
     { name: 'Annulée', value: statusCounts['CANCELLED'] || 0, color: '#ef4444' },
   ].filter((d) => d.value > 0)
@@ -182,7 +166,10 @@ export default async function MonBusinessPage() {
     .slice(0, 5)
 
   // Top products by orders
-  const productOrderCounts = new Map<string, { name: string; count: number; revenue: number }>()
+  const productOrderCounts = new Map<
+    string,
+    { name: string; count: number; revenue: number }
+  >()
   for (const order of allOrders) {
     for (const item of order.items) {
       const existing = productOrderCounts.get(item.productId)
@@ -204,348 +191,180 @@ export default async function MonBusinessPage() {
     .slice(0, 5)
 
   // Alerts count
-  const alertsCount = lowStockProducts.length + (stats.pendingOrders > 0 ? 1 : 0)
+  const alertsCount =
+    lowStockProducts.length + (stats.pendingOrders > 0 ? 1 : 0)
+
+  // Prepare orders for client table component
+  const tableOrders = recentOrders.map((order) => {
+    const buyer = order.member ?? order.customer
+    const buyerName = buyer
+      ? `${buyer.firstName} ${buyer.lastName}`
+      : 'Client'
+    return {
+      id: order.id,
+      buyerName,
+      buyerEmail: null as string | null,
+      amount: Number(order.totalAmount),
+      status: order.status,
+      date: formatDate(order.createdAt),
+    }
+  })
 
   return (
-    <div className="p-4 lg:p-6 space-y-6">
-      {/* Row 1: KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Chiffre d'affaires */}
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Chiffre d&apos;affaires
-                </p>
-                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
-                  {formatCurrency(stats.totalRevenue)}
-                </p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-500/10">
-                <DollarSign className="h-5 w-5 text-purple-500" />
-              </div>
-            </div>
-            <div className="mt-3">
-              <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[11px] font-medium hover:bg-emerald-500/10">
-                {paidOrders} commandes payées
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-[#0f0f12] p-4 lg:p-6">
+      <div className="space-y-6">
+        {/* Page header */}
+        <div>
+          <h1 className="text-2xl font-bold text-white">Tableau de bord</h1>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Vue d&apos;ensemble de votre activité commerciale
+          </p>
+        </div>
 
-        {/* Commandes */}
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Commandes
-                </p>
-                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
-                  {stats.totalOrders}
-                </p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                <ShoppingCart className="h-5 w-5 text-blue-500" />
-              </div>
-            </div>
-            <div className="mt-3">
-              <span className="text-xs text-muted-foreground">
-                {ordersToday} aujourd&apos;hui
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Row 1: KPI Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <KpiCard
+            label="Chiffre d'affaires"
+            value={formatCurrency(stats.totalRevenue)}
+            subtitle={`${paidOrders} commandes payées`}
+            icon={<DollarSign className="h-5 w-5" />}
+            iconBg="bg-purple-500/10"
+            iconColor="text-purple-500"
+            trend={
+              paidOrders > 0
+                ? { value: `${paidOrders} payées`, positive: true }
+                : undefined
+            }
+          />
 
-        {/* Panier moyen */}
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Panier moyen
-                </p>
-                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
-                  {formatCurrency(avgBasket)}
-                </p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                <TrendingUp className="h-5 w-5 text-orange-500" />
-              </div>
-            </div>
-            <div className="mt-3">
-              <span className="text-xs text-muted-foreground">
-                par commande
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+          <KpiCard
+            label="Commandes"
+            value={String(stats.totalOrders)}
+            subtitle={`${ordersToday} aujourd'hui`}
+            icon={<ShoppingCart className="h-5 w-5" />}
+            iconBg="bg-blue-500/10"
+            iconColor="text-blue-500"
+          />
 
-        {/* Taux de paiement */}
-        <Card className="border-border/50">
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Taux de paiement
-                </p>
-                <p className="text-2xl lg:text-3xl font-bold tracking-tight">
-                  {paymentRate}%
-                </p>
-              </div>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-              </div>
-            </div>
-            <div className="mt-3">
-              <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[11px] font-medium hover:bg-emerald-500/10">
-                {paidOrders}/{stats.totalOrders} payées
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <KpiCard
+            label="Panier moyen"
+            value={formatCurrency(avgBasket)}
+            subtitle="par commande"
+            icon={<TrendingUp className="h-5 w-5" />}
+            iconBg="bg-orange-500/10"
+            iconColor="text-orange-500"
+          />
 
-      {/* Row 2: Quick Actions */}
-      <div className="flex flex-wrap gap-3">
-        <Button
-          variant="outline"
-          className="gap-2 border-border/50"
-          disabled
-        >
-          <ShoppingCart size={16} />
-          Nouvelle commande
-        </Button>
-        <Button asChild className="gap-2 bg-primaryColor hover:bg-primaryColor/90">
-          <Link href="/mon-business/produits/nouveau">
-            <Plus size={16} />
-            Ajouter produit
-          </Link>
-        </Button>
-        <Button
-          variant="outline"
-          className="gap-2 border-border/50"
-          disabled
-        >
-          <Download size={16} />
-          Exporter CSV
-        </Button>
-        <Button
-          variant="outline"
-          className="gap-2 border-border/50 relative"
-          disabled
-        >
-          <Bell size={16} />
-          Alertes
-          {alertsCount > 0 && (
-            <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white">
-              {alertsCount}
-            </span>
-          )}
-        </Button>
-      </div>
+          <KpiCard
+            label="Taux de paiement"
+            value={`${paymentRate}%`}
+            subtitle={`${paidOrders}/${stats.totalOrders} payées`}
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            iconBg="bg-emerald-500/10"
+            iconColor="text-emerald-500"
+            trend={
+              paymentRate > 0
+                ? { value: `${paymentRate}%`, positive: paymentRate >= 50 }
+                : undefined
+            }
+          />
+        </div>
 
-      {/* Row 3: Charts */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Revenue Chart */}
-        <Card className="border-border/50">
-          <CardHeader className="pb-2">
-            <div>
-              <CardTitle className="text-base font-semibold">Revenus</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">6 derniers mois</p>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <RevenueChart data={revenueByMonth} />
-          </CardContent>
-        </Card>
+        {/* Row 2: Quick Actions */}
+        <QuickActions alertsCount={alertsCount} />
 
-        {/* Orders Status Chart */}
-        <Card className="border-border/50">
-          <CardHeader className="pb-2">
-            <div>
-              <CardTitle className="text-base font-semibold">Commandes par statut</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">{stats.totalOrders} commandes au total</p>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <OrdersStatusChart data={statusChartData} />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Row 4: Bottom section */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* Dernieres commandes — 2/3 */}
-        <Card className="border-border/50 lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-base font-semibold">Dernières commandes</CardTitle>
-            <Button asChild variant="outline" size="sm" className="border-border/50">
-              <Link href="/mon-business/commandes">Voir tout</Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {recentOrders.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Aucune commande pour le moment.
+        {/* Row 3: Charts */}
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* Revenue Chart */}
+          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-7">
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-white">Revenus</h2>
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
+                6 derniers mois
               </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/50">
-                      <th className="pb-3 text-left text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Client
-                      </th>
-                      <th className="pb-3 text-left text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Montant
-                      </th>
-                      <th className="pb-3 text-left text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Statut
-                      </th>
-                      <th className="pb-3 text-left text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="pb-3 text-right text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/50">
-                    {recentOrders.map((order) => {
-                      const buyer = order.member ?? order.customer
-                      const buyerName = buyer
-                        ? `${buyer.firstName} ${buyer.lastName}`
-                        : 'Client'
-                      return (
-                        <tr key={order.id} className="group">
-                          <td className="py-3">
-                            <div>
-                              <p className="font-medium">{buyerName}</p>
-                            </div>
-                          </td>
-                          <td className="py-3 font-medium">
-                            {formatCurrency(Number(order.totalAmount))}
-                          </td>
-                          <td className="py-3">
-                            {getStatusBadge(order.status)}
-                          </td>
-                          <td className="py-3 text-muted-foreground">
-                            {formatDate(order.createdAt)}
-                          </td>
-                          <td className="py-3 text-right">
-                            <Link
-                              href={`/mon-business/commandes/${order.id}`}
-                              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                            >
-                              <Eye size={14} />
-                              Voir
-                            </Link>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+            <RevenueChart data={revenueByMonth} />
+          </div>
 
-        {/* Right sidebar — 1/3 */}
-        <div className="space-y-4">
-          {/* Alertes */}
-          {stats.pendingOrders > 0 && (
-            <Card className="border-border/50 border-amber-500/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-500" />
-                  Alertes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium text-amber-500">{stats.pendingOrders}</span>{' '}
-                  commande{stats.pendingOrders > 1 ? 's' : ''} en attente de traitement
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {/* Orders Status Chart */}
+          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-5">
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-white">
+                Commandes par statut
+              </h2>
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
+                Répartition actuelle
+              </p>
+            </div>
+            <OrdersStatusChart
+              data={statusChartData}
+              total={stats.totalOrders}
+            />
+          </div>
+        </div>
 
-          {/* Stock faible */}
-          {lowStockProducts.length > 0 && (
-            <Card className="border-border/50 border-red-500/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Package className="h-4 w-4 text-red-500" />
-                  Stock faible
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {lowStockProducts.map((product) => (
-                    <li
-                      key={product.id}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="truncate pr-2">{product.name}</span>
-                      <Badge
-                        variant="outline"
-                        className="shrink-0 border-red-500/20 text-red-500 text-[11px]"
-                      >
-                        {product.stock} restant{(product.stock ?? 0) > 1 ? 's' : ''}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Top produits */}
-          <Card className="border-border/50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold">Top produits</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {topProducts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucune vente pour le moment</p>
-              ) : (
-                <ul className="space-y-3">
-                  {topProducts.map((product, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
-                          {index + 1}
-                        </span>
-                        <span className="truncate">{product.name}</span>
-                      </div>
-                      <span className="shrink-0 font-medium text-muted-foreground">
-                        {formatCurrency(product.revenue)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Clients count */}
-          <Card className="border-border/50">
-            <CardContent className="flex items-center justify-between p-5">
+        {/* Row 4: Recent Orders + Sidebar */}
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* Recent Orders Table */}
+          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-8">
+            <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">Clients</p>
-                <p className="text-2xl font-bold">{clients.length}</p>
+                <h2 className="text-base font-semibold text-white">
+                  Dernières commandes
+                </h2>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">
+                  Les 5 plus récentes
+                </p>
               </div>
-              <Button asChild variant="outline" size="sm" className="border-border/50">
-                <Link href="/mon-business/clients">Voir</Link>
-              </Button>
-            </CardContent>
-          </Card>
+              <Link
+                href="/mon-business/commandes"
+                className="inline-flex items-center gap-1 text-[12px] font-medium text-purple-400 transition-colors hover:text-purple-300"
+              >
+                Voir toutes
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+            <RecentOrdersTable orders={tableOrders} />
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="lg:col-span-4">
+            <AlertsSidebar
+              pendingOrders={stats.pendingOrders}
+              lowStockProducts={lowStockProducts.map((p) => ({
+                id: p.id,
+                name: p.name,
+                stock: p.stock,
+              }))}
+              topProducts={topProducts}
+            />
+
+            {/* Clients card */}
+            <div className="mt-4 rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/10">
+                    <Users className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Clients
+                    </p>
+                    <p className="text-xl font-bold text-white">
+                      {clients.length}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/mon-business/clients"
+                  className="inline-flex items-center gap-1 text-[12px] font-medium text-purple-400 transition-colors hover:text-purple-300"
+                >
+                  Voir
+                  <ArrowRight size={12} />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
