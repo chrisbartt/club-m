@@ -3,6 +3,7 @@
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const DEV_ACCOUNTS = [
@@ -77,6 +78,12 @@ export default function LoginPage() {
             </div>
           </button>
         ))}
+
+        <div className="mt-4 text-center">
+          <Link href="/forgot-password" className="text-sm text-[#a55b46] hover:underline">
+            Mot de passe oublie ?
+          </Link>
+        </div>
       </CardContent>
     </Card>
   )
