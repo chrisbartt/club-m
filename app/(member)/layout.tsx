@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { MemberSidebar } from '@/components/member/member-sidebar'
+import { EmailVerificationBanner } from '@/components/shared/email-verification-banner'
 
 export default async function MemberLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -31,13 +32,29 @@ export default async function MemberLayout({ children }: { children: React.React
   const isBusinessRoute = pathname.startsWith('/mon-business')
 
   if (isBusinessRoute) {
-    return <>{children}</>
+    return (
+      <>
+        <EmailVerificationBanner
+          emailVerified={user.emailVerified}
+          createdAt={user.createdAt.toISOString()}
+          userEmail={user.email}
+        />
+        {children}
+      </>
+    )
   }
 
   return (
     <div className="flex h-screen">
       <MemberSidebar memberTier={user.member.tier} verificationStatus={user.member.verificationStatus} />
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <main className="flex-1 overflow-y-auto p-6">
+        <EmailVerificationBanner
+          emailVerified={user.emailVerified}
+          createdAt={user.createdAt.toISOString()}
+          userEmail={user.email}
+        />
+        {children}
+      </main>
     </div>
   )
 }
