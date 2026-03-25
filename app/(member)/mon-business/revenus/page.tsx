@@ -7,15 +7,12 @@ import {
 } from '@/domains/business/dashboard-queries'
 import { KpiCard } from '@/components/business/kpi-card'
 import { RevenueChart } from '@/components/business/revenue-chart'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  DollarSign,
+  TrendingUp,
+  ShoppingCart,
+  CheckCircle2,
+} from 'lucide-react'
 
 const MONTH_LABELS: Record<string, string> = {
   '01': 'Janvier',
@@ -33,7 +30,7 @@ const MONTH_LABELS: Record<string, string> = {
 }
 
 export const metadata = {
-  title: 'Mes revenus | Club M',
+  title: 'Revenus | Club M',
 }
 
 export default async function RevenusPage() {
@@ -66,58 +63,112 @@ export default async function RevenusPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Mes revenus</h1>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-white">Revenus</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Suivez l&apos;evolution de votre chiffre d&apos;affaires
+        </p>
+      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      {/* KPI cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Chiffre d'affaires total"
+          label="Chiffre d'affaires"
           value={`${stats.totalRevenue.toLocaleString('fr-FR')}$`}
+          icon={<DollarSign className="h-5 w-5" />}
+          iconBg="bg-emerald-500/10"
+          iconColor="text-emerald-400"
         />
         <KpiCard
-          label="Moyenne par mois"
+          label="Moyenne / mois"
           value={`${Math.round(avgPerMonth).toLocaleString('fr-FR')}$`}
+          icon={<TrendingUp className="h-5 w-5" />}
+          iconBg="bg-blue-500/10"
+          iconColor="text-blue-400"
+        />
+        <KpiCard
+          label="Total commandes"
+          value={String(stats.totalOrders)}
+          icon={<ShoppingCart className="h-5 w-5" />}
+          iconBg="bg-purple-500/10"
+          iconColor="text-purple-400"
+        />
+        <KpiCard
+          label="Completees"
+          value={String(stats.completedOrders)}
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          iconBg="bg-amber-500/10"
+          iconColor="text-amber-400"
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Evolution du chiffre d&apos;affaires</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Revenue chart */}
+      <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+        <h2 className="text-lg font-semibold text-white">
+          Evolution du chiffre d&apos;affaires
+        </h2>
+        <div className="mt-4">
           <RevenueChart data={revenueByMonth} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Detail par mois</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Mois</TableHead>
-                <TableHead className="text-right">Revenu</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+      {/* Monthly breakdown table */}
+      <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+        <h2 className="text-lg font-semibold text-white">Detail par mois</h2>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/[0.06]">
+                <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Mois
+                </th>
+                <th className="pb-3 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Revenu
+                </th>
+                <th className="pb-3 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Part du total
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.04]">
               {revenueByMonth.map((entry) => {
                 const [year, month] = entry.month.split('-')
+                const pct =
+                  stats.totalRevenue > 0
+                    ? ((entry.revenue / stats.totalRevenue) * 100).toFixed(1)
+                    : '0'
                 return (
-                  <TableRow key={entry.month}>
-                    <TableCell className="font-medium">
+                  <tr
+                    key={entry.month}
+                    className="transition-colors hover:bg-white/[0.02]"
+                  >
+                    <td className="py-3 font-medium text-white">
                       {MONTH_LABELS[month] ?? month} {year}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </td>
+                    <td className="py-3 text-right font-semibold text-white">
                       {entry.revenue.toLocaleString('fr-FR')}$
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                    <td className="py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                          <div
+                            className="h-full rounded-full bg-[#8b5cf6]"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {pct}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
                 )
               })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

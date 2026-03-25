@@ -2,18 +2,10 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getBusinessClients } from '@/domains/business/dashboard-queries'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Users } from 'lucide-react'
 
 export const metadata = {
-  title: 'Mes clients | Club M',
+  title: 'Clients | Club M',
 }
 
 export default async function ClientsPage() {
@@ -38,58 +30,86 @@ export default async function ClientsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Mes clients</h1>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-white">Clients</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {clients.length} client{clients.length !== 1 ? 's' : ''} au total
+        </p>
+      </div>
 
+      {/* Table */}
       {clients.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-[#1a1a24] py-16">
+          <Users className="mb-3 h-10 w-10 text-muted-foreground/40" />
+          <p className="text-sm text-muted-foreground">
             Aucun client pour le moment.
-          </CardContent>
-        </Card>
+          </p>
+        </div>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              {clients.length} client{clients.length !== 1 ? 's' : ''}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="text-right">Commandes</TableHead>
-                  <TableHead className="text-right">Total depense</TableHead>
-                  <TableHead className="text-right">Derniere commande</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {client.email ?? '-'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {client.orderCount}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {client.totalSpent.toLocaleString('fr-FR')}$
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {new Date(client.lastOrder).toLocaleDateString('fr-FR', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#1a1a24]">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/[0.06]">
+                <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Nom
+                </th>
+                <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Email
+                </th>
+                <th className="px-5 py-3 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Commandes
+                </th>
+                <th className="px-5 py-3 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Total depense
+                </th>
+                <th className="px-5 py-3 text-right text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Derniere commande
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.04]">
+              {clients.map((client) => (
+                <tr
+                  key={client.id}
+                  className="transition-colors hover:bg-white/[0.02]"
+                >
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#8b5cf6]/10 text-xs font-semibold text-[#8b5cf6]">
+                        {client.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </div>
+                      <span className="font-medium text-white">
+                        {client.name}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3.5 text-muted-foreground">
+                    {client.email ?? '-'}
+                  </td>
+                  <td className="px-5 py-3.5 text-right text-white">
+                    {client.orderCount}
+                  </td>
+                  <td className="px-5 py-3.5 text-right font-semibold text-white">
+                    {client.totalSpent.toLocaleString('fr-FR')}$
+                  </td>
+                  <td className="px-5 py-3.5 text-right text-muted-foreground">
+                    {new Date(client.lastOrder).toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   )
