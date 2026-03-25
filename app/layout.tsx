@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/providers/auth-provider'
 import { ThemeProvider } from '@/providers/theme-provider'
+import { CartProvider } from '@/context/cart-context'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -15,8 +16,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <ThemeProvider>
           <AuthProvider>
-            {children}
-            <Toaster richColors position="top-right" />
+            <CartProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </CartProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

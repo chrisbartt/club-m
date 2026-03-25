@@ -118,7 +118,7 @@ export default async function MarketplacePage({
                         id: product.id,
                         name: product.name,
                         description: product.description,
-                        price: product.price,
+                        price: Number(product.price),
                         currency: product.currency,
                         images: product.images,
                         type: product.type,
