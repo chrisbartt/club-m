@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
+import { getKycCount } from '@/domains/kyc/queries'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -19,9 +20,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/dashboard')
   }
 
+  const pendingKycCount = await getKycCount()
+
   return (
     <div className="flex h-screen">
-      <AdminSidebar />
+      <AdminSidebar pendingKycCount={pendingKycCount} />
       <main className="flex-1 overflow-y-auto p-6">{children}</main>
     </div>
   )

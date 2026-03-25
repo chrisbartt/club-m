@@ -13,6 +13,7 @@ import {
   CreditCard,
   FileText,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,7 @@ import { Button } from '@/components/ui/button'
 const links = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/membres', label: 'Membres', icon: Users },
+  { href: '/admin/kyc', label: 'KYC', icon: ShieldCheck },
   { href: '/admin/evenements', label: 'Evenements', icon: Calendar },
   { href: '/admin/annuaire', label: 'Annuaire', icon: BookOpen },
   { href: '/admin/produits', label: 'Produits', icon: Package },
@@ -28,7 +30,11 @@ const links = [
   { href: '/admin/journal', label: 'Journal', icon: FileText },
 ]
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  pendingKycCount?: number
+}
+
+export function AdminSidebar({ pendingKycCount }: AdminSidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -55,6 +61,11 @@ export function AdminSidebar() {
             >
               <Icon className="h-4 w-4" />
               {link.label}
+              {link.href === '/admin/kyc' && pendingKycCount && pendingKycCount > 0 ? (
+                <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+                  {pendingKycCount}
+                </span>
+              ) : null}
             </Link>
           )
         })}

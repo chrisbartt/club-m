@@ -41,3 +41,33 @@ export async function getPendingKycList() {
     orderBy: { submittedAt: 'asc' },
   })
 }
+
+export async function getKycListWithFilters(status?: string, search?: string) {
+  const where: any = {}
+  if (status && status !== 'all') {
+    where.status = status
+  }
+  if (search) {
+    where.member = {
+      OR: [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+      ],
+    }
+  }
+  return db.kycVerification.findMany({
+    where,
+    include: {
+      member: {
+        include: { user: { select: { email: true } } },
+      },
+    },
+    orderBy: { submittedAt: 'desc' },
+  })
+}
+
+export async function getKycCount() {
+  return db.kycVerification.count({
+    where: { status: 'PENDING' },
+  })
+}
