@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { ShoppingCart, ArrowRight, BadgeCheck } from 'lucide-react'
 import { useCart } from '@/context/cart-context'
@@ -77,18 +76,14 @@ export default function ProductCard({ product, business }: ProductCardProps) {
       {/* Image */}
       <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-50">
         {image ? (
-          <Image
+          <img
             src={image}
             alt={product.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-4xl font-bold text-gray-200">
-              {product.name.charAt(0).toUpperCase()}
-            </span>
+          <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
+            <span className="text-2xl font-bold text-[#a55b46]/30">{product.name[0]}</span>
           </div>
         )}
 
@@ -121,11 +116,9 @@ export default function ProductCard({ product, business }: ProductCardProps) {
         <div className="flex items-center gap-2 mb-3">
           <div className="w-5 h-5 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
             {business.member.avatar ? (
-              <Image
+              <img
                 src={business.member.avatar}
                 alt=""
-                width={20}
-                height={20}
                 className="object-cover w-full h-full"
               />
             ) : (

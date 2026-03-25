@@ -130,8 +130,15 @@ const Footer = () => {
                       Journal
                     </Link>
                   </li>
-                  
-                  
+                  <li>
+                    <Link
+                      href="/marketplace"
+                      className="text-white hover:text-[#a55b46] transition-colors lg:text-[16px] text-[14px]"
+                    >
+                      Marketplace
+                    </Link>
+                  </li>
+
                 </ul>
               </div>
 

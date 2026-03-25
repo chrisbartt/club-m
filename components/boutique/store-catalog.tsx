@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { LayoutGrid, ShoppingBag, Briefcase, User, MapPin, Phone, Mail, Globe, BadgeCheck, Clock } from 'lucide-react'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import AddToCartButton from './add-to-cart-button'
@@ -200,16 +199,14 @@ function CatalogProductCard({
       {/* Image */}
       <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-50">
         {image ? (
-          <Image
+          <img
             src={image}
             alt={product.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-4xl font-bold text-gray-200">
+          <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
+            <span className="text-2xl font-bold text-[#a55b46]/30">
               {product.name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -351,11 +348,9 @@ function AboutTab({
         <div className="flex items-center gap-4 bg-[#f8f8f8] rounded-2xl p-4">
           <div className="w-14 h-14 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
             {business.member.avatar ? (
-              <Image
+              <img
                 src={business.member.avatar}
                 alt=""
-                width={56}
-                height={56}
                 className="object-cover w-full h-full"
               />
             ) : (

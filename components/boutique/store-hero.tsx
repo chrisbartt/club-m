@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { BadgeCheck, MapPin, Phone, Mail } from 'lucide-react'
 
 interface StoreHeroProps {
@@ -30,16 +29,13 @@ export default function StoreHero({ business }: StoreHeroProps) {
       {/* Cover image */}
       <div className="relative h-56 md:h-72 lg:h-80 bg-gradient-to-br from-[#091626] to-[#1a3050]">
         {business.coverImage ? (
-          <Image
+          <img
             src={business.coverImage}
             alt={business.businessName}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
+          <div className="w-full h-full bg-gradient-to-br from-[#091626] to-[#1a3050] flex items-center justify-center">
             <span className="text-7xl md:text-9xl font-bold text-white/10">
               {business.businessName.charAt(0).toUpperCase()}
             </span>
@@ -56,11 +52,9 @@ export default function StoreHero({ business }: StoreHeroProps) {
             {/* Avatar */}
             <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gray-200 overflow-hidden flex-shrink-0 shadow-sm">
               {business.member.avatar ? (
-                <Image
+                <img
                   src={business.member.avatar}
                   alt=""
-                  width={80}
-                  height={80}
                   className="object-cover w-full h-full"
                 />
               ) : (

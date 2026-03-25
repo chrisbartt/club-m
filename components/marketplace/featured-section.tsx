@@ -1,6 +1,5 @@
 import { getPopularProducts, getFeaturedStores } from '@/domains/marketplace/queries'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, BadgeCheck, ShoppingBag } from 'lucide-react'
 import type { Currency } from '@/lib/generated/prisma/client'
@@ -47,16 +46,14 @@ export default async function FeaturedSection() {
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                     <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-50">
                       {image ? (
-                        <Image
+                        <img
                           src={image}
                           alt={product.name}
-                          fill
-                          className="object-cover"
-                          sizes="176px"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <span className="text-3xl font-bold text-gray-200">
+                        <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
+                          <span className="text-3xl font-bold text-[#a55b46]/30">
                             {product.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -108,15 +105,13 @@ export default async function FeaturedSection() {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                   <div className="relative h-28 bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/10">
                     {store.coverImage ? (
-                      <Image
+                      <img
                         src={store.coverImage}
                         alt={store.businessName}
-                        fill
-                        className="object-cover"
-                        sizes="256px"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full">
+                      <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
                         <span className="text-4xl font-bold text-white/40">
                           {store.businessName.charAt(0).toUpperCase()}
                         </span>
@@ -127,7 +122,7 @@ export default async function FeaturedSection() {
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 -mt-6 border-2 border-white shadow-sm relative z-10">
                         {store.member.avatar ? (
-                          <Image src={store.member.avatar} alt="" width={32} height={32} className="object-cover w-full h-full" />
+                          <img src={store.member.avatar} alt="" className="object-cover w-full h-full" />
                         ) : (
                           <div className="w-full h-full bg-[#a55b46] flex items-center justify-center">
                             <span className="text-xs font-bold text-white">{store.member.firstName.charAt(0)}</span>

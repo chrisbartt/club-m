@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, BadgeCheck, ShoppingBag } from 'lucide-react'
 
@@ -28,15 +27,13 @@ export default function StoreCard({ store }: StoreCardProps) {
       {/* Cover */}
       <div className="relative h-40 bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/10">
         {store.coverImage ? (
-          <Image
+          <img
             src={store.coverImage}
             alt={store.businessName}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
+          <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
             <span className="text-5xl font-bold text-white/40">
               {store.businessName.charAt(0).toUpperCase()}
             </span>
@@ -54,11 +51,9 @@ export default function StoreCard({ store }: StoreCardProps) {
           {/* Avatar */}
           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0 -mt-8 border-2 border-white shadow-sm relative z-10">
             {store.member.avatar ? (
-              <Image
+              <img
                 src={store.member.avatar}
                 alt=""
-                width={40}
-                height={40}
                 className="object-cover w-full h-full"
               />
             ) : (

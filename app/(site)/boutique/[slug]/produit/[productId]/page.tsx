@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import {
   ChevronRight,
@@ -83,25 +82,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {product.images.length > 0 ? (
                 <div className="space-y-3">
                   <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white">
-                    <Image
+                    <img
                       src={product.images[0]}
                       alt={product.name}
-                      fill
-                      className="object-cover"
-                      priority
-                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   {product.images.length > 1 && (
                     <div className="grid grid-cols-4 gap-3">
                       {product.images.slice(1, 5).map((img, i) => (
                         <div key={i} className="relative aspect-square overflow-hidden rounded-xl bg-white">
-                          <Image
+                          <img
                             src={img}
                             alt={`${product.name} - ${i + 2}`}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 1024px) 25vw, 12vw"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       ))}
@@ -195,12 +189,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   <div className="flex items-center gap-4">
                     <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
                       {profile.member.avatar ? (
-                        <Image
+                        <img
                           src={profile.member.avatar}
                           alt={profile.businessName}
-                          fill
-                          className="object-cover"
-                          sizes="56px"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-[#a55b46] flex items-center justify-center">
