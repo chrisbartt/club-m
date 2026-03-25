@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/marketplace", label: "Marketplace" },
   { href: "/evenements", label: "Événements" },
   { href: "/annuaires", label: "Membres" },
+  { href: "/journal", label: "Journal" },
   { href: "/contact", label: "Contact" },
 ];
 
