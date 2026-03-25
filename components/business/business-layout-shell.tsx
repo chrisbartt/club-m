@@ -11,7 +11,11 @@ export function BusinessLayoutShell({ children }: { children: React.ReactNode })
         <BusinessSidebar />
         <div className="wrapper-page flex transition-300 flex-col pb-[80px] lg:pb-0 lg:pl-[250px] min-h-screen w-full">
           <BusinessNavbar />
-          {children}
+          <main className="flex-1 overflow-y-auto">
+            <div className="px-4 lg:px-6 2xl:px-8 py-6">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </SidebarProvider>

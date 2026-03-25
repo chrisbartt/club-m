@@ -66,7 +66,7 @@ export default async function MonBusinessPage() {
 
   if (!hasMinTier(member.tier, 'PREMIUM')) {
     return (
-      <div className="p-6">
+      <div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <p className="mb-2 text-lg font-semibold">
@@ -89,7 +89,7 @@ export default async function MonBusinessPage() {
   // No profile yet — show creation form
   if (!profile) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         <h1 className="text-2xl font-bold">Créer votre profil business</h1>
         <BusinessProfileForm mode="create" />
       </div>
@@ -99,7 +99,7 @@ export default async function MonBusinessPage() {
   // Not a STORE type — show upgrade prompt
   if (profile.profileType !== 'STORE') {
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         <Card>
           <CardContent className="py-8 text-center">
             <p className="text-sm text-muted-foreground">
@@ -258,8 +258,7 @@ export default async function MonBusinessPage() {
     })
 
   return (
-    <div className="min-h-screen bg-[#0f0f12] p-4 lg:p-6">
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Page header */}
         <div>
           <h1 className="text-2xl font-bold text-white">Tableau de bord</h1>
@@ -488,7 +487,6 @@ export default async function MonBusinessPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }

@@ -123,8 +123,7 @@ export default async function RevenusPage({
   )
 
   return (
-    <div className="min-h-screen bg-[#0f0f12] p-4 lg:p-6">
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -487,7 +486,6 @@ export default async function RevenusPage({
             </table>
           </div>
         </div>
-      </div>
     </div>
   )
 }
