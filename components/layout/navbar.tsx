@@ -11,10 +11,9 @@ import CartIcon from "@/components/cart/cart-icon";
 
 const navLinks = [
   { href: "/a-propos", label: "Le Club" },
-  // { href: "/business-aligne", label: "Business Aligné" },
+  { href: "/marketplace", label: "Marketplace" },
   { href: "/evenements", label: "Événements" },
   { href: "/annuaires", label: "Membres" },
-  { href: "/journal", label: "Journal" },
   { href: "/contact", label: "Contact" },
 ];
 
