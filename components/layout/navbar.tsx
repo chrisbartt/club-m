@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserRound } from "lucide-react";
+import CartIcon from "@/components/cart/cart-icon";
 
 const navLinks = [
   { href: "/a-propos", label: "Le Club" },
@@ -112,6 +113,7 @@ const Navbar = () => {
             </div>
 
             <div className="lg:flex hidden items-center gap-3">
+              <CartIcon scrolled={scrolled} />
               <Link
                 href="/devenir-membre"
                 className="px-6 py-2 inline-flex h-full items-center justify-center bg-[#a55b46] text-white rounded-xl hover:bg-[#a55b46]/80 hover:text-white transition-colors font-medium"

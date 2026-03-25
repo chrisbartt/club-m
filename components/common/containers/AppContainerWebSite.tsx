@@ -7,6 +7,7 @@ import { DialogProvider } from "@/context/dialog-context";
 import { DrawerProvider } from "@/context/drawer-context";
 import { ImageModalProvider } from "@/context/image-modal-context";
 import { MenuProvider } from "@/context/menu-context";
+import { CartProvider } from "@/context/cart-context";
 import ImageModal from "@/components/features/imageModal/imageModal";
 
 const AppContainerWebSite = ({
@@ -20,11 +21,13 @@ const AppContainerWebSite = ({
         <DialogProvider>
           <ImageModalProvider>
             <MenuProvider>
-              <Navbar />
-              <ResponsiveMenu />
-              {children}
-              <Footer />
-              <ImageModal />
+              <CartProvider>
+                <Navbar />
+                <ResponsiveMenu />
+                {children}
+                <Footer />
+                <ImageModal />
+              </CartProvider>
             </MenuProvider>
           </ImageModalProvider>
         </DialogProvider>
