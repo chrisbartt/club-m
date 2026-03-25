@@ -1,8 +1,10 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getProductById } from '@/domains/business/queries'
 import { ProductForm } from '@/components/directory/product-form'
+import { ArrowLeft } from 'lucide-react'
 
 export const metadata = {
   title: 'Modifier produit | Club M',
@@ -38,7 +40,19 @@ export default async function EditProductPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">Modifier le produit</h1>
+      <div>
+        <Link
+          href="/mon-business/produits"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour aux produits
+        </Link>
+        <h1 className="text-2xl font-bold text-white">Modifier le produit</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Mettez a jour les informations de votre produit
+        </p>
+      </div>
       <ProductForm
         mode="edit"
         defaultValues={{

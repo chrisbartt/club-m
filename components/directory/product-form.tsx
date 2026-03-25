@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Currency, ProductType } from '@/lib/generated/prisma/client'
 
 interface ProductFormProps {
@@ -89,145 +88,172 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{mode === 'create' ? 'Nouveau produit' : 'Modifier le produit'}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
-          <div className="space-y-1">
-            <Label htmlFor="name">Nom</Label>
+    <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a24]">
+      <div className="border-b border-white/[0.06] px-6 py-4">
+        <h2 className="text-lg font-semibold text-white">
+          {mode === 'create' ? 'Nouveau produit' : 'Modifier le produit'}
+        </h2>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {mode === 'create'
+            ? 'Remplissez les informations de votre produit'
+            : 'Modifiez les informations ci-dessous'}
+        </p>
+      </div>
+      <form onSubmit={handleSubmit} className="space-y-5 p-6">
+        {/* Name */}
+        <div className="space-y-1.5">
+          <Label htmlFor="name" className="text-sm text-muted-foreground">
+            Nom
+          </Label>
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nom du produit"
+            required
+            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
+          />
+          {errors.name && (
+            <p className="text-sm text-red-400">{errors.name[0]}</p>
+          )}
+        </div>
+
+        {/* Description */}
+        <div className="space-y-1.5">
+          <Label htmlFor="description" className="text-sm text-muted-foreground">
+            Description
+          </Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Decrivez votre produit"
+            required
+            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
+          />
+          {errors.description && (
+            <p className="text-sm text-red-400">{errors.description[0]}</p>
+          )}
+        </div>
+
+        {/* Price + Currency */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="price" className="text-sm text-muted-foreground">
+              Prix
+            </Label>
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nom du produit"
+              id="price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="0"
               required
+              className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
             />
-            {errors.name && (
-              <p className="text-sm text-red-600">{errors.name[0]}</p>
+            {errors.price && (
+              <p className="text-sm text-red-400">{errors.price[0]}</p>
             )}
           </div>
 
-          {/* Description */}
-          <div className="space-y-1">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Decrivez votre produit"
-              required
-            />
-            {errors.description && (
-              <p className="text-sm text-red-600">{errors.description[0]}</p>
-            )}
-          </div>
-
-          {/* Price + Currency */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1">
-              <Label htmlFor="price">Prix</Label>
-              <Input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="0"
-                required
-              />
-              {errors.price && (
-                <p className="text-sm text-red-600">{errors.price[0]}</p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <Label>Devise</Label>
-              <Select value={currency} onValueChange={(val) => setCurrency(val as Currency)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USD">USD ($)</SelectItem>
-                  <SelectItem value="CDF">CDF (FC)</SelectItem>
-                  <SelectItem value="EUR">EUR (€)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Type */}
-          <div className="space-y-1">
-            <Label>Type</Label>
-            <Select value={type} onValueChange={(val) => setType(val as ProductType)}>
-              <SelectTrigger>
+          <div className="space-y-1.5">
+            <Label className="text-sm text-muted-foreground">Devise</Label>
+            <Select value={currency} onValueChange={(val) => setCurrency(val as Currency)}>
+              <SelectTrigger className="border-white/[0.06] bg-white/[0.03] text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PHYSICAL">Produit physique</SelectItem>
-                <SelectItem value="SERVICE">Service</SelectItem>
-                <SelectItem value="DIGITAL">Digital</SelectItem>
+              <SelectContent className="border-white/[0.06] bg-[#1a1a24]">
+                <SelectItem value="USD">USD ($)</SelectItem>
+                <SelectItem value="CDF">CDF (FC)</SelectItem>
+                <SelectItem value="EUR">EUR (&euro;)</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          {/* Category */}
-          <div className="space-y-1">
-            <Label htmlFor="category">Categorie (optionnel)</Label>
+        {/* Type */}
+        <div className="space-y-1.5">
+          <Label className="text-sm text-muted-foreground">Type</Label>
+          <Select value={type} onValueChange={(val) => setType(val as ProductType)}>
+            <SelectTrigger className="border-white/[0.06] bg-white/[0.03] text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-white/[0.06] bg-[#1a1a24]">
+              <SelectItem value="PHYSICAL">Produit physique</SelectItem>
+              <SelectItem value="SERVICE">Service</SelectItem>
+              <SelectItem value="DIGITAL">Digital</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Category */}
+        <div className="space-y-1.5">
+          <Label htmlFor="category" className="text-sm text-muted-foreground">
+            Categorie (optionnel)
+          </Label>
+          <Input
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="Ex: Beaute, Mode, Alimentation"
+            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
+          />
+        </div>
+
+        {/* Stock (only for PHYSICAL) */}
+        {type === 'PHYSICAL' && (
+          <div className="space-y-1.5">
+            <Label htmlFor="stock" className="text-sm text-muted-foreground">
+              Stock
+            </Label>
             <Input
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="Ex: Beaute, Mode, Alimentation"
+              id="stock"
+              type="number"
+              min="0"
+              step="1"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              placeholder="0"
+              className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
             />
-          </div>
-
-          {/* Stock (only for PHYSICAL) */}
-          {type === 'PHYSICAL' && (
-            <div className="space-y-1">
-              <Label htmlFor="stock">Stock</Label>
-              <Input
-                id="stock"
-                type="number"
-                min="0"
-                step="1"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                placeholder="0"
-              />
-              {errors.stock && (
-                <p className="text-sm text-red-600">{errors.stock[0]}</p>
-              )}
-            </div>
-          )}
-
-          {/* Images */}
-          <div className="space-y-1">
-            <Label htmlFor="images">Images (URLs separees par des virgules)</Label>
-            <Textarea
-              id="images"
-              value={imagesStr}
-              onChange={(e) => setImagesStr(e.target.value)}
-              placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-              rows={2}
-            />
-            {errors.images && (
-              <p className="text-sm text-red-600">{errors.images[0]}</p>
+            {errors.stock && (
+              <p className="text-sm text-red-400">{errors.stock[0]}</p>
             )}
           </div>
+        )}
 
-          <Button type="submit" disabled={isPending} className="w-full">
-            {isPending
-              ? 'En cours...'
-              : mode === 'create'
-                ? 'Creer le produit'
-                : 'Enregistrer les modifications'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        {/* Images */}
+        <div className="space-y-1.5">
+          <Label htmlFor="images" className="text-sm text-muted-foreground">
+            Images (URLs separees par des virgules)
+          </Label>
+          <Textarea
+            id="images"
+            value={imagesStr}
+            onChange={(e) => setImagesStr(e.target.value)}
+            placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+            rows={2}
+            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
+          />
+          {errors.images && (
+            <p className="text-sm text-red-400">{errors.images[0]}</p>
+          )}
+        </div>
+
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-full rounded-xl bg-[#8b5cf6] py-2.5 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:bg-[#7c3aed] hover:shadow-purple-500/30 disabled:opacity-50"
+        >
+          {isPending
+            ? 'En cours...'
+            : mode === 'create'
+              ? 'Creer le produit'
+              : 'Enregistrer les modifications'}
+        </Button>
+      </form>
+    </div>
   )
 }
