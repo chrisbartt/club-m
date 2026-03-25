@@ -81,6 +81,35 @@ export async function getProfileById(id: string): Promise<ProfileWithProducts | 
   })
 }
 
+export async function getProfileWithStats(profileId: string) {
+  const profile = await db.businessProfile.findUnique({
+    where: { id: profileId },
+    include: {
+      member: {
+        include: { user: { select: { email: true, createdAt: true } } },
+      },
+      products: true,
+      receivedOrders: {
+        include: { items: true, payment: true },
+      },
+    },
+  })
+
+  if (!profile) return null
+
+  const activeProducts = profile.products.filter(p => p.isActive).length
+  const totalOrders = profile.receivedOrders.length
+  const totalRevenue = profile.receivedOrders.reduce(
+    (sum, o) => sum + Number(o.totalAmount), 0
+  )
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
+
+  return {
+    ...profile,
+    stats: { activeProducts, totalProducts: profile.products.length, totalOrders, totalRevenue, avgOrderValue },
+  }
+}
+
 export async function getAdminProfiles(filters?: {
   approved?: boolean
 }): Promise<ProfileWithMember[]> {

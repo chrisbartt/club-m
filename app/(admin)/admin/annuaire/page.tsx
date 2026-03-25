@@ -97,7 +97,12 @@ export default async function AdminAnnuairePage({ searchParams }: Props) {
                 return (
                   <TableRow key={profile.id}>
                     <TableCell className="font-medium">
-                      {profile.businessName}
+                      <a
+                        href={`/admin/annuaire/${profile.id}`}
+                        className="text-primary hover:underline"
+                      >
+                        {profile.businessName}
+                      </a>
                     </TableCell>
                     <TableCell>{memberName}</TableCell>
                     <TableCell>
