@@ -30,6 +30,15 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import type { ProfileWithProducts } from "@/domains/directory/types";
+import { CURRENCY_SYMBOLS } from "@/lib/constants";
+import type { Currency } from "@/lib/generated/prisma/client";
+import { ShoppingBag } from "lucide-react";
+
+const TYPE_LABELS: Record<string, string> = {
+  PHYSICAL: "Produit",
+  SERVICE: "Service",
+  DIGITAL: "Digital",
+};
 
 const DEFAULT_SLIDES = [
   { src: "/images/cover2.png", alt: "Banner 1" },
@@ -244,6 +253,15 @@ const BlockDetailMembre = ({ profile }: BlockDetailMembreProps) => {
                     >
                       Portfolios
                     </TabsTrigger>
+                    {products.length > 0 && (
+                      <TabsTrigger
+                        value="produits"
+                        className="data-[state=active]:bg-[#091626] px-3 py-2 cursor-pointer rounded-lg data-[state=active]:text-white md:text-base text-sm"
+                      >
+                        <ShoppingBag className="w-4 h-4 mr-1.5" />
+                        Produits ({products.length})
+                      </TabsTrigger>
+                    )}
                   </TabsList>
                   <TabsContent value="about">
                     <div className="lg:mt-6">
@@ -949,6 +967,75 @@ const BlockDetailMembre = ({ profile }: BlockDetailMembreProps) => {
                       </div>
                     </div>
                   </TabsContent>
+                  {products.length > 0 && (
+                    <TabsContent value="produits">
+                      <div className="lg:mt-6">
+                        <h2 className="text-2xl lg:text-3xl text-[#091626] font-semibold mb-1">
+                          Produits & Services
+                        </h2>
+                        <p className="text-muted-foreground text-base mb-6">
+                          Découvrez les produits et services proposés par cette boutique.
+                        </p>
+                        <div className="grid grid-cols-12 gap-3 md:gap-4">
+                          {products.filter((p) => p.isActive).map((product) => {
+                            const firstImage = product.images[0];
+                            const symbol = CURRENCY_SYMBOLS[product.currency as Currency] ?? "$";
+                            const priceDisplay = `${Number(product.price).toLocaleString("fr-FR")} ${symbol}`;
+                            return (
+                              <div key={product.id} className="col-span-12 sm:col-span-6 lg:col-span-4">
+                                <Link href={`/annuaires/${profile?.id}/produit/${product.id}`}>
+                                  <div className="card bg-white p-2 rounded-2xl flex flex-col h-full group hover:shadow-md transition-shadow">
+                                    {firstImage ? (
+                                      <div className="card-img relative w-full h-[160px] overflow-hidden rounded-xl">
+                                        <Image
+                                          src={firstImage}
+                                          fill
+                                          className="object-cover rounded-xl group-hover:scale-105 transition-transform"
+                                          alt={product.name}
+                                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="relative w-full h-[160px] overflow-hidden rounded-xl bg-[#f5f5f5] flex items-center justify-center">
+                                        <ShoppingBag className="w-10 h-10 text-[#091626]/20" />
+                                      </div>
+                                    )}
+                                    <div className="p-4 px-3 flex flex-col flex-1">
+                                      <div className="flex items-start justify-between gap-2 mb-1">
+                                        <h5 className="text-lg font-semibold text-[#091626]">
+                                          {product.name}
+                                        </h5>
+                                        <span className="shrink-0 text-xs font-medium text-[#a55b46] bg-[#a55b46]/10 rounded-md px-2 py-0.5">
+                                          {TYPE_LABELS[product.type] ?? product.type}
+                                        </span>
+                                      </div>
+                                      {product.description && (
+                                        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                                          {product.description}
+                                        </p>
+                                      )}
+                                      <div className="mt-auto">
+                                        <h6 className="text-[#091626] text-base font-medium flex flex-col">
+                                          <span className="text-xl font-semibold">
+                                            {priceDisplay}
+                                          </span>
+                                        </h6>
+                                        {product.type === "PHYSICAL" && product.stock !== null && (
+                                          <p className="text-muted-foreground text-xs mt-1">
+                                            {product.stock > 0 ? `${product.stock} en stock` : "Rupture de stock"}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Link>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  )}
                 </Tabs>
               </div>
             </div>
