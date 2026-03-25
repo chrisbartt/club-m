@@ -14,6 +14,14 @@ import {
   createCartOrderSchema,
   confirmDeliverySchema,
 } from './validators'
+import {
+  sendOrderConfirmationBuyer,
+  sendOrderNotificationSeller,
+  sendOrderShippedEmail,
+  sendDeliveryConfirmedBuyer,
+  sendDeliveryConfirmedSeller,
+} from '@/lib/email'
+import { formatOrderNumber } from '@/lib/server-utils'
 
 type ActionResult<T> =
   | { success: true; data: T }
@@ -230,6 +238,11 @@ export async function createCartOrder(
           commission,
           confirmationCode,
           codeExpiresAt,
+          deliveryPhone: deliveryAddress?.phone || null,
+          deliveryCommune: deliveryAddress?.commune || null,
+          deliveryQuartier: deliveryAddress?.quartier || null,
+          deliveryAvenue: deliveryAddress?.avenue || null,
+          deliveryRepere: deliveryAddress?.repere || null,
           status: 'PAID', // MVP: simulated payment
           items: {
             create: items.map((item) => {
@@ -268,6 +281,49 @@ export async function createCartOrder(
       return newOrder
     })
 
+    // Audit log
+    await createAuditLog({
+      userId: user.id,
+      userEmail: user.email,
+      action: 'ORDER_CREATED',
+      entity: 'Order',
+      entityId: order.id,
+    })
+
+    // Send order emails (non-blocking)
+    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Client'
+    const sellerProfile = await db.businessProfile.findUnique({
+      where: { id: business.id },
+      include: { member: { include: { user: true } } },
+    })
+    if (sellerProfile) {
+      try {
+        await sendOrderConfirmationBuyer(user.email, buyerName, {
+          number: formatOrderNumber(order.id),
+          items: items.map((item) => {
+            const product = productMap.get(item.productId)!
+            return { name: product.name, quantity: item.quantity, unitPrice: Number(product.price) }
+          }),
+          total: totalAmount,
+          currency,
+          confirmationCode,
+          businessName: business.businessName,
+        })
+        await sendOrderNotificationSeller(sellerProfile.member.user.email, business.businessName, {
+          number: formatOrderNumber(order.id),
+          buyerName,
+          items: items.map((item) => {
+            const product = productMap.get(item.productId)!
+            return { name: product.name, quantity: item.quantity, unitPrice: Number(product.price) }
+          }),
+          total: totalAmount,
+          currency,
+        })
+      } catch (e) {
+        console.error('Order emails failed:', e)
+      }
+    }
+
     return {
       success: true,
       data: { orderId: order.id, confirmationCode },
@@ -284,7 +340,7 @@ export async function markAsShipped(
   orderId: string,
 ): Promise<ActionResult<{ orderId: string }>> {
   try {
-    const { member } = await requireMember('BUSINESS')
+    const { user, member } = await requireMember('BUSINESS')
 
     const profile = await db.businessProfile.findUnique({
       where: { memberId: member.id },
@@ -308,8 +364,41 @@ export async function markAsShipped(
 
     await db.order.update({
       where: { id: orderId },
-      data: { status: 'SHIPPED' },
+      data: { status: 'SHIPPED', shippedAt: new Date() },
     })
+
+    await createAuditLog({
+      userId: user.id,
+      userEmail: user.email,
+      action: 'ORDER_SHIPPED',
+      entity: 'Order',
+      entityId: orderId,
+    })
+
+    // Send shipped notification to buyer
+    const fullOrder = await db.order.findUnique({
+      where: { id: orderId },
+      include: {
+        member: { include: { user: true } },
+        customer: { include: { user: true } },
+        business: true,
+      },
+    })
+    if (fullOrder) {
+      const buyerUser = fullOrder.member?.user ?? fullOrder.customer?.user
+      if (buyerUser) {
+        const buyerName = fullOrder.member?.firstName ?? fullOrder.customer?.firstName ?? 'Client'
+        try {
+          await sendOrderShippedEmail(buyerUser.email, buyerName, {
+            number: formatOrderNumber(orderId),
+            businessName: fullOrder.business.businessName,
+            confirmationCode: fullOrder.confirmationCode,
+          })
+        } catch (e) {
+          console.error('Shipped email failed:', e)
+        }
+      }
+    }
 
     return { success: true, data: { orderId } }
   } catch (error) {
@@ -363,11 +452,12 @@ export async function confirmDelivery(
       return { success: false, error: 'CONFIRMATION_CODE_EXPIRED' }
     }
 
-    // MVP: go straight to COMPLETED
+    // Mark as DELIVERED
     await db.order.update({
       where: { id: orderId },
       data: {
-        status: 'COMPLETED',
+        status: 'DELIVERED',
+        deliveredAt: new Date(),
         codeUsed: true,
       },
     })
@@ -379,6 +469,36 @@ export async function confirmDelivery(
       entity: 'Order',
       entityId: orderId,
     })
+
+    // Send delivery confirmation emails
+    const fullOrder = await db.order.findUnique({
+      where: { id: orderId },
+      include: {
+        member: { include: { user: true } },
+        customer: { include: { user: true } },
+        business: { include: { member: { include: { user: true } } } },
+      },
+    })
+    if (fullOrder) {
+      const buyerUser = fullOrder.member?.user ?? fullOrder.customer?.user
+      const buyerName = fullOrder.member?.firstName ?? fullOrder.customer?.firstName ?? 'Client'
+      const sellerEmail = fullOrder.business.member.user.email
+
+      try {
+        if (buyerUser) {
+          await sendDeliveryConfirmedBuyer(buyerUser.email, buyerName, {
+            number: formatOrderNumber(orderId),
+            businessName: fullOrder.business.businessName,
+          })
+        }
+        await sendDeliveryConfirmedSeller(sellerEmail, fullOrder.business.businessName, {
+          number: formatOrderNumber(orderId),
+          buyerName,
+        })
+      } catch (e) {
+        console.error('Delivery confirmation emails failed:', e)
+      }
+    }
 
     return { success: true, data: { orderId } }
   } catch (error) {
