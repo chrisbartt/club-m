@@ -13,13 +13,8 @@ export default auth((req) => {
   const { pathname } = req.nextUrl
   const isLoggedIn = !!req.auth
 
+  // Auth routes: always accessible (no redirect when logged in — prevents loops with stale sessions)
   if (isAuthRoute(pathname)) {
-    if (isLoggedIn) {
-      const redirectTo = req.auth?.user?.isAdmin
-        ? '/admin/dashboard'
-        : '/dashboard'
-      return NextResponse.redirect(new URL(redirectTo, req.url))
-    }
     return NextResponse.next()
   }
 
