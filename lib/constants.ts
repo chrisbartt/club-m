@@ -25,3 +25,10 @@ export const CLOUDINARY_FOLDERS = {
   products: 'club-m/products',
   events: 'club-m/events',
 } as const
+
+// Auth tokens
+export const PASSWORD_RESET_TOKEN_EXPIRY_HOURS = 24
+export const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
+export const EMAIL_RESEND_COOLDOWN_MINUTES = 2
+export const PASSWORD_RESET_COOLDOWN_MINUTES = 5
+export const TOKEN_LENGTH = 64

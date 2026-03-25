@@ -24,6 +24,7 @@ export type BusinessErrorCode =
   | 'INSUFFICIENT_STOCK'
   | 'PRODUCT_INACTIVE'
   | 'UPGRADE_IN_PROGRESS'
+  | 'EMAIL_NOT_VERIFIED'
 
 export class AuthError extends Error {
   constructor(public code: AuthErrorCode) {
