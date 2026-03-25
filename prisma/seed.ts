@@ -105,13 +105,15 @@ interface BusinessDef {
   firstName: string
   lastName: string
   email: string
+  avatar: string
   businessName: string
   category: string
   description: string
+  coverImage: string
   phone: string
   whatsapp: string
   address: string
-  products: { name: string; description: string; price: number; type: 'PHYSICAL' | 'SERVICE' }[]
+  products: { name: string; description: string; price: number; type: 'PHYSICAL' | 'SERVICE'; images: string[] }[]
 }
 
 const businessDefs: BusinessDef[] = [
@@ -119,7 +121,9 @@ const businessDefs: BusinessDef[] = [
     firstName: 'Grace',
     lastName: 'Mwamba',
     email: 'grace@clubm.cd',
+    avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&h=200&fit=crop',
     businessName: 'Grace Fashion',
+    coverImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&h=400&fit=crop',
     category: 'Mode',
     description:
       'Creations de mode africaine contemporaine. Robes, sacs et accessoires faits main a Kinshasa avec des tissus wax premium.',
@@ -133,6 +137,7 @@ const businessDefs: BusinessDef[] = [
           'Robe longue en wax hollandais, coupe moderne et elegante. Tailles S a XXL disponibles.',
         price: 85,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1590735213920-68192a487bc2?w=600&h=800&fit=crop'],
       },
       {
         name: 'Sac en cuir artisanal',
@@ -140,6 +145,7 @@ const businessDefs: BusinessDef[] = [
           'Sac a main en cuir veritable fabrique par nos artisans. Bandouliere ajustable, doublure en tissu wax.',
         price: 120,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=800&fit=crop'],
       },
       {
         name: 'Ensemble pagne moderne',
@@ -147,6 +153,7 @@ const businessDefs: BusinessDef[] = [
           'Ensemble jupe + haut en pagne africain, coupe contemporaine. Ideal pour le bureau ou les ceremonies.',
         price: 65,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=600&h=800&fit=crop'],
       },
     ],
   },
@@ -154,7 +161,9 @@ const businessDefs: BusinessDef[] = [
     firstName: 'Esther',
     lastName: 'Kabongo',
     email: 'esther@clubm.cd',
+    avatar: 'https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?w=200&h=200&fit=crop',
     businessName: 'Chez Esther Traiteur',
+    coverImage: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&h=400&fit=crop',
     category: 'Restauration',
     description:
       'Service traiteur premium pour evenements et livraison de lunch box. Cuisine congolaise et internationale.',
@@ -168,6 +177,7 @@ const businessDefs: BusinessDef[] = [
           'Repas complet: riz, poulet grille, legumes sautes, salade et dessert. Livraison au bureau.',
         price: 15,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=800&fit=crop'],
       },
       {
         name: 'Gateau anniversaire',
@@ -175,6 +185,7 @@ const businessDefs: BusinessDef[] = [
           'Gateau personnalise 3 etages, decoration fondant, inscription au choix. Pour 20-30 personnes.',
         price: 75,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&h=800&fit=crop'],
       },
       {
         name: 'Brochettes poulet',
@@ -182,6 +193,7 @@ const businessDefs: BusinessDef[] = [
           'Plateau de 20 brochettes de poulet marine aux epices, accompagnees de sauce pili-pili maison.',
         price: 25,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=800&fit=crop'],
       },
     ],
   },
@@ -189,7 +201,9 @@ const businessDefs: BusinessDef[] = [
     firstName: 'Ornella',
     lastName: 'Kiese',
     email: 'ornella@clubm.cd',
+    avatar: 'https://images.unsplash.com/photo-1611432579699-484f7990b127?w=200&h=200&fit=crop',
     businessName: 'Belle Ornella',
+    coverImage: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&h=400&fit=crop',
     category: 'Beaute',
     description:
       'Salon de beaute haut de gamme. Tresses, maquillage, perruques et soins capillaires pour femmes exigeantes.',
@@ -203,6 +217,7 @@ const businessDefs: BusinessDef[] = [
           'Tressage complet avec meches incluses. Styles: box braids, twist, cornrows. Duree: 3-5h.',
         price: 45,
         type: 'SERVICE',
+        images: ['https://images.unsplash.com/photo-1595959183082-7b570b7e1e21?w=600&h=800&fit=crop'],
       },
       {
         name: 'Maquillage soiree',
@@ -210,6 +225,7 @@ const businessDefs: BusinessDef[] = [
           'Maquillage professionnel pour soiree ou mariage. Produits premium, tenue longue duree.',
         price: 35,
         type: 'SERVICE',
+        images: ['https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=600&h=800&fit=crop'],
       },
       {
         name: 'Perruque bresilienne',
@@ -217,6 +233,7 @@ const businessDefs: BusinessDef[] = [
           'Perruque en cheveux naturels bresiliens, longueur 20 pouces, lace frontale. Pose incluse.',
         price: 150,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=800&fit=crop'],
       },
     ],
   },
@@ -224,7 +241,9 @@ const businessDefs: BusinessDef[] = [
     firstName: 'Sarah',
     lastName: 'Lumumba',
     email: 'sarah@clubm.cd',
+    avatar: 'https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=200&h=200&fit=crop',
     businessName: 'Sarah Events',
+    coverImage: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=400&fit=crop',
     category: 'Evenementiel',
     description:
       'Organisation et decoration d\'evenements a Kinshasa. Mariages, anniversaires, conferences et soirees VIP.',
@@ -238,6 +257,7 @@ const businessDefs: BusinessDef[] = [
           'Decoration complete pour mariage: arche florale, centres de table, eclairage, draperie. Jusqu\'a 200 invites.',
         price: 500,
         type: 'SERVICE',
+        images: ['https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=800&fit=crop'],
       },
       {
         name: 'Location chaises + nappes',
@@ -245,6 +265,7 @@ const businessDefs: BusinessDef[] = [
           'Pack 50 chaises chiavari + nappes blanches + housses. Livraison et installation incluses.',
         price: 120,
         type: 'SERVICE',
+        images: ['https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=800&fit=crop'],
       },
       {
         name: 'Coordination jour J',
@@ -252,6 +273,7 @@ const businessDefs: BusinessDef[] = [
           'Coordination complete le jour de l\'evenement. Equipe de 3 personnes, 12h de service.',
         price: 200,
         type: 'SERVICE',
+        images: ['https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=600&h=800&fit=crop'],
       },
     ],
   },
@@ -259,7 +281,9 @@ const businessDefs: BusinessDef[] = [
     firstName: 'Christelle',
     lastName: 'Mbuyi',
     email: 'christelle@clubm.cd',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop',
     businessName: 'Christi Cosmetics',
+    coverImage: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=400&fit=crop',
     category: 'Cosmetiques',
     description:
       'Cosmetiques naturels et soins de la peau adaptes aux peaux africaines. Produits bio sans hydroquinone.',
@@ -273,6 +297,7 @@ const businessDefs: BusinessDef[] = [
           'Creme unifiante a base de karite et vitamine C. Sans hydroquinone. Pot 200ml.',
         price: 28,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=800&fit=crop'],
       },
       {
         name: 'Kit soin visage',
@@ -280,6 +305,7 @@ const businessDefs: BusinessDef[] = [
           'Kit complet: nettoyant, tonique, serum et creme hydratante. Pour peaux mixtes a grasses.',
         price: 55,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1570194065650-d99fb4b38b17?w=600&h=800&fit=crop'],
       },
       {
         name: 'Parfum femme oriental',
@@ -287,6 +313,7 @@ const businessDefs: BusinessDef[] = [
           'Eau de parfum 100ml, notes de oud, vanille et jasmin. Longue tenue 12h+.',
         price: 42,
         type: 'PHYSICAL',
+        images: ['https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&h=800&fit=crop'],
       },
     ],
   },
@@ -312,6 +339,7 @@ async function createBusinesses(passwordHash: string) {
             firstName: biz.firstName,
             lastName: biz.lastName,
             phone: biz.phone,
+            avatar: biz.avatar,
             tier: 'BUSINESS',
             verificationStatus: 'VERIFIED',
             businessProfile: {
@@ -320,6 +348,7 @@ async function createBusinesses(passwordHash: string) {
                 slug: generateSlug(biz.businessName),
                 description: biz.description,
                 category: biz.category,
+                coverImage: biz.coverImage,
                 profileType: 'STORE',
                 isPublished: true,
                 isApproved: true,
@@ -347,6 +376,7 @@ async function createBusinesses(passwordHash: string) {
           description: prod.description,
           price: prod.price,
           type: prod.type,
+          images: prod.images,
           isActive: true,
           stock: prod.type === 'PHYSICAL' ? Math.floor(Math.random() * 50) + 10 : null,
         },
@@ -580,6 +610,7 @@ async function createEvents(admin: { id: string }) {
       title: 'Lunch Business Women Kinshasa',
       description:
         'Un dejeuner networking mensuel pour les femmes entrepreneures de Kinshasa. Echangez, partagez vos experiences et developpez votre reseau dans une ambiance conviviale et professionnelle. Buffet inclus.',
+      coverImage: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=400&fit=crop',
       location: 'Hotel Memling, Boulevard du 30 Juin, Gombe',
       startDate: futureDate(7),
       endDate: (() => { const d = futureDate(7); d.setHours(21, 0, 0, 0); return d })(),
@@ -591,6 +622,7 @@ async function createEvents(admin: { id: string }) {
       title: 'Masterclass E-commerce',
       description:
         'Apprenez a lancer et developper votre boutique en ligne. Strategie digitale, marketing sur les reseaux sociaux, logistique et paiements en RDC. Formation pratique avec exercices.',
+      coverImage: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1200&h=400&fit=crop',
       location: 'Espace Texaf, Avenue Colonel Mondjiba, Lingwala',
       startDate: futureDate(14),
       endDate: (() => { const d = futureDate(14); d.setHours(21, 0, 0, 0); return d })(),
@@ -602,6 +634,7 @@ async function createEvents(admin: { id: string }) {
       title: 'Soiree Networking Premium',
       description:
         'Une soiree exclusive pour les membres Premium et Business du Club M. Cocktails, presentations de projets et opportunites de partenariat. Dress code: tenue de soiree.',
+      coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=400&fit=crop',
       location: 'Cercle de Kinshasa, Avenue des Aviateurs, Gombe',
       startDate: futureDate(21),
       endDate: (() => { const d = futureDate(21); d.setHours(23, 0, 0, 0); return d })(),
@@ -619,6 +652,7 @@ async function createEvents(admin: { id: string }) {
         title: ev.title,
         slug: generateSlug(ev.title),
         description: ev.description,
+        coverImage: ev.coverImage,
         location: ev.location,
         startDate: ev.startDate,
         endDate: ev.endDate,
