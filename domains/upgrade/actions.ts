@@ -2,7 +2,7 @@
 
 import type { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireMember } from '@/lib/auth-guards'
+import { requireMember, requireVerifiedEmail } from '@/lib/auth-guards'
 import { hasMinTier } from '@/lib/permissions'
 import { createAuditLog } from '@/domains/audit/actions'
 import { createUpgradeSchema } from './validators'
@@ -33,6 +33,7 @@ export async function createUpgradeRequest(
 ): Promise<ActionResult<{ upgradeId: string; nextStep: string }>> {
   try {
     const { user, member } = await requireMember()
+    await requireVerifiedEmail()
 
     const parsed = createUpgradeSchema.safeParse(input)
     if (!parsed.success) {

@@ -86,3 +86,11 @@ export function requireOwnership(
 ): void {
   if (resourceOwnerId !== currentUserId) throw new AuthError('NOT_OWNER')
 }
+
+export async function requireVerifiedEmail() {
+  const user = await requireAuth()
+  if (!user.emailVerified) {
+    throw new BusinessError('EMAIL_NOT_VERIFIED')
+  }
+  return user
+}

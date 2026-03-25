@@ -3,6 +3,9 @@
 import type { z } from 'zod'
 import { hash } from 'bcryptjs'
 import { db } from '@/lib/db'
+import { generateSecureToken, hashToken } from '@/lib/server-utils'
+import { EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS } from '@/lib/constants'
+import { sendWelcomeEmail } from '@/lib/email'
 import { registerMemberSchema, registerCustomerSchema } from './validators'
 import { getUserByEmail } from './queries'
 
@@ -65,6 +68,23 @@ export async function registerMember(
     },
     include: { member: true },
   })
+
+  // Generate verification token and send welcome email
+  const rawToken = generateSecureToken()
+  const hashedToken = hashToken(rawToken)
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000)
+
+  await db.emailVerificationToken.create({
+    data: { token: hashedToken, userId: user.id, expiresAt },
+  })
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const verificationUrl = `${baseUrl}/verify-email/${rawToken}`
+  try {
+    await sendWelcomeEmail(email, firstName, verificationUrl)
+  } catch (e) {
+    console.error('Failed to send welcome email:', e)
+  }
 
   return {
     success: true,

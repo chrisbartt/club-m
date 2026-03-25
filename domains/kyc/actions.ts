@@ -2,7 +2,7 @@
 
 import type { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireMember, requireAdmin } from '@/lib/auth-guards'
+import { requireMember, requireAdmin, requireVerifiedEmail } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
 import { submitKycSchema, reviewKycSchema } from './validators'
 import { getLatestKycForMember } from './queries'
@@ -30,6 +30,7 @@ export async function submitKyc(
 ): Promise<ActionResult<{ kycId: string }>> {
   try {
     const { user, member } = await requireMember()
+    await requireVerifiedEmail()
 
     const parsed = submitKycSchema.safeParse(input)
     if (!parsed.success) {

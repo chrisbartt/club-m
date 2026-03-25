@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { requireAuth, requireMember } from '@/lib/auth-guards'
+import { requireAuth, requireMember, requireVerifiedEmail } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
 import {
   COMMISSION_RATE,
@@ -24,6 +24,7 @@ export async function purchaseProduct(
 ): Promise<ActionResult<{ orderId: string; confirmationCode: string }>> {
   try {
     const user = await requireAuth()
+    await requireVerifiedEmail()
 
     const parsed = createOrderSchema.safeParse(input)
     if (!parsed.success) {
@@ -137,6 +138,7 @@ export async function createCartOrder(
 ): Promise<ActionResult<{ orderId: string; confirmationCode: string }>> {
   try {
     const user = await requireAuth()
+    await requireVerifiedEmail()
 
     const parsed = createCartOrderSchema.safeParse(input)
     if (!parsed.success) {

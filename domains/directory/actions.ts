@@ -2,7 +2,7 @@
 
 import type { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireMember } from '@/lib/auth-guards'
+import { requireMember, requireVerifiedEmail } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
 import { generateSlug } from '@/lib/utils'
 import { createProfileSchema, updateProfileSchema } from './validators'
@@ -133,6 +133,7 @@ export async function togglePublishProfile(
 ): Promise<ActionResult<{ profileId: string; isPublished: boolean }>> {
   try {
     const { member } = await requireMember('PREMIUM')
+    await requireVerifiedEmail()
 
     const profile = await db.businessProfile.findUnique({
       where: { id: profileId },
