@@ -61,6 +61,21 @@ export async function getSellerOrders(
   })
 }
 
+export async function getOrderForBuyer(orderId: string, memberId: string) {
+  return db.order.findFirst({
+    where: { id: orderId, memberId },
+    include: {
+      items: {
+        include: { product: true },
+      },
+      payment: true,
+      business: {
+        select: { businessName: true, slug: true, phone: true, whatsapp: true },
+      },
+    },
+  })
+}
+
 export async function getOrderById(orderId: string): Promise<OrderWithItems | null> {
   return db.order.findUnique({
     where: { id: orderId },

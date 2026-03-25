@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { getBuyerOrders } from '@/domains/orders/queries'
 import { OrderCard } from '@/components/orders/order-card'
 import { getMemberProfile } from '@/domains/members/profile-queries'
+import Link from 'next/link'
 
 export default async function AchatsPage() {
   const session = await auth()
@@ -44,7 +45,9 @@ export default async function AchatsPage() {
           <h2 className="text-lg font-semibold">En cours</h2>
           <div className="space-y-4">
             {activeOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <Link key={order.id} href={`/achats/${order.id}`} className="block hover:ring-2 hover:ring-primary/20 rounded-lg transition-shadow">
+                <OrderCard order={order} />
+              </Link>
             ))}
           </div>
         </section>
@@ -55,7 +58,9 @@ export default async function AchatsPage() {
           <h2 className="text-lg font-semibold">Termines</h2>
           <div className="space-y-4">
             {completedOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <Link key={order.id} href={`/achats/${order.id}`} className="block hover:ring-2 hover:ring-primary/20 rounded-lg transition-shadow">
+                <OrderCard order={order} />
+              </Link>
             ))}
           </div>
         </section>
@@ -65,7 +70,9 @@ export default async function AchatsPage() {
         <section className="space-y-4">
           <div className="space-y-4">
             {otherOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <Link key={order.id} href={`/achats/${order.id}`} className="block hover:ring-2 hover:ring-primary/20 rounded-lg transition-shadow">
+                <OrderCard order={order} />
+              </Link>
             ))}
           </div>
         </section>
