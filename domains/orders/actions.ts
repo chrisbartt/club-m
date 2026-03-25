@@ -9,7 +9,11 @@ import {
   CONFIRMATION_CODE_EXPIRY_DAYS,
 } from '@/lib/constants'
 import { generateConfirmationCode } from '@/lib/utils'
-import { createOrderSchema, confirmDeliverySchema } from './validators'
+import {
+  createOrderSchema,
+  createCartOrderSchema,
+  confirmDeliverySchema,
+} from './validators'
 
 type ActionResult<T> =
   | { success: true; data: T }
@@ -111,6 +115,152 @@ export async function purchaseProduct(
           where: { id: product.id },
           data: { stock: { decrement: quantity } },
         })
+      }
+
+      return newOrder
+    })
+
+    return {
+      success: true,
+      data: { orderId: order.id, confirmationCode },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+    }
+  }
+}
+
+export async function createCartOrder(
+  input: unknown,
+): Promise<ActionResult<{ orderId: string; confirmationCode: string }>> {
+  try {
+    const user = await requireAuth()
+
+    const parsed = createCartOrderSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+
+    const { items, businessId, deliveryAddress } = parsed.data
+
+    // Verify business is a valid, approved store
+    const business = await db.businessProfile.findUnique({
+      where: { id: businessId },
+    })
+    if (
+      !business ||
+      business.profileType !== 'STORE' ||
+      !business.isApproved ||
+      !business.isPublished
+    ) {
+      return { success: false, error: 'RESOURCE_NOT_FOUND' }
+    }
+
+    // Fetch and validate all products
+    const productIds = items.map((i) => i.productId)
+    const products = await db.product.findMany({
+      where: { id: { in: productIds } },
+    })
+
+    if (products.length !== items.length) {
+      return { success: false, error: 'RESOURCE_NOT_FOUND' }
+    }
+
+    // Validate all products belong to the same business
+    for (const product of products) {
+      if (product.businessId !== businessId) {
+        return { success: false, error: 'PRODUCTS_MIXED_BUSINESSES' }
+      }
+      if (!product.isActive) {
+        return { success: false, error: 'PRODUCT_INACTIVE' }
+      }
+    }
+
+    // Build a map for quick lookup
+    const productMap = new Map(products.map((p) => [p.id, p]))
+
+    // Validate stock for each item
+    for (const item of items) {
+      const product = productMap.get(item.productId)!
+      if (
+        product.type === 'PHYSICAL' &&
+        product.stock !== null &&
+        product.stock < item.quantity
+      ) {
+        return { success: false, error: 'INSUFFICIENT_STOCK' }
+      }
+    }
+
+    // Determine buyer
+    const memberId = user.member?.id ?? null
+    const customerId = user.customer?.id ?? null
+    if (!memberId && !customerId) {
+      return { success: false, error: 'NOT_AUTHENTICATED' }
+    }
+
+    // Calculate total amount
+    const totalAmount = items.reduce((sum, item) => {
+      const product = productMap.get(item.productId)!
+      return sum + item.quantity * Number(product.price)
+    }, 0)
+    const commission = totalAmount * COMMISSION_RATE
+
+    // Use the currency from the first product (all from the same store)
+    const currency = products[0].currency
+
+    // Generate confirmation code
+    const confirmationCode = generateConfirmationCode(CONFIRMATION_CODE_LENGTH)
+    const codeExpiresAt = new Date(
+      Date.now() + CONFIRMATION_CODE_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+    )
+
+    // Create order with all items in a transaction
+    const order = await db.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          memberId,
+          customerId,
+          businessId: business.id,
+          totalAmount,
+          currency,
+          commission,
+          confirmationCode,
+          codeExpiresAt,
+          status: 'PAID', // MVP: simulated payment
+          items: {
+            create: items.map((item) => {
+              const product = productMap.get(item.productId)!
+              return {
+                productId: product.id,
+                quantity: item.quantity,
+                unitPrice: product.price,
+              }
+            }),
+          },
+        },
+      })
+
+      await tx.payment.create({
+        data: {
+          amount: totalAmount,
+          currency,
+          status: 'SUCCESS',
+          provider: 'LOCAL_FINTECH',
+          orderId: newOrder.id,
+        },
+      })
+
+      // Decrement stock for physical products
+      for (const item of items) {
+        const product = productMap.get(item.productId)!
+        if (product.type === 'PHYSICAL' && product.stock !== null) {
+          await tx.product.update({
+            where: { id: product.id },
+            data: { stock: { decrement: item.quantity } },
+          })
+        }
       }
 
       return newOrder
