@@ -29,7 +29,10 @@ export default auth((req) => {
         new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, req.url)
       )
     }
-    return NextResponse.next()
+    // Pass pathname to server components via header
+    const response = NextResponse.next()
+    response.headers.set('x-pathname', pathname)
+    return response
   }
 
   if (isProtectedAdminRoute(pathname)) {
