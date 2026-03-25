@@ -1,49 +1,105 @@
 # Club M — CLAUDE.md
 
-## Project
+## Vision du projet
 
-Club M is a community platform for women entrepreneurs in Kinshasa, DRC.
-Monolithic Next.js 16 app with route groups: (public), (auth), (member), (admin).
+Club M est une plateforme communautaire et marketplace pour femmes entrepreneures basee a Kinshasa, RDC. Elle combine 3 piliers :
+1. **Communaute** — membres Free / Premium / Business avec verification d'identite progressive
+2. **Marketplace** — boutiques en ligne, produits, services, panier, checkout, livraison avec code de confirmation
+3. **Incubation** (futur) — business plan, ateliers, accompagnement, financement
 
-## Non-Negotiable Rules
+## Philosophie produit
 
-1. No business logic in `app/` — pages call `domains/` and render results
-2. No direct Prisma imports in `app/` or `components/` — use `domains/*/queries.ts` or `actions.ts`
-3. Every Server Action starts with a guard: `requireAuth()`, `requireMember()`, etc.
-4. Every Server Action validates input with Zod
-5. Errors use typed classes: `AuthError`, `ValidationError`, `BusinessError`
-6. JWT is a transport optimization — guards always re-read the DB
-7. Images go through Cloudinary — no local uploads
-8. Soft-delete only — never hard-delete records
-9. Prisma imports from `@/lib/generated/prisma/client` (NOT `@prisma/client`)
+- Mobile-first (marche RDC = principalement telephone)
+- Design premium (niveau Shopify / Stripe)
+- Contexte congolais (communes Kinshasa, telephone +243, WhatsApp, livraison manuelle)
+- Securite progressive (Free = declaration, Premium/Business = KYC obligatoire)
+- Annuaire-first (les fiches business sont la porte d'entree, pas une marketplace anonyme)
 
-## Key Specs
+## Regles non negociables
 
-- Design spec: `docs/superpowers/specs/2026-03-23-club-m-platform-design.md`
-- Plan 1 (Foundation): `docs/superpowers/plans/2026-03-23-plan-1-foundation.md`
+1. **Pas de logique metier dans `app/`** — les pages appellent `domains/` et affichent le resultat
+2. **Pas d'import Prisma direct dans `app/` ou `components/`** — toujours passer par `domains/*/queries.ts` ou `actions.ts`
+3. **Chaque Server Action commence par un guard** : `requireAuth()`, `requireMember()`, etc.
+4. **Chaque Server Action valide les inputs avec Zod**
+5. **Erreurs typees** : `AuthError`, `ValidationError`, `BusinessError`
+6. **JWT = transport, DB = verite** — les guards relisent TOUJOURS la base
+7. **Images via Cloudinary** — pas d'upload local
+8. **Soft-delete uniquement** — jamais de hard-delete
+9. **Prisma imports depuis `@/lib/generated/prisma/client`** (PAS `@prisma/client`)
+10. **Server Actions utilisent le pattern return-value** : `{ success: true, data } | { success: false, error, details? }` — jamais throw
 
-## Site Structure
+## Architecture technique
 
-- `app/(public)/` — New public pages (homepage, events, annuaire)
-- `app/(site)/` — Original site vitrine (a-propos, contact, devenir-membre, etc.) — kept as-is
-- `app/(auth)/` — Authentication pages
-- `app/(member)/` — Member space (protected)
-- `app/(admin)/admin/` — Admin panel (protected, URLs at /admin/*)
+- **Framework** : Next.js 16 (App Router, Server Components, Server Actions)
+- **DB** : PostgreSQL + Prisma 7 (avec PrismaPg adapter)
+- **Auth** : Auth.js v5 (JWT + Credentials) — config splitee en `auth.config.ts` (Edge) + `auth.ts` (serveur)
+- **Validation** : Zod 4
+- **UI** : Tailwind CSS 4 + shadcn/ui + Recharts
+- **Email** : Resend (configure, API key vide en dev)
+- **Storage** : Cloudinary (operationnel)
+- **Paiement** : Interface abstraite, stub actuel (simule SUCCESS)
 
-## MVP Status
+## Structure des dossiers
 
-MVP is complete as of 2026-03-24. All 4 plans executed:
-- Plan 1: Foundation (DB, auth, guards, middleware)
-- Plan 2: Member space + KYC + Upgrade
-- Plan 3A: Events & Ticketing
-- Plan 3B: Directory & Business Profiles
-- Plan 3C: Orders & Business Dashboard
-- Plan 4: Admin Complete + Polish
+```
+app/(public)/          — Homepage (site vitrine original)
+app/(site)/            — Site vitrine original (a-propos, contact, evenements, annuaires, marketplace, boutique, panier, checkout, confirmation)
+app/(auth)/            — Login, register (membre + customer)
+app/(member)/          — Espace membre (dashboard, profil, kyc, upgrade, tickets, achats, mon-business)
+app/(admin)/admin/     — Admin (dashboard, membres, evenements, commandes, paiements, produits, annuaire, journal)
 
-## Test Accounts (dev)
+domains/               — 12 domaines metier (members, kyc, upgrade, events, tickets, directory, business, orders, marketplace, payments, audit, contact)
+integrations/          — 4 providers (payment, email, storage, kyc)
+lib/                   — Auth, guards, permissions, errors, routes, constants, utils
+components/            — Organises par espace (marketplace, boutique, business, member, admin, shared, cart, orders, events, directory)
+prisma/                — Schema (17 modeles) + seed (50 commandes realistes RDC)
+context/               — Cart context (localStorage, mono-boutique)
+```
 
-- Admin: `admin@clubm.cd` / `admin123`
-- Free member: `free@clubm.cd` / `member123`
-- Premium member: `premium@clubm.cd` / `member123`
-- Business member: `business@clubm.cd` / `member123`
-- Customer: `client@example.com` / `customer123`
+## Conventions de nommage
+
+- Fichiers : kebab-case (`auth-guards.ts`)
+- Composants : PascalCase (`KpiCard`)
+- Server Actions : camelCase, verbe (`createProduct`, `updateOrder`)
+- Queries : camelCase, get/find/list (`getProductById`, `listOrders`)
+- Types : PascalCase (`MemberWithProfile`)
+- Enums Prisma : UPPER_SNAKE (`PENDING_VERIFICATION`)
+- URLs : francaises (`/profil`, `/achats`, `/mon-business`, `/evenements`)
+
+## Comptes de test (dev)
+
+| Role | Email | Mot de passe | Redirect |
+|------|-------|-------------|----------|
+| Admin | admin@clubm.cd | admin123 | /admin/dashboard |
+| Business (Grace Fashion) | grace@clubm.cd | member123 | /mon-business |
+| Business (Chez Esther) | esther@clubm.cd | member123 | /mon-business |
+| Business (Belle Ornella) | ornella@clubm.cd | member123 | /mon-business |
+| Business (Sarah Events) | sarah@clubm.cd | member123 | /mon-business |
+| Business (Christi Cosmetics) | christelle@clubm.cd | member123 | /mon-business |
+| Free | fabiola@example.com | member123 | /dashboard |
+
+Login rapide (dev) : `/login` affiche des boutons de connexion en 1 clic.
+
+## Documents de reference
+
+- **Spec produit** : `docs/superpowers/specs/2026-03-23-club-m-platform-design.md`
+- **Plans d'implementation** : `docs/superpowers/plans/` (Plans 1 a 4, tous executes)
+- **Audit global** : `docs/handover/audit-global-club-m.html`
+- **Handover** : `HANDOVER.md`
+- **Etat du projet** : `PROJECT_STATE.md`
+- **Prochaines etapes** : `NEXT_STEPS.md`
+- **Gaps connus** : `KNOWN_GAPS.md`
+
+## Protocole de session
+
+### Debut de session
+1. Lire CLAUDE.md, PROJECT_STATE.md, derniere entree de SESSION_LOG.md
+2. Verifier coherence entre fichiers et code
+3. Resume en 3 points : ou on est, derniere session, prochaine action
+4. NE PAS coder avant ce point
+
+### Fin de session
+Quand l'utilisateur dit "stop", "pause", "a demain" :
+1. Proposer un /save
+2. Mettre a jour SESSION_LOG.md
+3. Mettre a jour PROJECT_STATE.md si changement significatif
