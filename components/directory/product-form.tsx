@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createProduct, updateProduct } from '@/domains/business/actions'
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { CloudinaryUpload } from '@/components/shared/cloudinary-upload'
 import {
   Select,
   SelectContent,
@@ -35,7 +36,7 @@ interface ProductFormProps {
 
 export function ProductForm({ mode, businessId, defaultValues }: ProductFormProps) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [pending, setPending] = useState(false)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
 
   const [name, setName] = useState(defaultValues?.name ?? '')
@@ -45,16 +46,12 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
   const [type, setType] = useState<ProductType>(defaultValues?.type ?? 'PHYSICAL')
   const [category, setCategory] = useState(defaultValues?.category ?? '')
   const [stock, setStock] = useState(defaultValues?.stock?.toString() ?? '')
-  const [imagesStr, setImagesStr] = useState(defaultValues?.images?.join(', ') ?? '')
+  const [images, setImages] = useState<string[]>(defaultValues?.images ?? [])
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErrors({})
-
-    const images = imagesStr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
+    setPending(true)
 
     const input = {
       ...(mode === 'edit' && defaultValues ? { id: defaultValues.id } : {}),
@@ -68,23 +65,20 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
       images,
     }
 
-    startTransition(async () => {
-      const result =
-        mode === 'create'
-          ? await createProduct(input)
-          : await updateProduct(input)
+    const result = await (mode === 'create'
+      ? createProduct(input)
+      : updateProduct(input))
 
-      if (result.success) {
-        toast.success(mode === 'create' ? 'Produit cree' : 'Produit mis a jour')
-        router.push('/mon-business/produits')
-        router.refresh()
-      } else {
-        if (result.details) {
-          setErrors(result.details)
-        }
-        toast.error(result.error === 'INVALID_INPUT' ? 'Verifiez les champs' : result.error)
+    if (result.success) {
+      toast.success(mode === 'create' ? 'Produit cree' : 'Produit mis a jour')
+      router.push('/mon-business/produits')
+    } else {
+      if (result.details) {
+        setErrors(result.details)
       }
-    })
+      toast.error(result.error === 'INVALID_INPUT' ? 'Verifiez les champs' : result.error)
+      setPending(false)
+    }
   }
 
   return (
@@ -226,16 +220,12 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
 
         {/* Images */}
         <div className="space-y-1.5">
-          <Label htmlFor="images" className="text-sm text-muted-foreground">
-            Images (URLs separees par des virgules)
-          </Label>
-          <Textarea
-            id="images"
-            value={imagesStr}
-            onChange={(e) => setImagesStr(e.target.value)}
-            placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-            rows={2}
-            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
+          <Label className="text-sm text-muted-foreground">Images</Label>
+          <CloudinaryUpload
+            folder="products"
+            multiple
+            onUpload={setImages}
+            currentImages={images}
           />
           {errors.images && (
             <p className="text-sm text-red-400">{errors.images[0]}</p>
@@ -244,10 +234,10 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
 
         <Button
           type="submit"
-          disabled={isPending}
+          disabled={pending}
           className="w-full rounded-xl bg-[#8b5cf6] py-2.5 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:bg-[#7c3aed] hover:shadow-purple-500/30 disabled:opacity-50"
         >
-          {isPending
+          {pending
             ? 'En cours...'
             : mode === 'create'
               ? 'Creer le produit'

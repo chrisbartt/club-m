@@ -6,6 +6,7 @@ import { requireAuth, requireAdmin } from '@/lib/auth-guards'
 import { hasMinTier } from '@/lib/permissions'
 import { createAuditLog } from '@/domains/audit/actions'
 import { getEventBySlug, getAvailableSeats } from '@/domains/events/queries'
+import { sendTicketConfirmationEmail } from '@/lib/email'
 import { hasTicketForEvent } from './queries'
 import type { MemberTier, PricingRole, EventPrice } from '@/lib/generated/prisma/client'
 
@@ -118,6 +119,18 @@ export async function bookEvent(
         eventTitle: event.title,
       },
     })
+
+    // Send ticket confirmation email
+    try {
+      const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Participant'
+      await sendTicketConfirmationEmail(user.email, buyerName, {
+        title: event.title,
+        date: event.startDate.toLocaleDateString('fr-FR', { dateStyle: 'long' }),
+        location: event.location,
+      })
+    } catch (e) {
+      console.error('Ticket confirmation email failed:', e)
+    }
 
     return { success: true, data: { ticketId: ticket.id, qrCode } }
   } catch (error) {

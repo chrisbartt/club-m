@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { CloudinaryUpload } from '@/components/shared/cloudinary-upload'
 
 interface BusinessProfileFormProps {
   mode: 'create' | 'edit'
@@ -30,6 +31,7 @@ export function BusinessProfileForm({ mode, defaultValues }: BusinessProfileForm
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
+  const [coverImage, setCoverImage] = useState(defaultValues?.coverImage ?? '')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -47,7 +49,7 @@ export function BusinessProfileForm({ mode, defaultValues }: BusinessProfileForm
       website: (formData.get('website') as string) || undefined,
       whatsapp: (formData.get('whatsapp') as string) || undefined,
       address: (formData.get('address') as string) || undefined,
-      coverImage: (formData.get('coverImage') as string) || undefined,
+      coverImage: coverImage || undefined,
     }
 
     if (mode === 'edit' && defaultValues?.id) {
@@ -130,13 +132,11 @@ export function BusinessProfileForm({ mode, defaultValues }: BusinessProfileForm
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="coverImage">Image de couverture (URL)</Label>
-            <Input
-              id="coverImage"
-              name="coverImage"
-              type="url"
-              defaultValue={defaultValues?.coverImage ?? ''}
-              placeholder="https://..."
+            <Label>Image de couverture</Label>
+            <CloudinaryUpload
+              folder="business"
+              onUpload={(urls) => setCoverImage(urls[0] || '')}
+              currentImage={coverImage || undefined}
             />
             {fieldErrors.coverImage && (
               <p className="text-sm text-destructive">{fieldErrors.coverImage[0]}</p>

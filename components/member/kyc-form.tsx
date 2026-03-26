@@ -6,14 +6,16 @@ import { toast } from 'sonner'
 import { submitKyc } from '@/domains/kyc/actions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CloudinaryUpload } from '@/components/shared/cloudinary-upload'
 
 export function KycForm() {
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
+  const [idDocumentUrl, setIdDocumentUrl] = useState('')
+  const [selfieUrl, setSelfieUrl] = useState('')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -21,11 +23,7 @@ export function KycForm() {
     setError(null)
     setFieldErrors({})
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      idDocumentUrl: formData.get('idDocumentUrl') as string,
-      selfieUrl: formData.get('selfieUrl') as string,
-    }
+    const data = { idDocumentUrl, selfieUrl }
 
     const result = await submitKyc(data)
 
@@ -59,15 +57,11 @@ export function KycForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="idDocumentUrl">
-              URL de votre piece d&apos;identite
-            </Label>
-            <Input
-              id="idDocumentUrl"
-              name="idDocumentUrl"
-              type="url"
-              placeholder="https://..."
-              required
+            <Label>Piece d&apos;identite</Label>
+            <CloudinaryUpload
+              folder="kyc"
+              onUpload={(urls) => setIdDocumentUrl(urls[0] || '')}
+              currentImage={idDocumentUrl || undefined}
             />
             {fieldErrors.idDocumentUrl && (
               <p className="text-sm text-destructive">
@@ -77,13 +71,11 @@ export function KycForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="selfieUrl">URL de votre selfie</Label>
-            <Input
-              id="selfieUrl"
-              name="selfieUrl"
-              type="url"
-              placeholder="https://..."
-              required
+            <Label>Selfie</Label>
+            <CloudinaryUpload
+              folder="kyc"
+              onUpload={(urls) => setSelfieUrl(urls[0] || '')}
+              currentImage={selfieUrl || undefined}
             />
             {fieldErrors.selfieUrl && (
               <p className="text-sm text-destructive">
@@ -92,7 +84,7 @@ export function KycForm() {
             )}
           </div>
 
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" disabled={pending || !idDocumentUrl || !selfieUrl}>
             {pending ? 'Envoi en cours...' : 'Soumettre ma verification'}
           </Button>
         </form>

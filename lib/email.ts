@@ -405,3 +405,153 @@ export async function sendDeliveryConfirmedSeller(
     `),
   });
 }
+
+// ---------------------------------------------------------------------------
+// 11. KYC submitted — admin notification
+// ---------------------------------------------------------------------------
+
+export async function sendKycSubmittedAdminEmail(
+  to: string,
+  memberName: string
+) {
+  await sendEmail({
+    to,
+    subject: `Nouvelle demande KYC : ${memberName}`,
+    html: emailLayout(`
+      <h2 style="color: ${BRAND_COLOR}; margin-top: 0;">Nouvelle demande KYC</h2>
+      <p>Une nouvelle demande de verification d'identite a ete soumise par <strong>${memberName}</strong>.</p>
+      <p>Veuillez examiner les documents et approuver ou rejeter la demande depuis l'espace d'administration.</p>
+      ${button("Voir les demandes KYC", `${getBaseUrl()}/admin/kyc`)}
+    `),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 12. KYC approved — member notification
+// ---------------------------------------------------------------------------
+
+export async function sendKycApprovedEmail(
+  to: string,
+  prenom: string
+) {
+  await sendEmail({
+    to,
+    subject: `Club M — Identite verifiee`,
+    html: emailLayout(`
+      <h2 style="color: ${BRAND_COLOR}; margin-top: 0;">Identite verifiee !</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>Ton identite a ete verifiee avec succes. Tu peux maintenant acceder a toutes les fonctionnalites de ton espace membre.</p>
+      ${button("Acceder a mon espace", `${getBaseUrl()}/dashboard`)}
+    `),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 13. KYC rejected — member notification
+// ---------------------------------------------------------------------------
+
+export async function sendKycRejectedEmail(
+  to: string,
+  prenom: string,
+  reason: string
+) {
+  await sendEmail({
+    to,
+    subject: `Club M — Verification non approuvee`,
+    html: emailLayout(`
+      <h2 style="color: ${BRAND_COLOR}; margin-top: 0;">Verification non approuvee</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>Ta demande de verification d'identite n'a pas pu etre approuvee pour la raison suivante :</p>
+      <div style="background: #fdf6f4; border-left: 4px solid ${BRAND_COLOR}; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+        <p style="margin: 0; color: #555;">${reason}</p>
+      </div>
+      <p>Tu peux soumettre a nouveau tes documents en veillant a corriger le point mentionne ci-dessus.</p>
+      ${button("Resoumettre", `${getBaseUrl()}/kyc`)}
+    `),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 14. Profile approved — member notification
+// ---------------------------------------------------------------------------
+
+export async function sendProfileApprovedEmail(
+  to: string,
+  prenom: string,
+  businessName: string
+) {
+  await sendEmail({
+    to,
+    subject: `Club M — Boutique approuvee`,
+    html: emailLayout(`
+      <h2 style="color: ${BRAND_COLOR}; margin-top: 0;">Boutique approuvee !</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>Felicitations ! Ton profil business <strong>${businessName}</strong> a ete approuve et est maintenant visible sur la marketplace Club M.</p>
+      <p>Tu peux commencer a ajouter tes produits et services depuis ton espace business.</p>
+      ${button("Acceder a mon business", `${getBaseUrl()}/mon-business`)}
+    `),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 15. Profile rejected — member notification
+// ---------------------------------------------------------------------------
+
+export async function sendProfileRejectedEmail(
+  to: string,
+  prenom: string,
+  businessName: string,
+  reason: string
+) {
+  await sendEmail({
+    to,
+    subject: `Club M — Profil non approuve`,
+    html: emailLayout(`
+      <h2 style="color: ${BRAND_COLOR}; margin-top: 0;">Profil non approuve</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>Ton profil business <strong>${businessName}</strong> n'a pas pu etre approuve pour la raison suivante :</p>
+      <div style="background: #fdf6f4; border-left: 4px solid ${BRAND_COLOR}; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+        <p style="margin: 0; color: #555;">${reason}</p>
+      </div>
+      <p>Tu peux modifier ton profil et le soumettre a nouveau depuis ton espace business.</p>
+      ${button("Modifier mon profil", `${getBaseUrl()}/mon-business`)}
+    `),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 16. Ticket confirmation — member notification
+// ---------------------------------------------------------------------------
+
+interface TicketEventData {
+  title: string;
+  date: string;
+  location: string;
+}
+
+export async function sendTicketConfirmationEmail(
+  to: string,
+  prenom: string,
+  event: TicketEventData
+) {
+  await sendEmail({
+    to,
+    subject: `Club M — Billet confirme : ${event.title}`,
+    html: emailLayout(`
+      <h2 style="color: ${BRAND_COLOR}; margin-top: 0;">Billet confirme !</h2>
+      <p>Bonjour ${prenom},</p>
+      <p>Ton billet pour l'evenement suivant a bien ete enregistre :</p>
+      <div style="background: #fdf6f4; border: 1px solid ${BRAND_COLOR}; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 700; color: ${BRAND_COLOR};">${event.title}</p>
+        <p style="margin: 0 0 4px 0; color: #555;">
+          <strong>Date :</strong> ${event.date}
+        </p>
+        <p style="margin: 0; color: #555;">
+          <strong>Lieu :</strong> ${event.location}
+        </p>
+      </div>
+      <p>Retrouve tous tes billets depuis ton espace membre.</p>
+      ${button("Voir mes billets", `${getBaseUrl()}/tickets`)}
+    `),
+  });
+}

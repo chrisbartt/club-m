@@ -32,3 +32,6 @@ export const EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
 export const EMAIL_RESEND_COOLDOWN_MINUTES = 2
 export const PASSWORD_RESET_COOLDOWN_MINUTES = 1
 export const TOKEN_LENGTH = 64
+
+// Admin
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@clubm.cd'

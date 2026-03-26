@@ -3,6 +3,7 @@
 import { db } from '@/lib/db'
 import { requireAuth, requireMember, requireVerifiedEmail } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
+import { createNotification } from '@/domains/notifications/actions'
 import {
   COMMISSION_RATE,
   CONFIRMATION_CODE_LENGTH,
@@ -128,6 +129,58 @@ export async function purchaseProduct(
 
       return newOrder
     })
+
+    // Audit log
+    await createAuditLog({
+      userId: user.id,
+      userEmail: user.email,
+      action: 'ORDER_CREATED',
+      entity: 'Order',
+      entityId: order.id,
+    })
+
+    // Send emails + notifications
+    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Client'
+    const sellerProfile = await db.businessProfile.findUnique({
+      where: { id: business.id },
+      include: { member: { include: { user: true } } },
+    })
+    if (sellerProfile) {
+      try {
+        await sendOrderConfirmationBuyer(user.email, buyerName, {
+          number: formatOrderNumber(order.id),
+          items: [{ name: product.name, quantity, unitPrice: Number(product.price) }],
+          total: totalAmount,
+          currency: product.currency,
+          confirmationCode,
+          businessName: business.businessName,
+        })
+        await sendOrderNotificationSeller(sellerProfile.member.user.email, business.businessName, {
+          number: formatOrderNumber(order.id),
+          buyerName,
+          items: [{ name: product.name, quantity, unitPrice: Number(product.price) }],
+          total: totalAmount,
+          currency: product.currency,
+        })
+      } catch (e) {
+        console.error('Order emails failed:', e)
+      }
+
+      await createNotification({
+        userId: user.id,
+        type: 'ORDER_CREATED',
+        title: 'Commande confirmee',
+        message: `Commande ${formatOrderNumber(order.id)} chez ${business.businessName} confirmee.`,
+        link: '/achats/' + order.id,
+      })
+      await createNotification({
+        userId: sellerProfile.member.user.id,
+        type: 'ORDER_RECEIVED',
+        title: 'Nouvelle commande',
+        message: `Nouvelle commande ${formatOrderNumber(order.id)} de ${buyerName}.`,
+        link: '/mon-business/commandes/' + order.id,
+      })
+    }
 
     return {
       success: true,
@@ -322,6 +375,22 @@ export async function createCartOrder(
       } catch (e) {
         console.error('Order emails failed:', e)
       }
+
+      // Notifications
+      await createNotification({
+        userId: user.id,
+        type: 'ORDER_CREATED',
+        title: 'Commande confirmee',
+        message: `Commande ${formatOrderNumber(order.id)} chez ${business.businessName} confirmee.`,
+        link: '/achats/' + order.id,
+      })
+      await createNotification({
+        userId: sellerProfile.member.user.id,
+        type: 'ORDER_RECEIVED',
+        title: 'Nouvelle commande',
+        message: `Nouvelle commande ${formatOrderNumber(order.id)} de ${buyerName}.`,
+        link: '/mon-business/commandes/' + order.id,
+      })
     }
 
     return {
@@ -397,6 +466,15 @@ export async function markAsShipped(
         } catch (e) {
           console.error('Shipped email failed:', e)
         }
+
+        // Notification
+        await createNotification({
+          userId: buyerUser.id,
+          type: 'ORDER_SHIPPED',
+          title: 'Commande expediee',
+          message: `Votre commande ${formatOrderNumber(orderId)} a ete expediee.`,
+          link: '/achats/' + orderId,
+        })
       }
     }
 
@@ -498,6 +576,24 @@ export async function confirmDelivery(
       } catch (e) {
         console.error('Delivery confirmation emails failed:', e)
       }
+
+      // Notifications
+      if (buyerUser) {
+        await createNotification({
+          userId: buyerUser.id,
+          type: 'ORDER_DELIVERED',
+          title: 'Commande livree',
+          message: `Votre commande ${formatOrderNumber(orderId)} a ete livree.`,
+          link: '/achats/' + orderId,
+        })
+      }
+      await createNotification({
+        userId: fullOrder.business.member.user.id,
+        type: 'ORDER_DELIVERED',
+        title: 'Livraison confirmee',
+        message: `La commande ${formatOrderNumber(orderId)} a ete livree.`,
+        link: '/mon-business/commandes/' + orderId,
+      })
     }
 
     return { success: true, data: { orderId } }
