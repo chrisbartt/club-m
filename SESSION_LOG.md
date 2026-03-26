@@ -270,3 +270,36 @@ Voir NEXT_STEPS.md pour le plan complet.
 - Merge phase2b-design-harmonization → main
 - Tester visuellement light/dark toggle et responsive mobile
 - Mettre a jour PROJECT_STATE.md et NEXT_STEPS.md
+
+## Session Phase 3A — 2026-03-26
+
+### Actions
+- Ecrit spec + plan timeline + reviews (Plan 8)
+- Execute Plan 8 (12 tasks) sur branche `phase3a-timeline-reviews`:
+  1. OrderStatusHistory + Review models Prisma + NotificationType enum
+  2. getOrderTimeline query + wire status history dans purchaseProduct, createCartOrder, markAsShipped, confirmDelivery
+  3. Composant OrderTimeline (vertical, icones colorees)
+  4. Composants StarDisplay (lecture) + StarRating (interactif)
+  5. Domaine reviews (validators, queries, actions — createReview, flagReview, moderateReview)
+  6. Composants ReviewForm + ReviewCard
+  7. Page acheteur /achats/[id] — timeline + formulaire/affichage avis
+  8. Page vendeuse /mon-business/commandes/[id] — timeline + avis + bouton signaler
+  9. Page produit publique — section avis clients + note moyenne
+  10. Page boutique publique — note moyenne business
+  11. Page admin /admin/avis — moderation avis signales + lien sidebar
+  12. Verification finale (0 erreur TypeScript)
+
+### Fichiers crees
+- `domains/reviews/validators.ts`, `queries.ts`, `actions.ts`
+- `components/orders/order-timeline.tsx`
+- `components/orders/star-display.tsx`, `star-rating.tsx`
+- `components/orders/review-form.tsx`, `review-card.tsx`
+- `components/orders/flag-review-button.tsx`
+- `components/admin/review-moderation-actions.tsx`
+- `app/(admin)/admin/avis/page.tsx`
+
+### Resultats
+- 11 commits, 0 erreur TypeScript
+- Timeline automatique sur chaque commande
+- Systeme d'avis complet : ecrire, afficher, signaler, moderer
+- Branche prete pour merge vers main
