@@ -53,6 +53,7 @@ model Member {
   businessProfile  BusinessProfile?
   tickets          Ticket[]
   orders           Order[]              @relation("MemberOrders")
+  reviews          Review[]
   upgradeRequests  UpgradeRequest[]
 
   createdAt DateTime @default(now())
@@ -267,6 +268,7 @@ model Product {
   stock       Int?
 
   orderItems OrderItem[]
+  reviews    Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -403,8 +405,10 @@ model Order {
   deliveredAt      DateTime?
   status           OrderStatus @default(PENDING)
 
-  items   OrderItem[]
-  payment Payment?
+  items         OrderItem[]
+  payment       Payment?
+  statusHistory OrderStatusHistory[]
+  review        Review?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -435,6 +439,38 @@ enum OrderStatus {
   CANCELLED
   REFUNDED
   DISPUTED
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id])
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  orderId    String    @unique
+  order      Order     @relation(fields: [orderId], references: [id])
+  memberId   String
+  member     Member    @relation(fields: [memberId], references: [id])
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id])
+  rating     Int
+  comment    String?
+  flagged    Boolean   @default(false)
+  flagReason String?
+  visible    Boolean   @default(true)
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([productId])
+  @@index([memberId])
 }
 
 model Payment {
@@ -537,6 +573,8 @@ enum NotificationType {
   KYC_REJECTED
   PROFILE_APPROVED
   PROFILE_REJECTED
+  REVIEW_RECEIVED
+  REVIEW_HIDDEN
 }
 
 model Notification {
