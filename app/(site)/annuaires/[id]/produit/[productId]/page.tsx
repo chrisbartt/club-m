@@ -109,9 +109,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     {typeInfo.icon}
                     {typeInfo.label}
                   </span>
-                  {product.category && (
+                  {product.category?.name && (
                     <span className="inline-flex items-center text-xs font-medium text-[#091626]/60 bg-[#091626]/5 rounded-full px-3 py-1">
-                      {product.category}
+                      {product.category.name}
                     </span>
                   )}
                 </div>

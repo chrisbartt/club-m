@@ -112,9 +112,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                     <Briefcase className="w-3.5 h-3.5" />
                     Service
                   </span>
-                  {product.category && (
+                  {product.category?.name && (
                     <span className="inline-flex items-center text-xs font-medium text-gray-500 bg-gray-100 rounded-full px-3 py-1">
-                      {product.category}
+                      {product.category.name}
                     </span>
                   )}
                 </div>

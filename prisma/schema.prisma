@@ -252,6 +252,16 @@ enum BusinessProfileType {
   STORE
 }
 
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  products  Product[]
+}
+
 model Product {
   id         String          @id @default(cuid())
   businessId String
@@ -263,11 +273,13 @@ model Product {
   currency    Currency    @default(USD)
   images      String[]
   type        ProductType @default(PHYSICAL)
-  category    String?
+  categoryId  String?
+  category    Category?   @relation(fields: [categoryId], references: [id])
   isActive    Boolean     @default(true)
   stock       Int?
 
   orderItems OrderItem[]
+  variants   ProductVariant[]
   reviews    Review[]
 
   createdAt DateTime @default(now())
@@ -275,6 +287,24 @@ model Product {
 
   @@index([businessId])
   @@index([isActive])
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  label     String
+  sku       String?
+  price     Decimal?
+  stock     Int      @default(0)
+  isActive  Boolean  @default(true)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  orderItems OrderItem[]
+
+  @@unique([productId, label])
+  @@index([productId, isActive])
 }
 
 enum ProductType {
@@ -425,6 +455,10 @@ model OrderItem {
   order     Order   @relation(fields: [orderId], references: [id])
   productId String
   product   Product @relation(fields: [productId], references: [id])
+
+  variantId    String?
+  variant      ProductVariant? @relation(fields: [variantId], references: [id])
+  variantLabel String?
 
   quantity  Int
   unitPrice Decimal

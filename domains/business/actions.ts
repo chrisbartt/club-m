@@ -56,7 +56,7 @@ export async function createProduct(
         currency: data.currency,
         images: data.images,
         type: data.type,
-        category: data.category,
+        categoryId: data.categoryId,
         stock: data.stock,
       },
     })

@@ -47,7 +47,7 @@ export default async function BoutiquePage({ params }: BoutiquePageProps) {
     currency: p.currency,
     images: p.images,
     type: p.type,
-    category: p.category,
+    category: p.category?.name ?? null,
     stock: p.stock,
   }))
 

@@ -46,7 +46,11 @@ export async function getProfileBySlug(slug: string): Promise<ProfileWithProduct
     where: { slug },
     include: {
       member: { select: memberSelect },
-      products: { where: { isActive: true }, orderBy: { createdAt: 'desc' } },
+      products: {
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+        include: { category: { select: { id: true, name: true, slug: true } } },
+      },
     },
   })
 }
@@ -56,7 +60,10 @@ export async function getProfileByMemberId(memberId: string): Promise<ProfileWit
     where: { memberId },
     include: {
       member: { select: memberSelect },
-      products: { orderBy: { createdAt: 'desc' } },
+      products: {
+        orderBy: { createdAt: 'desc' },
+        include: { category: { select: { id: true, name: true, slug: true } } },
+      },
     },
   })
 }
@@ -76,7 +83,11 @@ export async function getProfileById(id: string): Promise<ProfileWithProducts | 
     where: { id },
     include: {
       member: { select: memberSelect },
-      products: { where: { isActive: true }, orderBy: { createdAt: 'desc' } },
+      products: {
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+        include: { category: { select: { id: true, name: true, slug: true } } },
+      },
     },
   })
 }

@@ -62,7 +62,7 @@ export default async function EditProductPage({
           price: Number(product.price),
           currency: product.currency,
           type: product.type,
-          category: product.category,
+          category: product.category?.name ?? null,
           stock: product.stock,
           images: product.images,
         }}

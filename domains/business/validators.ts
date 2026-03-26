@@ -7,7 +7,7 @@ export const createProductSchema = z.object({
   currency: z.enum(['USD', 'CDF', 'EUR'], { error: 'Devise invalide' }),
   images: z.array(z.string().url({ error: 'URL invalide' })).default([]),
   type: z.enum(['PHYSICAL', 'SERVICE', 'DIGITAL'], { error: 'Type invalide' }),
-  category: z.string().optional(),
+  categoryId: z.string().optional(),
   stock: z.number().int({ error: 'Le stock doit etre un entier' }).min(0, { error: 'Le stock doit etre positif ou zero' }).optional(),
 })
 
