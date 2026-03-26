@@ -35,7 +35,7 @@ function getStatusConfig(status: string) {
     case 'CANCELLED':
       return { label: 'Annulée', classes: 'bg-red-500/10 text-red-400 border-red-500/20' }
     default:
-      return { label: status, classes: 'bg-white/5 text-muted-foreground border-white/10' }
+      return { label: status, classes: 'bg-muted text-muted-foreground border-border' }
   }
 }
 
@@ -52,7 +52,7 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/[0.06]">
+          <tr className="border-b border-border">
             <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Client
             </th>
@@ -70,17 +70,17 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/[0.06]">
+        <tbody className="divide-y divide-border">
           {orders.map((order) => {
             const statusConfig = getStatusConfig(order.status)
             return (
-              <tr key={order.id} className="group transition-colors hover:bg-white/[0.02]">
+              <tr key={order.id} className="group transition-colors hover:bg-muted/50">
                 <td className="py-3 pr-4">
                   <Link
                     href={`/mon-business/commandes/${order.id}`}
                     className="block"
                   >
-                    <p className="font-medium text-white group-hover:text-purple-400 transition-colors">
+                    <p className="font-medium text-foreground group-hover:text-purple-400 transition-colors">
                       {order.buyerName}
                     </p>
                     {order.buyerPhone && (
@@ -96,13 +96,13 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
                       {order.buyerCommune}
                     </span>
                   ) : (
-                    <span className="text-[12px] text-white/20">--</span>
+                    <span className="text-[12px] text-muted-foreground">--</span>
                   )}
                 </td>
                 <td className="py-3 pr-4">
                   <Link
                     href={`/mon-business/commandes/${order.id}`}
-                    className="font-medium text-white"
+                    className="font-medium text-foreground"
                   >
                     {formatCurrency(order.amount)}
                   </Link>

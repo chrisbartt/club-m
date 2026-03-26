@@ -7,7 +7,7 @@ interface QuickActionsProps {
 
 export function QuickActions({ alertsCount }: QuickActionsProps) {
   const buttonBase =
-    'inline-flex items-center gap-2 rounded-lg border border-white/[0.06] px-4 py-2 text-sm font-medium text-white/70 transition-colors'
+    'inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors'
 
   return (
     <div className="flex flex-wrap gap-3">
@@ -42,7 +42,7 @@ export function QuickActions({ alertsCount }: QuickActionsProps) {
         <Bell size={16} />
         Alertes
         {alertsCount > 0 && (
-          <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
+          <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-foreground">
             {alertsCount}
           </span>
         )}
