@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createProduct, updateProduct } from '@/domains/business/actions'
@@ -36,7 +36,7 @@ interface ProductFormProps {
 
 export function ProductForm({ mode, businessId, defaultValues }: ProductFormProps) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [pending, setPending] = useState(false)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
 
   const [name, setName] = useState(defaultValues?.name ?? '')
@@ -48,9 +48,10 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
   const [stock, setStock] = useState(defaultValues?.stock?.toString() ?? '')
   const [images, setImages] = useState<string[]>(defaultValues?.images ?? [])
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErrors({})
+    setPending(true)
 
     const input = {
       ...(mode === 'edit' && defaultValues ? { id: defaultValues.id } : {}),
@@ -64,23 +65,20 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
       images,
     }
 
-    startTransition(async () => {
-      const result =
-        mode === 'create'
-          ? await createProduct(input)
-          : await updateProduct(input)
+    const result = await (mode === 'create'
+      ? createProduct(input)
+      : updateProduct(input))
 
-      if (result.success) {
-        toast.success(mode === 'create' ? 'Produit cree' : 'Produit mis a jour')
-        router.push('/mon-business/produits')
-        router.refresh()
-      } else {
-        if (result.details) {
-          setErrors(result.details)
-        }
-        toast.error(result.error === 'INVALID_INPUT' ? 'Verifiez les champs' : result.error)
+    if (result.success) {
+      toast.success(mode === 'create' ? 'Produit cree' : 'Produit mis a jour')
+      router.push('/mon-business/produits')
+    } else {
+      if (result.details) {
+        setErrors(result.details)
       }
-    })
+      toast.error(result.error === 'INVALID_INPUT' ? 'Verifiez les champs' : result.error)
+      setPending(false)
+    }
   }
 
   return (
@@ -236,10 +234,10 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
 
         <Button
           type="submit"
-          disabled={isPending}
+          disabled={pending}
           className="w-full rounded-xl bg-[#8b5cf6] py-2.5 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:bg-[#7c3aed] hover:shadow-purple-500/30 disabled:opacity-50"
         >
-          {isPending
+          {pending
             ? 'En cours...'
             : mode === 'create'
               ? 'Creer le produit'
