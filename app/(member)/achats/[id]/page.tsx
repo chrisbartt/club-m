@@ -1,5 +1,5 @@
 import { requireMember } from '@/lib/auth-guards'
-import { getOrderForBuyer } from '@/domains/orders/queries'
+import { getOrderForBuyer, getOrderTimeline } from '@/domains/orders/queries'
 import { notFound } from 'next/navigation'
 import { formatOrderNumber } from '@/lib/server-utils'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
@@ -28,6 +28,14 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
   const order = await getOrderForBuyer(id, member.id)
 
   if (!order) notFound()
+
+  const timeline = await getOrderTimeline(id)
+  const timelineEntries = timeline.map(entry => ({
+    id: entry.id,
+    status: entry.status,
+    note: entry.note,
+    createdAt: entry.createdAt.toISOString(),
+  }))
 
   const symbol = CURRENCY_SYMBOLS[order.currency as Currency] ?? '$'
   const badge = STATUS_BADGE[order.status] ?? STATUS_BADGE.PENDING
@@ -213,12 +221,7 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
           <CardTitle>Suivi</CardTitle>
         </CardHeader>
         <CardContent>
-          <OrderTimeline
-            status={order.status}
-            createdAt={order.createdAt.toISOString()}
-            shippedAt={order.shippedAt?.toISOString() ?? null}
-            deliveredAt={order.deliveredAt?.toISOString() ?? null}
-          />
+          <OrderTimeline timeline={timelineEntries} />
         </CardContent>
       </Card>
     </div>

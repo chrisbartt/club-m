@@ -1,62 +1,60 @@
-interface OrderTimelineProps {
+import { Package, CreditCard, Truck, CheckCircle } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+interface TimelineEntry {
+  id: string
   status: string
+  note: string | null
   createdAt: string
-  shippedAt?: string | null
-  deliveredAt?: string | null
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+const STATUS_CONFIG: Record<string, { label: string; icon: typeof Package; color: string }> = {
+  PENDING: { label: 'Commande creee', icon: Package, color: 'text-muted-foreground' },
+  PAID: { label: 'Paiement confirme', icon: CreditCard, color: 'text-green-600' },
+  SHIPPED: { label: 'Expediee', icon: Truck, color: 'text-blue-600' },
+  DELIVERED: { label: 'Livree', icon: CheckCircle, color: 'text-green-600' },
 }
 
-export function OrderTimeline({ status, createdAt, shippedAt, deliveredAt }: OrderTimelineProps) {
-  const isShipped = status === 'SHIPPED' || status === 'DELIVERED'
-  const isDelivered = status === 'DELIVERED'
+interface OrderTimelineProps {
+  timeline: TimelineEntry[]
+}
 
-  const steps = [
-    { label: 'Commande payee', done: true, date: createdAt },
-    { label: 'Expediee', done: isShipped, date: shippedAt },
-    { label: 'Livree', done: isDelivered, date: deliveredAt },
-  ]
+export function OrderTimeline({ timeline }: OrderTimelineProps) {
+  if (timeline.length === 0) return null
 
   return (
     <div className="space-y-0">
-      {steps.map((step, i) => (
-        <div key={step.label} className="flex gap-3">
-          {/* Vertical line + circle */}
-          <div className="flex flex-col items-center">
-            <div
-              className={`h-4 w-4 rounded-full border-2 shrink-0 ${
-                step.done
-                  ? 'bg-green-500 border-green-500'
-                  : 'bg-white border-gray-300 dark:bg-gray-900 dark:border-gray-600'
-              }`}
-            />
-            {i < steps.length - 1 && (
-              <div
-                className={`w-0.5 flex-1 min-h-8 ${
-                  step.done ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-              />
-            )}
+      {timeline.map((entry, index) => {
+        const config = STATUS_CONFIG[entry.status] || STATUS_CONFIG.PENDING
+        const Icon = config.icon
+        const isLast = index === timeline.length - 1
+
+        return (
+          <div key={entry.id} className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <div className={cn('flex h-8 w-8 items-center justify-center rounded-full border-2', config.color)}>
+                <Icon className="h-4 w-4" />
+              </div>
+              {!isLast && <div className="h-8 w-px bg-border" />}
+            </div>
+            <div className="pb-6">
+              <p className="text-sm font-medium">{config.label}</p>
+              {entry.note && (
+                <p className="text-xs text-muted-foreground">{entry.note}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {new Date(entry.createdAt).toLocaleDateString('fr-FR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+            </div>
           </div>
-          {/* Content */}
-          <div className="pb-6">
-            <p className={`text-sm font-medium ${step.done ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {step.label}
-            </p>
-            {step.done && step.date && (
-              <p className="text-xs text-muted-foreground">{formatDate(step.date)}</p>
-            )}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
