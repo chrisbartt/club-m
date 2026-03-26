@@ -16,6 +16,7 @@ import { useCart } from '@/context/cart-context'
 import { createCartOrder } from '@/domains/orders/actions'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import AppContainerWebSite from '@/components/common/containers/AppContainerWebSite'
+import CouponInput from '@/components/orders/coupon-input'
 import type { Currency } from '@/lib/generated/prisma/client'
 
 const COMMUNES = [
@@ -55,6 +56,8 @@ export default function CheckoutPage() {
   const [instructions, setInstructions] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [couponCode, setCouponCode] = useState<string | null>(null)
+  const [discount, setDiscount] = useState(0)
 
   const symbol = CURRENCY_SYMBOLS[currency as Currency] ?? '$'
 
@@ -157,6 +160,7 @@ export default function CheckoutPage() {
           commune,
           quartier: quartier.trim() || undefined,
         },
+        ...(couponCode ? { couponCode } : {}),
       })
 
       if (result.success) {
@@ -170,6 +174,7 @@ export default function CheckoutPage() {
           PRODUCT_INACTIVE: 'Un produit n\'est plus disponible.',
           INSUFFICIENT_STOCK: 'Stock insuffisant pour un des produits.',
           NOT_AUTHENTICATED: 'Veuillez vous reconnecter.',
+          'Code promo introuvable': 'Code promo invalide ou expire.',
         }
         setError(errorMessages[result.error] ?? 'Une erreur est survenue. Veuillez reessayer.')
       }
@@ -314,11 +319,41 @@ export default function CheckoutPage() {
                         {total.toLocaleString('fr-FR')} {symbol}
                       </span>
                     </div>
+
+                    {/* Coupon input */}
+                    {cart.businessId && (
+                      <div className="pt-1">
+                        <CouponInput
+                          businessId={cart.businessId}
+                          cartTotal={total}
+                          cartCurrency={currency}
+                          onApply={(code, disc) => {
+                            setCouponCode(code)
+                            setDiscount(disc)
+                          }}
+                          onRemove={() => {
+                            setCouponCode(null)
+                            setDiscount(0)
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Discount line */}
+                    {discount > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-green-700">Reduction</span>
+                        <span className="font-medium text-green-700">
+                          -{discount.toLocaleString('fr-FR')} {symbol}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="border-t border-gray-100 pt-3">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-[#091626]">Total</span>
                         <span className="text-xl font-bold text-[#091626]">
-                          {total.toLocaleString('fr-FR')} {symbol}
+                          {(total - discount).toLocaleString('fr-FR')} {symbol}
                         </span>
                       </div>
                     </div>

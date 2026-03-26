@@ -327,3 +327,24 @@ Voir NEXT_STEPS.md pour le plan complet.
 - Categories formelles gerees par admin
 - Variantes produit avec prix/stock individuels
 - Branche prete pour merge vers main
+
+## Session Phase 3C — 2026-03-26
+
+### Actions
+- Ecrit spec + plan coupons + litiges (Plan 10)
+- Execute Plan 10 (9 tasks) sur branche `phase3c-coupons-disputes`:
+  1. Coupon + Dispute models Prisma + enums (CouponType, DisputeStatus)
+  2. Domaine coupons (validators, queries, actions — CRUD + validateCoupon)
+  3. Domaine disputes (validators, queries, actions — open, respond, resolve)
+  4. Pages vendeuse /mon-business/coupons (liste, creation) + lien sidebar
+  5. Application coupon au checkout (CouponInput, validation temps reel, discount sur commande)
+  6. Dispute UI acheteur (DisputeForm, DisputeStatus dans achats/[id])
+  7. Dispute UI vendeuse (reponse dans commandes/[id])
+  8. Page admin /admin/litiges + resolution (3 options) + lien sidebar
+  9. Verification finale (0 erreur TypeScript)
+
+### Resultats
+- 8 commits, 0 erreur TypeScript
+- Coupons : creation vendeuse, application checkout, validation complete
+- Litiges : ouverture acheteur, reponse vendeuse, resolution admin
+- Phase 3 COMPLETE

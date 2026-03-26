@@ -8,6 +8,7 @@ import {
   User,
   Calendar,
   BookOpen,
+  Tag,
   Ticket,
   ShoppingBag,
   ShoppingCart,
@@ -56,6 +57,7 @@ export function MemberSidebar({ memberTier, verificationStatus, unreadNotificati
           { href: '/mon-business/produits', label: 'Produits', icon: Package },
           { href: '/mon-business/clients', label: 'Clients', icon: Users },
           { href: '/mon-business/revenus', label: 'Revenus', icon: BarChart3 },
+          { href: '/mon-business/coupons', label: 'Coupons', icon: Tag },
         ]
       : []),
     ...(showUpgrade

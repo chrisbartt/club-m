@@ -1,12 +1,15 @@
 import { requireMember } from '@/lib/auth-guards'
 import { getOrderForBuyer, getOrderTimeline } from '@/domains/orders/queries'
 import { getReviewByOrder } from '@/domains/reviews/queries'
+import { getDisputeByOrder } from '@/domains/disputes/queries'
 import { notFound } from 'next/navigation'
 import { formatOrderNumber } from '@/lib/server-utils'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import { OrderTimeline } from '@/components/orders/order-timeline'
 import { ReviewForm } from '@/components/orders/review-form'
 import { ReviewCard } from '@/components/orders/review-card'
+import { DisputeForm } from '@/components/orders/dispute-form'
+import { DisputeStatus } from '@/components/orders/dispute-status'
 import { ConfirmationCodeDisplay } from '@/components/orders/confirmation-code-display'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,9 +35,10 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
 
   if (!order) notFound()
 
-  const [timeline, review] = await Promise.all([
+  const [timeline, review, dispute] = await Promise.all([
     getOrderTimeline(order.id),
     getReviewByOrder(order.id),
+    getDisputeByOrder(order.id),
   ])
   const timelineEntries = timeline.map(entry => ({
     id: entry.id,
@@ -235,6 +239,18 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
           <OrderTimeline timeline={timelineEntries} />
         </CardContent>
       </Card>
+
+      {/* Dispute section */}
+      {!dispute && (order.status === 'SHIPPED' || order.status === 'DELIVERED') &&
+        Math.floor((Date.now() - new Date(order.createdAt).getTime()) / (1000 * 60 * 60 * 24)) <= 14 && (
+          <DisputeForm orderId={order.id} />
+        )}
+      {dispute && (
+        <div className="rounded-lg border p-4">
+          <h2 className="mb-3 text-lg font-semibold">Litige</h2>
+          <DisputeStatus dispute={JSON.parse(JSON.stringify(dispute))} />
+        </div>
+      )}
 
       {/* Review */}
       {order.status === 'DELIVERED' && !review && (

@@ -27,6 +27,7 @@ export const createCartOrderSchema = z.object({
       repere: z.string().optional(),
     })
     .optional(),
+  couponCode: z.string().optional(),
 })
 
 export const confirmDeliverySchema = z.object({

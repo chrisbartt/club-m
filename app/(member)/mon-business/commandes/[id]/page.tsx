@@ -5,6 +5,9 @@ import { db } from '@/lib/db'
 import { CURRENCY_SYMBOLS, COMMISSION_RATE, CONFIRMATION_CODE_EXPIRY_DAYS } from '@/lib/constants'
 import { getOrderTimeline } from '@/domains/orders/queries'
 import { getReviewByOrder } from '@/domains/reviews/queries'
+import { getDisputeByOrder } from '@/domains/disputes/queries'
+import { DisputeStatus } from '@/components/orders/dispute-status'
+import { DisputeResponseForm } from '@/components/orders/dispute-response-form'
 import { ShipOrderButton } from '@/components/orders/ship-order-button'
 import { ConfirmDeliveryForm } from '@/components/orders/confirm-delivery-form'
 import { OrderTimeline } from '@/components/orders/order-timeline'
@@ -94,9 +97,10 @@ export default async function SellerOrderDetailPage({
     redirect('/mon-business/commandes')
   }
 
-  const [timeline, review] = await Promise.all([
+  const [timeline, review, dispute] = await Promise.all([
     getOrderTimeline(order.id),
     getReviewByOrder(order.id),
+    getDisputeByOrder(order.id),
   ])
 
   const buyer = order.member ?? order.customer
@@ -451,6 +455,17 @@ export default async function SellerOrderDetailPage({
               </div>
             </div>
           </div>
+
+          {/* Dispute section */}
+          {dispute && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950 p-4 space-y-3">
+              <h2 className="text-lg font-semibold text-amber-800 dark:text-amber-200">Litige ouvert</h2>
+              <DisputeStatus dispute={JSON.parse(JSON.stringify(dispute))} />
+              {dispute.status === 'OPEN' && (
+                <DisputeResponseForm disputeId={dispute.id} />
+              )}
+            </div>
+          )}
 
           {/* Review section */}
           {review ? (
