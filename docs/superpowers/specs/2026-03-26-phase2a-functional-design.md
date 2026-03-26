@@ -35,7 +35,7 @@ New members land on a dashboard with no guidance. They don't know what steps to 
 - Completed steps show green checkmark, pending show gray circle
 - Progress indicator: "2/4 etapes completees"
 - Disappears when all steps are completed OR user clicks "Masquer" (flag stored in localStorage key `onboarding-dismissed`)
-- Server component, reads member data from dashboard page props
+- Client component (`'use client'`), receives member data as props from the server dashboard page (needs localStorage access for dismiss)
 
 **Files:**
 - `components/member/onboarding-checklist.tsx` — the checklist component
@@ -58,8 +58,13 @@ Only order-related and auth emails are sent. KYC decisions, profile approvals, u
 | 2 | `sendKycApprovedEmail(to, prenom)` | `reviewKyc` (APPROVED) | Member |
 | 3 | `sendKycRejectedEmail(to, prenom, reason)` | `reviewKyc` (REJECTED) | Member |
 | 4 | `sendProfileApprovedEmail(to, prenom, businessName)` | `approveProfile` | Business member |
-| 5 | `sendProfileRejectedEmail(to, prenom, businessName)` | `rejectProfile` | Business member |
-| 6 | `sendTicketConfirmationEmail(to, prenom, event)` | ticket purchase action | Participant |
+| 5 | `sendProfileRejectedEmail(to, prenom, businessName, reason)` | `rejectProfile` | Business member |
+| 6 | `sendTicketConfirmationEmail(to, prenom, event)` | ticket purchase action | Participant (member or customer) |
+
+**Event parameter interface for template #6:**
+```typescript
+{ title: string; date: string; location: string }
+```
 
 Note: `sendVerificationApprovedEmail` and `sendVerificationPendingEmail` already exist in `lib/email.ts` (from MVP). The KYC approved/rejected emails (templates 2-3) are NEW templates specifically for KYC review decisions, distinct from the existing verification templates.
 
@@ -72,9 +77,9 @@ Note: `sendVerificationApprovedEmail` and `sendVerificationPendingEmail` already
 **Files to modify:**
 - `lib/email.ts` — add 6 templates
 - `domains/kyc/actions.ts` — wire emails in `submitKyc` and `reviewKyc`
-- `domains/directory/admin-actions.ts` — wire emails in `approveProfile` and `rejectProfile`
-- `domains/upgrade/actions.ts` — wire email in upgrade completion
-- `domains/tickets/actions.ts` — wire email in ticket purchase
+- `domains/directory/admin-actions.ts` — wire emails in `approveProfile` and `rejectProfile`. **Important:** `rejectProfile` must be extended with a `reason` parameter (+ Zod validation). Both actions must `include: { member: { include: { user: true } } }` to resolve recipient email.
+- `domains/upgrade/actions.ts` — NOTE: no `completeUpgrade` action exists. Upgrade completion is triggered indirectly via KYC approval + payment. The upgrade email should be wired in `reviewKyc` when it cascades upgrade status to READY_FOR_PAYMENT or UPGRADE_COMPLETED.
+- `domains/tickets/actions.ts` — wire email in ticket purchase (handle both member and customer buyers)
 
 ---
 
@@ -87,16 +92,29 @@ Users have no way to track events (order updates, KYC decisions, profile approva
 
 **New Prisma model:**
 ```prisma
+enum NotificationType {
+  ORDER_CREATED
+  ORDER_RECEIVED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  KYC_APPROVED
+  KYC_REJECTED
+  PROFILE_APPROVED
+  PROFILE_REJECTED
+}
+
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  type      String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
   title     String
   message   String
   link      String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  read      Boolean          @default(false)
+  deletedAt DateTime?        // soft-delete (CLAUDE.md rule: no hard-delete)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   @@index([userId])
   @@index([userId, read])
@@ -105,12 +123,14 @@ model Notification {
 
 Add relation to User model: `notifications Notification[]`
 
+All queries must filter on `deletedAt IS NULL`.
+
 **New domain `domains/notifications/`:**
 
 `actions.ts`:
-- `createNotification(input: { userId, type, title, message, link? })` — creates notification in DB
-- `markAsRead(notificationId)` — sets read = true, with ownership check
-- `markAllAsRead()` — marks all user's notifications as read (requireAuth)
+- `createNotification(input: { userId, type, title, message, link? })` — internal helper function (NOT a server action, no `'use server'` export), called from other actions. No Zod validation needed since it's internal.
+- `markAsRead(notificationId)` — server action, sets read = true, with ownership check (requireAuth)
+- `markAllAsRead()` — server action, marks all user's notifications as read (requireAuth)
 
 `queries.ts`:
 - `getNotificationsForUser(userId, limit = 50)` — ordered by createdAt desc
@@ -127,7 +147,7 @@ Add relation to User model: `notifications Notification[]`
 **Navbar badge:**
 - Bell icon with red badge showing unread count
 - Displayed in member sidebar/navbar
-- Count fetched server-side on each navigation (no real-time)
+- Count fetched server-side in `app/(member)/layout.tsx` and passed as `unreadNotificationCount` prop to `MemberSidebar`
 - Badge hidden when count = 0
 
 **Notification triggers** (called from existing actions, after email send):
@@ -150,8 +170,9 @@ Add relation to User model: `notifications Notification[]`
 - `domains/notifications/queries.ts` — getNotificationsForUser, getUnreadCount
 - `app/(member)/notifications/page.tsx` — notifications page
 - `components/member/notification-list.tsx` — list component (client)
-- `components/member/member-sidebar.tsx` — add bell icon with badge
-- `domains/orders/actions.ts` — add notification calls
+- `components/member/member-sidebar.tsx` — add bell icon with badge (receives `unreadNotificationCount` prop)
+- `app/(member)/layout.tsx` — fetch unread count server-side, pass as prop to MemberSidebar
+- `domains/orders/actions.ts` — add notification calls (both `purchaseProduct` and `createCartOrder`)
 - `domains/kyc/actions.ts` — add notification calls
 - `domains/directory/admin-actions.ts` — add notification calls
 
@@ -170,10 +191,10 @@ Props:
 ```typescript
 interface CloudinaryUploadProps {
   folder: string              // Cloudinary folder (e.g., 'avatars', 'products')
-  onUpload: (url: string) => void   // callback with secure URL
-  currentImage?: string       // existing image URL for preview
+  onUpload: (urls: string[]) => void  // callback with secure URL(s) — single mode returns 1-element array
+  currentImage?: string       // existing image URL for preview (single mode)
+  currentImages?: string[]    // existing image URLs (multiple mode)
   multiple?: boolean          // allow multiple files (default false)
-  onMultiUpload?: (urls: string[]) => void  // callback for multiple uploads
   maxSizeMB?: number          // max file size (default 5)
   accept?: string[]           // accepted types (default ['jpg','png','webp'])
 }
@@ -193,9 +214,9 @@ Upload mechanism:
 - Requires unsigned upload preset configured in Cloudinary dashboard
 
 Configuration:
-- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` — already in `.env`
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` — NEW, must be added to `.env` (same value as existing server-side `CLOUDINARY_CLOUD_NAME`). The `NEXT_PUBLIC_` prefix is required for client-side access.
 - `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` — NEW, add to `.env` (value: `clubm_uploads`)
-- Create the unsigned preset `clubm_uploads` in Cloudinary dashboard
+- Create the unsigned upload preset `clubm_uploads` in Cloudinary dashboard (Settings → Upload → Upload presets → Add unsigned)
 
 **Replace URL inputs in:**
 
@@ -204,7 +225,7 @@ Configuration:
 | Member profile | `app/(member)/profil/page.tsx` or equivalent | avatar |
 | KYC submission | `app/(member)/kyc/page.tsx` or equivalent | idDocumentUrl, selfieUrl |
 | Product form | `components/directory/product-form.tsx` | images |
-| Business profile | business profile form | coverImage |
+| Business profile | `components/directory/business-profile-form.tsx` | coverImage |
 
 **Files:**
 - `components/shared/cloudinary-upload.tsx` — the upload component
