@@ -4,6 +4,13 @@ import type { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireMember, requireAdmin, requireVerifiedEmail } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
+import { createNotification } from '@/domains/notifications/actions'
+import {
+  sendKycSubmittedAdminEmail,
+  sendKycApprovedEmail,
+  sendKycRejectedEmail,
+} from '@/lib/email'
+import { ADMIN_EMAIL } from '@/lib/constants'
 import { submitKycSchema, reviewKycSchema } from './validators'
 import { getLatestKycForMember } from './queries'
 
@@ -73,6 +80,14 @@ export async function submitKyc(
       entityId: kyc.id,
     })
 
+    // Email admin about new KYC submission
+    try {
+      const memberName = `${member.firstName} ${member.lastName}`
+      await sendKycSubmittedAdminEmail(ADMIN_EMAIL, memberName)
+    } catch (e) {
+      console.error('KYC submitted admin email failed:', e)
+    }
+
     return { success: true, data: { kycId: kyc.id } }
   } catch (error) {
     return {
@@ -101,7 +116,7 @@ export async function reviewKyc(
 
     const kyc = await db.kycVerification.findUnique({
       where: { id: kycId },
-      include: { member: true },
+      include: { member: { include: { user: true } } },
     })
 
     if (!kyc) {
@@ -162,6 +177,36 @@ export async function reviewKyc(
         ...(rejectionReason ? { rejectionReason } : {}),
       },
     })
+
+    // Send email + notification to the member
+    const memberUser = kyc.member.user
+    if (decision === 'APPROVED') {
+      try {
+        await sendKycApprovedEmail(memberUser.email, kyc.member.firstName)
+      } catch (e) {
+        console.error('KYC approved email failed:', e)
+      }
+      await createNotification({
+        userId: memberUser.id,
+        type: 'KYC_APPROVED',
+        title: 'Identite verifiee',
+        message: 'Votre verification d\'identite a ete approuvee.',
+        link: '/kyc',
+      })
+    } else if (decision === 'REJECTED') {
+      try {
+        await sendKycRejectedEmail(memberUser.email, kyc.member.firstName, rejectionReason || 'Verification non approuvee.')
+      } catch (e) {
+        console.error('KYC rejected email failed:', e)
+      }
+      await createNotification({
+        userId: memberUser.id,
+        type: 'KYC_REJECTED',
+        title: 'KYC a revoir',
+        message: rejectionReason || 'Verification non approuvee.',
+        link: '/kyc',
+      })
+    }
 
     return { success: true, data: { kycId, decision } }
   } catch (error) {
