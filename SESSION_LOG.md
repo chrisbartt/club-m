@@ -366,3 +366,20 @@ Voir NEXT_STEPS.md pour le plan complet.
 - Rate limiting operationnel sur les endpoints critiques
 - Pages legales accessibles depuis le footer
 - SEO : sitemap.xml + robots.txt + meta tags dynamiques
+
+## Session Phase 4 Tests — 2026-03-26
+
+### Actions
+- Execute Plan 12 (7 tasks) sur branche `phase4-tests`:
+  1. Setup Vitest + mock infrastructure (db, auth guards, email, notifications, rate-limit)
+  2. Tests orders : markAsShipped (5), confirmDelivery (7) = 12 tests
+  3. Tests members : registerMember (8) = 8 tests
+  4. Tests auth : requestPasswordReset (5), resetPassword (6) = 11 tests
+  5. Tests reviews : createReview (7), flagReview (2), moderateReview (3) = 12 tests
+  6. Tests coupons : createCoupon (2), toggleCoupon (2), validateCoupon (9) = 13 tests
+  7. Run complet : 56 tests, 5 fichiers, 661ms
+
+### Resultats
+- 56 tests unitaires, 100% pass
+- 5 domaines critiques couverts : orders, members, auth, reviews, coupons
+- Vitest + mocks in-memory, zero dependance externe
