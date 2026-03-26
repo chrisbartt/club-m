@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { LayoutGrid, ShoppingBag, Briefcase, User, MapPin, Phone, Mail, Globe, BadgeCheck, Clock } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import AddToCartButton from './add-to-cart-button'
 import ServiceContactButton from './service-contact-button'
@@ -51,11 +52,12 @@ const TABS = [
 
 export default function StoreCatalog({ business, products }: StoreCatalogProps) {
   const [activeTab, setActiveTab] = useState<string>('tous')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const physicalProducts = products.filter((p) => p.type === 'PHYSICAL' || p.type === 'DIGITAL')
   const services = products.filter((p) => p.type === 'SERVICE')
 
-  const displayProducts =
+  const tabProducts =
     activeTab === 'produits'
       ? physicalProducts
       : activeTab === 'services'
@@ -63,6 +65,14 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
         : activeTab === 'tous'
           ? products
           : []
+
+  // Extract unique categories from current tab's products
+  const categories = [...new Set(tabProducts.filter((p) => p.category).map((p) => p.category as string))]
+
+  // Reset category filter when switching tabs if category no longer exists
+  const displayProducts = selectedCategory && categories.includes(selectedCategory)
+    ? tabProducts.filter((p) => p.category === selectedCategory)
+    : tabProducts
 
   const memberSince = new Date(business.createdAt).toLocaleDateString('fr-FR', {
     month: 'long',
@@ -115,6 +125,37 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
             </button>
           ))}
         </div>
+
+        {/* Category filter pills */}
+        {activeTab !== 'apropos' && categories.length >= 2 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={cn(
+                'px-3 py-1 rounded-full text-sm',
+                !selectedCategory || !categories.includes(selectedCategory)
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              )}
+            >
+              Toutes
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={cn(
+                  'px-3 py-1 rounded-full text-sm',
+                  selectedCategory === cat
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Content */}
         {activeTab !== 'apropos' ? (
