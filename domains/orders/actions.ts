@@ -238,7 +238,7 @@ export async function createCartOrder(
       return { success: false, error: 'INVALID_INPUT' }
     }
 
-    const { items, businessId, deliveryAddress } = parsed.data
+    const { items, businessId, deliveryAddress, couponCode } = parsed.data
 
     // Verify business is a valid, approved store
     const business = await db.businessProfile.findUnique({
@@ -323,10 +323,25 @@ export async function createCartOrder(
       const price = variant?.price ? Number(variant.price) : Number(product.price)
       return sum + item.quantity * price
     }, 0)
-    const commission = totalAmount * COMMISSION_RATE
 
     // Use the currency from the first product (all from the same store)
     const currency = products[0].currency
+
+    // Handle coupon discount
+    let couponDiscount = 0
+    let couponId: string | null = null
+    if (couponCode) {
+      const { validateCoupon } = await import('@/domains/coupons/queries')
+      const couponResult = await validateCoupon(couponCode, businessId, totalAmount, currency)
+      if (!couponResult.valid) {
+        return { success: false, error: couponResult.error }
+      }
+      couponDiscount = couponResult.discount
+      couponId = couponResult.coupon.id
+    }
+
+    const finalAmount = totalAmount - couponDiscount
+    const commission = finalAmount * COMMISSION_RATE
 
     // Generate confirmation code
     const confirmationCode = generateConfirmationCode(CONFIRMATION_CODE_LENGTH)
@@ -341,9 +356,11 @@ export async function createCartOrder(
           memberId,
           customerId,
           businessId: business.id,
-          totalAmount,
+          totalAmount: finalAmount,
           currency,
           commission,
+          discount: couponDiscount,
+          ...(couponId ? { couponId } : {}),
           confirmationCode,
           codeExpiresAt,
           deliveryPhone: deliveryAddress?.phone || null,
@@ -370,13 +387,21 @@ export async function createCartOrder(
 
       await tx.payment.create({
         data: {
-          amount: totalAmount,
+          amount: finalAmount,
           currency,
           status: 'SUCCESS',
           provider: 'LOCAL_FINTECH',
           orderId: newOrder.id,
         },
       })
+
+      // Increment coupon usage count
+      if (couponId) {
+        await tx.coupon.update({
+          where: { id: couponId },
+          data: { usedCount: { increment: 1 } },
+        })
+      }
 
       // Decrement stock — variant stock if variant, else product stock
       for (const item of items) {
@@ -430,7 +455,7 @@ export async function createCartOrder(
             const price = variant?.price ? Number(variant.price) : Number(product.price)
             return { name, quantity: item.quantity, unitPrice: price }
           }),
-          total: totalAmount,
+          total: finalAmount,
           currency,
           confirmationCode,
           businessName: business.businessName,
@@ -445,7 +470,7 @@ export async function createCartOrder(
             const price = variant?.price ? Number(variant.price) : Number(product.price)
             return { name, quantity: item.quantity, unitPrice: price }
           }),
-          total: totalAmount,
+          total: finalAmount,
           currency,
         })
       } catch (e) {

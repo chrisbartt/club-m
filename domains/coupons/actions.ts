@@ -133,6 +133,27 @@ export async function updateCoupon(
   }
 }
 
+export async function checkCoupon(
+  code: string,
+  businessId: string,
+  cartTotal: number,
+  cartCurrency: string,
+): Promise<ActionResult<{ code: string; discount: number }>> {
+  try {
+    const { validateCoupon } = await import('./queries')
+    const result = await validateCoupon(code, businessId, cartTotal, cartCurrency)
+    if (result.valid) {
+      return { success: true, data: { code: result.coupon.code, discount: result.discount } }
+    }
+    return { success: false, error: result.error }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+    }
+  }
+}
+
 export async function toggleCoupon(
   couponId: string
 ): Promise<ActionResult<{ couponId: string; isActive: boolean }>> {
