@@ -31,7 +31,7 @@ export default async function DashboardPage() {
       <OnboardingChecklist
         emailVerified={profile.user.emailVerified}
         hasPhone={!!profile.phone}
-        hasAvatar={!!profile.avatar}
+        hasBio={!!profile.bio}
         verificationStatus={profile.verificationStatus}
       />
       {dashboard}

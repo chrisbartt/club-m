@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 interface OnboardingChecklistProps {
   emailVerified: boolean
   hasPhone: boolean
-  hasAvatar: boolean
+  hasBio: boolean
   verificationStatus: string
 }
 
@@ -18,7 +18,7 @@ const DISMISSED_KEY = 'onboarding-dismissed'
 export function OnboardingChecklist({
   emailVerified,
   hasPhone,
-  hasAvatar,
+  hasBio,
   verificationStatus,
 }: OnboardingChecklistProps) {
   const [dismissed, setDismissed] = useState(true) // start hidden to avoid flash
@@ -29,7 +29,7 @@ export function OnboardingChecklist({
 
   if (dismissed) return null
 
-  const profileComplete = hasPhone && hasAvatar
+  const profileComplete = hasPhone && hasBio
   const kycSubmitted = verificationStatus !== 'DECLARED'
 
   const steps = [
@@ -41,7 +41,7 @@ export function OnboardingChecklist({
     },
     {
       label: 'Completer votre profil',
-      description: 'Ajoutez votre telephone et photo',
+      description: 'Ajoutez votre telephone et bio',
       done: profileComplete,
       href: '/profil',
       icon: User,
