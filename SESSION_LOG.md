@@ -183,3 +183,51 @@ MVP is complete. All plans (1, 2, 3A, 3B, 3C, 4) executed successfully.
 ### Prochaine action recommandee
 Phase 1 critique : password reset + email verification + activer Resend + pages admin KYC/boutique
 Voir NEXT_STEPS.md pour le plan complet.
+
+## Session Phase 2A — 2026-03-26
+
+### Actions
+- Ecrit spec + plan Phase 2A (fonctionnel)
+- Execute Plan 6 (9 tasks) sur branche `phase2a-functional`:
+  1. Notification model + migration Prisma
+  2. Domaine notifications (queries + actions)
+  3. 6 templates email (KYC soumis/approuve/rejete, profil approuve/rejete, ticket)
+  4. Emails + notifications cables dans toutes les actions (KYC, directory, tickets, orders)
+  5. Page /notifications + NotificationList client component + badge sidebar avec compteur non-lus
+  6. Onboarding checklist sur /dashboard (4 etapes, progression, masquable)
+  7. Composant CloudinaryUpload (drag & drop, preview, progress bar)
+  8. Remplacement des inputs URL par CloudinaryUpload dans KYC, produits, profil business
+  9. Verification finale (0 erreur TypeScript)
+
+### Fichiers crees
+- `domains/notifications/queries.ts` + `actions.ts`
+- `app/(member)/notifications/page.tsx`
+- `components/member/notification-list.tsx`
+- `components/member/onboarding-checklist.tsx`
+- `components/shared/cloudinary-upload.tsx`
+
+### Fichiers modifies
+- `prisma/schema.prisma` — Notification model + NotificationType enum
+- `lib/email.ts` — 6 nouveaux templates
+- `lib/constants.ts` — ADMIN_EMAIL
+- `domains/kyc/actions.ts` — emails + notifications
+- `domains/directory/admin-actions.ts` — emails + notifications + reason sur reject
+- `domains/tickets/actions.ts` — email ticket
+- `domains/orders/actions.ts` — notifications ORDER_*
+- `app/(member)/layout.tsx` — unreadNotificationCount
+- `components/member/member-sidebar.tsx` — badge notifications
+- `app/(member)/dashboard/page.tsx` — onboarding checklist
+- `components/member/kyc-form.tsx` — CloudinaryUpload
+- `components/directory/product-form.tsx` — CloudinaryUpload
+- `components/directory/business-profile-form.tsx` — CloudinaryUpload
+
+### Etat
+- Phase 2A complete sur branche `phase2a-functional`
+- 0 erreur TypeScript
+- Branche prete pour merge vers main
+
+### Prochaine action recommandee
+- Merge phase2a-functional → main
+- Tester visuellement les nouvelles features (notifications, onboarding, upload)
+- Configurer le preset Cloudinary `clubm_uploads` (unsigned) dans le dashboard Cloudinary
+- Continuer avec Phase 3 ou autres priorites du NEXT_STEPS.md

@@ -1,6 +1,6 @@
 # Club M — Etat du Projet
 
-**Derniere mise a jour** : 25 mars 2026
+**Derniere mise a jour** : 26 mars 2026
 **Version** : MVP 1.0
 **Status global** : MVP fonctionnel, gaps identifies, pret pour Phase 2
 
@@ -70,8 +70,8 @@
 
 ## Ce qui est partiel / incomplet
 
-- Emails : 1 seul email envoye (contact form). Templates existent dans lib/email.ts mais jamais appeles
-- Upload fichiers : Cloudinary operationnel mais les formulaires utilisent des inputs URL texte
+- Emails : templates branches dans les actions (KYC, profil, ticket, commandes). Fonctionnel si RESEND_API_KEY est configure
+- Upload fichiers : composant CloudinaryUpload integre dans KYC, produits, profil business. Necessite preset unsigned `clubm_uploads` dans Cloudinary
 - Paiement : toutes les commandes sont marquees PAID automatiquement
 - Site vitrine : evenements et annuaires branches sur DB, journal/parcours restent statiques
 
