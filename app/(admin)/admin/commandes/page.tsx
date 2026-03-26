@@ -100,7 +100,7 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
       </div>
 
       {/* Orders Table */}
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

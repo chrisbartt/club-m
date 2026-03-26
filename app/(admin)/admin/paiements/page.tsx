@@ -137,7 +137,7 @@ export default async function AdminPaiementsPage({ searchParams }: Props) {
       </div>
 
       {/* Payments Table */}
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

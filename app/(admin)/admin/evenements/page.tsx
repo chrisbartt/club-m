@@ -69,7 +69,7 @@ export default async function AdminEvenementsPage({ searchParams }: Props) {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
         {statCards.map((stat) => {
           const Icon = stat.icon
           return (
@@ -115,7 +115,7 @@ export default async function AdminEvenementsPage({ searchParams }: Props) {
       </div>
 
       {/* Events Table */}
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

@@ -154,7 +154,7 @@ export function MembersTable({ members, total, page, pageSize }: MembersTablePro
       </p>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
