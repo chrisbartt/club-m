@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const openDisputeSchema = z.object({
   orderId: z.string().min(1, 'ID commande requis'),
   reason: z.enum(
-    ['Produit non reçu', 'Produit non conforme', 'Produit endommagé', 'Autre'],
+    ['Produit non recu', 'Produit non conforme', 'Produit endommage', 'Autre'],
     { message: 'Raison invalide' }
   ),
   description: z
