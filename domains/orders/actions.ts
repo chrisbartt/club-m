@@ -40,7 +40,7 @@ export async function purchaseProduct(
       return { success: false, error: 'INVALID_INPUT' }
     }
 
-    const { productId, quantity } = parsed.data
+    const { productId, quantity, variantId } = parsed.data
 
     // Fetch product
     const product = await db.product.findUnique({
@@ -52,7 +52,24 @@ export async function purchaseProduct(
     if (!product.isActive) {
       return { success: false, error: 'PRODUCT_INACTIVE' }
     }
-    if (product.type === 'PHYSICAL' && product.stock !== null && product.stock < quantity) {
+
+    // If variantId provided, fetch and validate variant
+    let variant: { id: string; label: string; stock: number; price: unknown; isActive: boolean; productId: string } | null = null
+    if (variantId) {
+      variant = await db.productVariant.findUnique({ where: { id: variantId } })
+      if (!variant) {
+        return { success: false, error: 'VARIANT_NOT_FOUND' }
+      }
+      if (variant.productId !== productId) {
+        return { success: false, error: 'VARIANT_MISMATCH' }
+      }
+      if (!variant.isActive) {
+        return { success: false, error: 'VARIANT_INACTIVE' }
+      }
+      if (variant.stock < quantity) {
+        return { success: false, error: 'INSUFFICIENT_STOCK' }
+      }
+    } else if (product.type === 'PHYSICAL' && product.stock !== null && product.stock < quantity) {
       return { success: false, error: 'INSUFFICIENT_STOCK' }
     }
 
@@ -76,8 +93,9 @@ export async function purchaseProduct(
       return { success: false, error: 'NOT_AUTHENTICATED' }
     }
 
-    // Calculate amounts
-    const totalAmount = quantity * Number(product.price)
+    // Calculate amounts — use variant price if available
+    const unitPrice = variant?.price ? Number(variant.price) : Number(product.price)
+    const totalAmount = quantity * unitPrice
     const commission = totalAmount * COMMISSION_RATE
 
     // Generate confirmation code
@@ -103,7 +121,8 @@ export async function purchaseProduct(
             create: {
               productId: product.id,
               quantity,
-              unitPrice: product.price,
+              unitPrice: unitPrice,
+              ...(variant ? { variantId: variant.id, variantLabel: variant.label } : {}),
             },
           },
         },
@@ -119,8 +138,13 @@ export async function purchaseProduct(
         },
       })
 
-      // Decrement stock for physical products
-      if (product.type === 'PHYSICAL' && product.stock !== null) {
+      // Decrement stock — variant stock if variant, else product stock
+      if (variant) {
+        await tx.productVariant.update({
+          where: { id: variant.id },
+          data: { stock: { decrement: quantity } },
+        })
+      } else if (product.type === 'PHYSICAL' && product.stock !== null) {
         await tx.product.update({
           where: { id: product.id },
           data: { stock: { decrement: quantity } },
@@ -154,9 +178,10 @@ export async function purchaseProduct(
     })
     if (sellerProfile) {
       try {
+        const itemLabel = variant ? `${product.name} — ${variant.label}` : product.name
         await sendOrderConfirmationBuyer(user.email, buyerName, {
           number: formatOrderNumber(order.id),
-          items: [{ name: product.name, quantity, unitPrice: Number(product.price) }],
+          items: [{ name: itemLabel, quantity, unitPrice }],
           total: totalAmount,
           currency: product.currency,
           confirmationCode,
@@ -165,7 +190,7 @@ export async function purchaseProduct(
         await sendOrderNotificationSeller(sellerProfile.member.user.email, business.businessName, {
           number: formatOrderNumber(order.id),
           buyerName,
-          items: [{ name: product.name, quantity, unitPrice: Number(product.price) }],
+          items: [{ name: itemLabel, quantity, unitPrice }],
           total: totalAmount,
           currency: product.currency,
         })
@@ -234,7 +259,7 @@ export async function createCartOrder(
       where: { id: { in: productIds } },
     })
 
-    if (products.length !== items.length) {
+    if (products.length !== new Set(productIds).size) {
       return { success: false, error: 'RESOURCE_NOT_FOUND' }
     }
 
@@ -251,10 +276,31 @@ export async function createCartOrder(
     // Build a map for quick lookup
     const productMap = new Map(products.map((p) => [p.id, p]))
 
-    // Validate stock for each item
+    // Fetch variants for items that have variantId
+    const variantIds = items.map((i) => i.variantId).filter(Boolean) as string[]
+    const variants = variantIds.length > 0
+      ? await db.productVariant.findMany({ where: { id: { in: variantIds } } })
+      : []
+    const variantMap = new Map(variants.map((v) => [v.id, v]))
+
+    // Validate stock for each item (variant-aware)
     for (const item of items) {
       const product = productMap.get(item.productId)!
-      if (
+      if (item.variantId) {
+        const variant = variantMap.get(item.variantId)
+        if (!variant) {
+          return { success: false, error: 'VARIANT_NOT_FOUND' }
+        }
+        if (variant.productId !== item.productId) {
+          return { success: false, error: 'VARIANT_MISMATCH' }
+        }
+        if (!variant.isActive) {
+          return { success: false, error: 'VARIANT_INACTIVE' }
+        }
+        if (variant.stock < item.quantity) {
+          return { success: false, error: 'INSUFFICIENT_STOCK' }
+        }
+      } else if (
         product.type === 'PHYSICAL' &&
         product.stock !== null &&
         product.stock < item.quantity
@@ -270,10 +316,12 @@ export async function createCartOrder(
       return { success: false, error: 'NOT_AUTHENTICATED' }
     }
 
-    // Calculate total amount
+    // Calculate total amount (variant price takes precedence)
     const totalAmount = items.reduce((sum, item) => {
       const product = productMap.get(item.productId)!
-      return sum + item.quantity * Number(product.price)
+      const variant = item.variantId ? variantMap.get(item.variantId) : null
+      const price = variant?.price ? Number(variant.price) : Number(product.price)
+      return sum + item.quantity * price
     }, 0)
     const commission = totalAmount * COMMISSION_RATE
 
@@ -307,10 +355,13 @@ export async function createCartOrder(
           items: {
             create: items.map((item) => {
               const product = productMap.get(item.productId)!
+              const variant = item.variantId ? variantMap.get(item.variantId) : null
+              const price = variant?.price ? Number(variant.price) : Number(product.price)
               return {
                 productId: product.id,
                 quantity: item.quantity,
-                unitPrice: product.price,
+                unitPrice: price,
+                ...(variant ? { variantId: variant.id, variantLabel: item.variantLabel ?? variant.label } : {}),
               }
             }),
           },
@@ -327,10 +378,15 @@ export async function createCartOrder(
         },
       })
 
-      // Decrement stock for physical products
+      // Decrement stock — variant stock if variant, else product stock
       for (const item of items) {
         const product = productMap.get(item.productId)!
-        if (product.type === 'PHYSICAL' && product.stock !== null) {
+        if (item.variantId) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { decrement: item.quantity } },
+          })
+        } else if (product.type === 'PHYSICAL' && product.stock !== null) {
           await tx.product.update({
             where: { id: product.id },
             data: { stock: { decrement: item.quantity } },
@@ -369,7 +425,10 @@ export async function createCartOrder(
           number: formatOrderNumber(order.id),
           items: items.map((item) => {
             const product = productMap.get(item.productId)!
-            return { name: product.name, quantity: item.quantity, unitPrice: Number(product.price) }
+            const variant = item.variantId ? variantMap.get(item.variantId) : null
+            const name = variant ? `${product.name} — ${variant.label}` : product.name
+            const price = variant?.price ? Number(variant.price) : Number(product.price)
+            return { name, quantity: item.quantity, unitPrice: price }
           }),
           total: totalAmount,
           currency,
@@ -381,7 +440,10 @@ export async function createCartOrder(
           buyerName,
           items: items.map((item) => {
             const product = productMap.get(item.productId)!
-            return { name: product.name, quantity: item.quantity, unitPrice: Number(product.price) }
+            const variant = item.variantId ? variantMap.get(item.variantId) : null
+            const name = variant ? `${product.name} — ${variant.label}` : product.name
+            const price = variant?.price ? Number(variant.price) : Number(product.price)
+            return { name, quantity: item.quantity, unitPrice: price }
           }),
           total: totalAmount,
           currency,
