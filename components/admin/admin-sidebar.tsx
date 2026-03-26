@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 
 const links = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -38,7 +39,7 @@ export function AdminSidebar({ pendingKycCount }: AdminSidebarProps) {
   const pathname = usePathname()
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r bg-background">
+    <aside className="hidden h-full w-64 flex-col border-r bg-background lg:flex">
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/admin/dashboard" className="text-xl font-bold tracking-tight">
           Club M <span className="text-xs text-muted-foreground">Admin</span>
@@ -70,7 +71,8 @@ export function AdminSidebar({ pendingKycCount }: AdminSidebarProps) {
           )
         })}
       </nav>
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-1">
+        <ThemeToggle />
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-muted-foreground"
