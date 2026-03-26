@@ -14,6 +14,7 @@ import {
   FileText,
   LogOut,
   ShieldCheck,
+  Star,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ const links = [
   { href: '/admin/produits', label: 'Produits', icon: Package },
   { href: '/admin/commandes', label: 'Commandes', icon: ShoppingCart },
   { href: '/admin/paiements', label: 'Paiements', icon: CreditCard },
+  { href: '/admin/avis', label: 'Avis', icon: Star },
   { href: '/admin/journal', label: 'Journal', icon: FileText },
 ]
 
