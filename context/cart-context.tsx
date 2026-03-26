@@ -42,6 +42,7 @@ interface CartContextType {
   itemCount: number
   total: number
   currency: string
+  hydrated: boolean
 }
 
 const emptyCart: CartState = {
@@ -201,8 +202,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       itemCount,
       total,
       currency,
+      hydrated,
     }),
-    [cart, addItem, removeItem, updateQuantity, clearCart, itemCount, total, currency],
+    [cart, addItem, removeItem, updateQuantity, clearCart, itemCount, total, currency, hydrated],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

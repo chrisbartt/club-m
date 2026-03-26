@@ -3,15 +3,16 @@ import { redirect, notFound } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { CURRENCY_SYMBOLS, COMMISSION_RATE, CONFIRMATION_CODE_EXPIRY_DAYS } from '@/lib/constants'
+import { getOrderTimeline } from '@/domains/orders/queries'
+import { getReviewByOrder } from '@/domains/reviews/queries'
 import { ShipOrderButton } from '@/components/orders/ship-order-button'
 import { ConfirmDeliveryForm } from '@/components/orders/confirm-delivery-form'
+import { OrderTimeline } from '@/components/orders/order-timeline'
+import { ReviewCard } from '@/components/orders/review-card'
+import { FlagReviewButton } from '@/components/orders/flag-review-button'
 import {
   ArrowLeft,
   CheckCircle2,
-  Circle,
-  Clock,
-  Package,
-  Truck,
   XCircle,
   MessageCircle,
   Mail,
@@ -36,17 +37,6 @@ const STATUS_CONFIG: Record<
   DISPUTED: { label: 'Litige', bg: 'bg-orange-500/10', text: 'text-orange-400' },
 }
 
-const STATUS_ORDER = ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'COMPLETED']
-
-const TIMELINE_LABELS = [
-  'Commande creee',
-  'Paiement confirme',
-  'Commande expediee',
-  'Commande livree',
-  'Commande completee',
-]
-
-const TIMELINE_ICONS = [Clock, CheckCircle2, Truck, Package, CheckCircle2]
 
 export const metadata = {
   title: 'Detail commande | Club M',
@@ -104,6 +94,11 @@ export default async function SellerOrderDetailPage({
     redirect('/mon-business/commandes')
   }
 
+  const [timeline, review] = await Promise.all([
+    getOrderTimeline(order.id),
+    getReviewByOrder(order.id),
+  ])
+
   const buyer = order.member ?? order.customer
   const buyerName = buyer
     ? `${buyer.firstName} ${buyer.lastName}`
@@ -122,10 +117,6 @@ export default async function SellerOrderDetailPage({
     bg: 'bg-gray-500/10',
     text: 'text-gray-400',
   }
-
-  // Timeline step index
-  const currentStep = STATUS_ORDER.indexOf(order.status)
-  const isCancelled = order.status === 'CANCELLED'
 
   // WhatsApp link
   const whatsappNumber = buyerPhone
@@ -345,63 +336,9 @@ export default async function SellerOrderDetailPage({
           )}
 
           {/* Historique / Timeline */}
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">
-              Historique
-            </h2>
-            <div className="space-y-0">
-              {STATUS_ORDER.map((step, idx) => {
-                const isCompleted = !isCancelled && idx <= currentStep
-                const isCurrent = !isCancelled && idx === currentStep
-                const stepCfg = STATUS_CONFIG[step]
-                const Icon = TIMELINE_ICONS[idx] ?? Circle
-
-                return (
-                  <div key={step} className="flex gap-3">
-                    {/* Timeline line + dot */}
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                          isCompleted
-                            ? isCurrent
-                              ? `${stepCfg?.bg ?? 'bg-white/10'} ${stepCfg?.text ?? 'text-foreground'}`
-                              : 'bg-emerald-500/10 text-emerald-400'
-                            : 'bg-muted/50 text-muted-foreground/30'
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      {idx < STATUS_ORDER.length - 1 && (
-                        <div
-                          className={`h-6 w-px ${
-                            !isCancelled && idx < currentStep
-                              ? 'bg-emerald-500/30'
-                              : 'bg-muted'
-                          }`}
-                        />
-                      )}
-                    </div>
-                    {/* Label + date */}
-                    <div className="pt-1.5">
-                      <p
-                        className={`text-sm ${
-                          isCompleted
-                            ? 'font-medium text-foreground'
-                            : 'text-muted-foreground/40'
-                        }`}
-                      >
-                        {TIMELINE_LABELS[idx]}
-                      </p>
-                      {isCompleted && idx === 0 && (
-                        <p className="mt-0.5 text-xs text-muted-foreground/60">
-                          {formatDate(new Date(order.createdAt))}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+          <div className="rounded-lg border p-4">
+            <h2 className="mb-4 text-lg font-semibold">Historique</h2>
+            <OrderTimeline timeline={JSON.parse(JSON.stringify(timeline))} />
           </div>
         </div>
 
@@ -511,6 +448,24 @@ export default async function SellerOrderDetailPage({
               </div>
             </div>
           </div>
+
+          {/* Review section */}
+          {review ? (
+            <div className="rounded-lg border p-4 space-y-3">
+              <h2 className="text-lg font-semibold">Avis du client</h2>
+              <ReviewCard review={JSON.parse(JSON.stringify(review))} />
+              {!review.flagged && (
+                <FlagReviewButton reviewId={review.id} />
+              )}
+              {review.flagged && (
+                <p className="text-sm text-muted-foreground">Avis signale — en attente de moderation</p>
+              )}
+            </div>
+          ) : order.status === 'DELIVERED' ? (
+            <div className="rounded-lg border p-4">
+              <p className="text-sm text-muted-foreground">Aucun avis pour cette commande</p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

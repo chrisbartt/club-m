@@ -21,9 +21,19 @@ import type { Currency } from '@/lib/generated/prisma/client'
 
 export default function PanierPage() {
   const router = useRouter()
-  const { cart, removeItem, updateQuantity, clearCart, itemCount, total, currency } = useCart()
+  const { cart, removeItem, updateQuantity, clearCart, itemCount, total, currency, hydrated } = useCart()
 
   const symbol = CURRENCY_SYMBOLS[currency as Currency] ?? '$'
+
+  if (!hydrated) {
+    return (
+      <AppContainerWebSite>
+        <div className="bg-muted min-h-[70vh] flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </div>
+      </AppContainerWebSite>
+    )
+  }
 
   if (cart.items.length === 0) {
     return (

@@ -10,6 +10,9 @@ import {
 } from 'lucide-react'
 import { getProductById } from '@/domains/business/queries'
 import { getProfileBySlug } from '@/domains/directory/queries'
+import { getReviewsByProduct, getAverageRating } from '@/domains/reviews/queries'
+import { StarDisplay } from '@/components/orders/star-display'
+import { ReviewCard } from '@/components/orders/review-card'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import type { Currency } from '@/lib/generated/prisma/client'
 import AppContainerWebSite from '@/components/common/containers/AppContainerWebSite'
@@ -39,6 +42,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const profile = await getProfileBySlug(slug)
   if (!profile || product.businessId !== profile.id) notFound()
   if (!profile.isPublished || !profile.isApproved || profile.profileType !== 'STORE') notFound()
+
+  const [reviews, ratingInfo] = await Promise.all([
+    getReviewsByProduct(product.id),
+    getAverageRating(product.id),
+  ])
 
   const symbol = CURRENCY_SYMBOLS[product.currency as Currency] ?? '$'
   const price = typeof product.price === 'object' && product.price !== null && 'toNumber' in product.price
@@ -229,6 +237,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </div>
             </div>
           </div>
+
+          {/* Reviews section */}
+          {ratingInfo.count > 0 && (
+            <div className="rounded-lg border p-6 mt-8">
+              <div className="mb-4 flex items-center gap-3">
+                <h2 className="text-lg font-semibold">Avis clients</h2>
+                <div className="flex items-center gap-2">
+                  <StarDisplay rating={ratingInfo.average} />
+                  <span className="text-sm text-muted-foreground">
+                    {ratingInfo.average.toFixed(1)} ({ratingInfo.count} avis)
+                  </span>
+                </div>
+              </div>
+              <div>
+                {reviews.map((review) => (
+                  <ReviewCard key={review.id} review={JSON.parse(JSON.stringify(review))} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </AppContainerWebSite>

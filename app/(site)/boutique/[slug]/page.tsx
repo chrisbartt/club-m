@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
 import AppContainerWebSite from '@/components/common/containers/AppContainerWebSite'
 import { getProfileBySlug } from '@/domains/directory/queries'
+import { getBusinessAverageRating } from '@/domains/reviews/queries'
 import StoreHero from '@/components/boutique/store-hero'
 import StoreCatalog from '@/components/boutique/store-catalog'
+import { StarDisplay } from '@/components/orders/star-display'
 import type { Metadata } from 'next'
 
 interface BoutiquePageProps {
@@ -31,6 +33,8 @@ export default async function BoutiquePage({ params }: BoutiquePageProps) {
   if (!profile || !profile.isPublished || !profile.isApproved || profile.profileType !== 'STORE') {
     redirect('/marketplace')
   }
+
+  const ratingInfo = await getBusinessAverageRating(profile.id)
 
   // Serialize products for client component (Decimal -> number)
   const serializedProducts = profile.products.map((p) => ({
@@ -65,6 +69,15 @@ export default async function BoutiquePage({ params }: BoutiquePageProps) {
           },
         }}
       />
+
+      {ratingInfo.count > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2">
+          <StarDisplay rating={ratingInfo.average} />
+          <span className="text-sm text-muted-foreground">
+            {ratingInfo.average.toFixed(1)} ({ratingInfo.count} avis)
+          </span>
+        </div>
+      )}
 
       <div className="mt-6">
         <StoreCatalog
