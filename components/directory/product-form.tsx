@@ -82,9 +82,9 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a24]">
-      <div className="border-b border-white/[0.06] px-6 py-4">
-        <h2 className="text-lg font-semibold text-white">
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="border-b border-border px-6 py-4">
+        <h2 className="text-lg font-semibold text-card-foreground">
           {mode === 'create' ? 'Nouveau produit' : 'Modifier le produit'}
         </h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
@@ -105,10 +105,9 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
             onChange={(e) => setName(e.target.value)}
             placeholder="Nom du produit"
             required
-            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
           />
           {errors.name && (
-            <p className="text-sm text-red-400">{errors.name[0]}</p>
+            <p className="text-sm text-destructive">{errors.name[0]}</p>
           )}
         </div>
 
@@ -123,10 +122,9 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Decrivez votre produit"
             required
-            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
           />
           {errors.description && (
-            <p className="text-sm text-red-400">{errors.description[0]}</p>
+            <p className="text-sm text-destructive">{errors.description[0]}</p>
           )}
         </div>
 
@@ -145,20 +143,19 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
               onChange={(e) => setPrice(e.target.value)}
               placeholder="0"
               required
-              className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
             />
             {errors.price && (
-              <p className="text-sm text-red-400">{errors.price[0]}</p>
+              <p className="text-sm text-destructive">{errors.price[0]}</p>
             )}
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-sm text-muted-foreground">Devise</Label>
             <Select value={currency} onValueChange={(val) => setCurrency(val as Currency)}>
-              <SelectTrigger className="border-white/[0.06] bg-white/[0.03] text-white">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-white/[0.06] bg-[#1a1a24]">
+              <SelectContent>
                 <SelectItem value="USD">USD ($)</SelectItem>
                 <SelectItem value="CDF">CDF (FC)</SelectItem>
                 <SelectItem value="EUR">EUR (&euro;)</SelectItem>
@@ -171,10 +168,10 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
         <div className="space-y-1.5">
           <Label className="text-sm text-muted-foreground">Type</Label>
           <Select value={type} onValueChange={(val) => setType(val as ProductType)}>
-            <SelectTrigger className="border-white/[0.06] bg-white/[0.03] text-white">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border-white/[0.06] bg-[#1a1a24]">
+            <SelectContent>
               <SelectItem value="PHYSICAL">Produit physique</SelectItem>
               <SelectItem value="SERVICE">Service</SelectItem>
               <SelectItem value="DIGITAL">Digital</SelectItem>
@@ -192,7 +189,6 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder="Ex: Beaute, Mode, Alimentation"
-            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
           />
         </div>
 
@@ -210,10 +206,9 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
               value={stock}
               onChange={(e) => setStock(e.target.value)}
               placeholder="0"
-              className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
             />
             {errors.stock && (
-              <p className="text-sm text-red-400">{errors.stock[0]}</p>
+              <p className="text-sm text-destructive">{errors.stock[0]}</p>
             )}
           </div>
         )}
@@ -228,14 +223,14 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
             currentImages={images}
           />
           {errors.images && (
-            <p className="text-sm text-red-400">{errors.images[0]}</p>
+            <p className="text-sm text-destructive">{errors.images[0]}</p>
           )}
         </div>
 
         <Button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-[#8b5cf6] py-2.5 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:bg-[#7c3aed] hover:shadow-purple-500/30 disabled:opacity-50"
+          className="w-full rounded-xl bg-primary py-2.5 font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {pending
             ? 'En cours...'
