@@ -1,7 +1,8 @@
 import { Resend } from "resend";
 
 const BRAND_COLOR = "#a55b46";
-const FROM = "Club M <noreply@clubm.cd>";
+// Use Resend's default sandbox address until clubm.cd domain is verified
+const FROM = process.env.EMAIL_FROM || "Club M <onboarding@resend.dev>";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);

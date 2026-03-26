@@ -90,7 +90,7 @@ export async function requestPasswordReset(
 
     // Send email
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const resetUrl = `${baseUrl}/reinitialiser-mot-de-passe?token=${rawToken}`
+    const resetUrl = `${baseUrl}/reset-password/${rawToken}`
     const prenom = user.member?.firstName ?? 'Membre'
 
     await sendPasswordResetEmail(user.email, prenom, resetUrl)
@@ -234,11 +234,15 @@ export async function resendVerificationEmail(): Promise<ActionResult<{ message:
       return { success: false, error: 'Email deja verifie.' }
     }
 
-    // Check cooldown
-    const lastSent = await getLastVerificationEmailSent(user.id)
-    if (lastSent) {
+    // Check cooldown: was a token invalidated recently? (= a resend happened)
+    // This avoids blocking the first resend after registration.
+    const lastInvalidated = await db.emailVerificationToken.findFirst({
+      where: { userId: user.id, usedAt: { not: null } },
+      orderBy: { usedAt: 'desc' },
+    })
+    if (lastInvalidated?.usedAt) {
       const cooldownMs = EMAIL_RESEND_COOLDOWN_MINUTES * 60 * 1000
-      const elapsed = Date.now() - lastSent.createdAt.getTime()
+      const elapsed = Date.now() - lastInvalidated.usedAt.getTime()
       if (elapsed < cooldownMs) {
         return {
           success: false,

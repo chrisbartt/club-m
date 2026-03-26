@@ -40,7 +40,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const result = await registerMember({ firstName, lastName, email, password })
+      const result = await registerMember({ firstName, lastName, email, password, certifyWoman, acceptTerms })
 
       if (!result.success) {
         if (result.details) {

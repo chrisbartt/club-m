@@ -18,18 +18,33 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [tokenExpired, setTokenExpired] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
+    if (password.length < 8) {
+      setError('Le mot de passe doit contenir au moins 8 caracteres')
+      setLoading(false)
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas')
+      setLoading(false)
+      return
+    }
+
     try {
       const result = await resetPassword({ token, password, confirmPassword })
 
       if (result.success) {
         setSuccess(true)
+      } else if (result.error === 'INVALID_INPUT') {
+        setError('Verifiez que votre mot de passe contient au moins 8 caracteres.')
       } else {
+        setTokenExpired(true)
         setError(result.error)
       }
     } catch {
@@ -57,7 +72,7 @@ export default function ResetPasswordPage() {
     )
   }
 
-  if (error) {
+  if (tokenExpired) {
     return (
       <Card>
         <CardHeader className="text-center">
@@ -81,6 +96,9 @@ export default function ResetPasswordPage() {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
+          {error && (
+            <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="password">Nouveau mot de passe</Label>
             <Input
