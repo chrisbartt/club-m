@@ -12,6 +12,7 @@ import {
   EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS,
   EMAIL_RESEND_COOLDOWN_MINUTES,
 } from '@/lib/constants'
+import { rateLimit } from '@/lib/rate-limit'
 import {
   forgotPasswordSchema,
   resetPasswordSchema,
@@ -46,6 +47,11 @@ export async function requestPasswordReset(
     }
 
     const { email } = parsed.data
+
+    const rl = rateLimit(`reset:${email}`, 3, 60 * 60 * 1000)
+    if (!rl.success) {
+      return { success: false, error: 'Trop de tentatives. Reessayez dans une heure.' }
+    }
 
     // Always return same message to prevent email enumeration
     const user = await db.user.findUnique({
