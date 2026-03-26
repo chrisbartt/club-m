@@ -303,3 +303,27 @@ Voir NEXT_STEPS.md pour le plan complet.
 - Timeline automatique sur chaque commande
 - Systeme d'avis complet : ecrire, afficher, signaler, moderer
 - Branche prete pour merge vers main
+
+## Session Phase 3B — 2026-03-26
+
+### Actions
+- Ecrit spec + plan categories + variantes (Plan 9)
+- Execute Plan 9 (12 tasks) sur branche `phase3b-categories-variants`:
+  1. Category + ProductVariant models Prisma, update Product + OrderItem
+  2. Migration seed — categories existantes → table Category, produits lies
+  3. Domaine categories (validators, queries, actions — CRUD admin)
+  4. Page admin /admin/categories + formulaire + lien sidebar
+  5. Product form — category Select + variant manager (toggle, CRUD inline)
+  6. Marketplace — filtres par Category table (slug dans URL)
+  7. Store catalog — pills de filtrage par categorie
+  8. Cart context — variantId + variantLabel, identification par productId+variantId
+  9. Variant selector sur page produit publique (boutons, prix dynamique, stock)
+  10. Order actions — stock decrement variant-aware (purchaseProduct + createCartOrder)
+  11. Affichage variant labels dans panier, checkout, achats/[id], commandes/[id]
+  12. Verification finale (0 erreur TypeScript)
+
+### Resultats
+- 11 commits, 0 erreur TypeScript
+- Categories formelles gerees par admin
+- Variantes produit avec prix/stock individuels
+- Branche prete pour merge vers main
