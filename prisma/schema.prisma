@@ -55,6 +55,7 @@ model Member {
   orders           Order[]              @relation("MemberOrders")
   reviews          Review[]
   upgradeRequests  UpgradeRequest[]
+  disputes         Dispute[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -242,6 +243,7 @@ model BusinessProfile {
 
   products       Product[]
   receivedOrders Order[]
+  coupons        Coupon[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -435,10 +437,15 @@ model Order {
   deliveredAt      DateTime?
   status           OrderStatus @default(PENDING)
 
+  couponId  String?
+  coupon    Coupon?   @relation(fields: [couponId], references: [id])
+  discount  Decimal   @default(0)
+
   items         OrderItem[]
   payment       Payment?
   statusHistory OrderStatusHistory[]
   review        Review?
+  dispute       Dispute?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -596,6 +603,66 @@ model EmailVerificationToken {
   @@index([expiresAt])
 }
 
+// ==================== COUPONS ====================
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model Coupon {
+  id             String          @id @default(cuid())
+  businessId     String
+  business       BusinessProfile @relation(fields: [businessId], references: [id])
+  code           String
+  type           CouponType
+  value          Decimal
+  currency       Currency?
+  minOrderAmount Decimal?
+  maxUses        Int?
+  usedCount      Int             @default(0)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  orders         Order[]
+
+  @@unique([businessId, code])
+  @@index([businessId, isActive])
+}
+
+// ==================== DISPUTES ====================
+
+enum DisputeStatus {
+  OPEN
+  SELLER_RESPONDED
+  RESOLVED_BUYER
+  RESOLVED_SELLER
+  CLOSED
+}
+
+model Dispute {
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id])
+  memberId        String
+  member          Member        @relation(fields: [memberId], references: [id])
+  reason          String
+  description     String
+  sellerResponse  String?
+  adminNote       String?
+  status          DisputeStatus @default(OPEN)
+  resolution      String?
+  deletedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+  @@index([memberId])
+}
+
 // ==================== NOTIFICATIONS ====================
 
 enum NotificationType {
@@ -609,6 +676,9 @@ enum NotificationType {
   PROFILE_REJECTED
   REVIEW_RECEIVED
   REVIEW_HIDDEN
+  DISPUTE_OPENED
+  DISPUTE_SELLER_RESPONDED
+  DISPUTE_RESOLVED
 }
 
 model Notification {
