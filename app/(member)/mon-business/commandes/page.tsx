@@ -163,8 +163,8 @@ export default async function SellerOrdersPage({
       label: 'Total commandes',
       value: totalCount,
       icon: ShoppingBag,
-      color: 'text-white',
-      bgIcon: 'bg-white/[0.06]',
+      color: 'text-foreground',
+      bgIcon: 'bg-muted',
       filterValue: '',
     },
     {
@@ -197,14 +197,14 @@ export default async function SellerOrdersPage({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Commandes</h1>
+        <h1 className="text-2xl font-bold text-foreground">Commandes</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Suivez et gerez vos commandes
         </p>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
           const Icon = stat.icon
           const isActive = (status ?? '') === stat.filterValue
@@ -216,10 +216,10 @@ export default async function SellerOrdersPage({
                   ? `/mon-business/commandes?status=${stat.filterValue}`
                   : '/mon-business/commandes'
               }
-              className={`group relative rounded-xl border p-4 transition-all hover:border-white/[0.12] ${
+              className={`group relative rounded-xl border p-4 transition-all hover:border-border ${
                 isActive
-                  ? 'border-[#8b5cf6]/40 bg-[#8b5cf6]/5'
-                  : 'border-white/[0.06] bg-[#1a1a24]'
+                  ? 'border-primary/40 bg-primary/5'
+                  : 'border-border bg-card'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -229,7 +229,7 @@ export default async function SellerOrdersPage({
                   <Icon className={`h-5 w-5 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">{stat.value}</p>
+                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                   <p className="text-xs text-muted-foreground">{stat.label}</p>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default async function SellerOrdersPage({
       </div>
 
       {/* Filter bar */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <form className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -248,13 +248,13 @@ export default async function SellerOrdersPage({
               name="q"
               defaultValue={q ?? ''}
               placeholder="Rechercher par ID, client, telephone..."
-              className="h-10 w-full rounded-lg border border-white/[0.06] bg-white/[0.03] pl-10 pr-4 text-sm text-white placeholder:text-muted-foreground focus:border-[#8b5cf6]/50 focus:outline-none focus:ring-1 focus:ring-[#8b5cf6]/50"
+              className="h-10 w-full rounded-lg border border-border bg-muted/50 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
           </div>
           <select
             name="status"
             defaultValue={status ?? ''}
-            className="h-10 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 text-sm text-white focus:border-[#8b5cf6]/50 focus:outline-none focus:ring-1 focus:ring-[#8b5cf6]/50"
+            className="h-10 rounded-lg border border-border bg-muted/50 px-3 text-sm text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
           >
             <option value="">Tous les statuts</option>
             <option value="PENDING">En attente</option>
@@ -266,7 +266,7 @@ export default async function SellerOrdersPage({
           </select>
           <button
             type="submit"
-            className="h-10 rounded-lg bg-[#8b5cf6] px-5 text-sm font-medium text-white transition-colors hover:bg-[#7c3aed]"
+            className="h-10 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Filtrer
           </button>
@@ -275,8 +275,8 @@ export default async function SellerOrdersPage({
 
       {/* Orders table */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-[#1a1a24] py-20">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.04]">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-20">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
             <Package className="h-8 w-8 text-muted-foreground/40" />
           </div>
           <p className="mt-4 text-sm font-medium text-muted-foreground">
@@ -289,10 +289,10 @@ export default async function SellerOrdersPage({
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#1a1a24]">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06]">
+              <tr className="border-b border-border">
                 <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Commande
                 </th>
@@ -313,7 +313,7 @@ export default async function SellerOrdersPage({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-border">
               {filtered.map((order) => {
                 const buyer = order.member ?? order.customer
                 const buyerName = buyer
@@ -335,7 +335,7 @@ export default async function SellerOrdersPage({
                 return (
                   <tr
                     key={order.id}
-                    className="transition-colors hover:bg-white/[0.02]"
+                    className="transition-colors hover:bg-muted/30"
                   >
                     <td className="px-5 py-3.5">
                       <span className="font-mono text-xs text-muted-foreground">
@@ -344,7 +344,7 @@ export default async function SellerOrdersPage({
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="space-y-0.5">
-                        <p className="font-semibold text-white">{buyerName}</p>
+                        <p className="font-semibold text-foreground">{buyerName}</p>
                         {buyerPhone && (
                           <p className="text-xs text-muted-foreground">
                             {buyerPhone}
@@ -358,7 +358,7 @@ export default async function SellerOrdersPage({
                       </div>
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <span className="font-semibold text-white">
+                      <span className="font-semibold text-foreground">
                         {total.toLocaleString('fr-FR')}
                         {symbol}
                       </span>
@@ -386,7 +386,7 @@ export default async function SellerOrdersPage({
                     <td className="px-5 py-3.5 text-right">
                       <Link
                         href={`/mon-business/commandes/${order.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-white"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         Voir

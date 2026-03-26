@@ -83,14 +83,14 @@ export default async function ProduitsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Produits</h1>
+          <h1 className="text-2xl font-bold text-foreground">Produits</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Gerez votre catalogue
           </p>
         </div>
         <Link
           href="/mon-business/produits/nouveau"
-          className="inline-flex items-center gap-2 rounded-xl bg-[#8b5cf6] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:bg-[#7c3aed] hover:shadow-purple-500/30"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-foreground shadow-lg shadow-purple-500/20 transition-all hover:bg-primary/90 hover:shadow-purple-500/30"
         >
           <Plus className="h-4 w-4" />
           Ajouter un produit
@@ -99,47 +99,47 @@ export default async function ProduitsPage() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
               <Package className="h-5 w-5 text-blue-400" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Total produits</p>
-              <p className="text-xl font-bold text-white">{totalProducts}</p>
+              <p className="text-xl font-bold text-foreground">{totalProducts}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
               <CheckCircle2 className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Produits actifs</p>
-              <p className="text-xl font-bold text-white">{activeProducts}</p>
+              <p className="text-xl font-bold text-foreground">{activeProducts}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
               <AlertTriangle className="h-5 w-5 text-amber-400" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">En rupture</p>
-              <p className="text-xl font-bold text-white">{outOfStock}</p>
+              <p className="text-xl font-bold text-foreground">{outOfStock}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
               <DollarSign className="h-5 w-5 text-purple-400" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Revenu total</p>
-              <p className="text-xl font-bold text-white">
+              <p className="text-xl font-bold text-foreground">
                 {totalRevenue.toLocaleString('fr-FR')} $
               </p>
             </div>
@@ -149,9 +149,9 @@ export default async function ProduitsPage() {
 
       {/* Products */}
       {products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-[#1a1a24] py-16">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
           <ShoppingBag className="mb-3 h-10 w-10 text-muted-foreground/40" />
-          <p className="mb-1 text-lg font-semibold text-white">
+          <p className="mb-1 text-lg font-semibold text-foreground">
             Aucun produit
           </p>
           <p className="mb-4 text-sm text-muted-foreground">
@@ -159,7 +159,7 @@ export default async function ProduitsPage() {
           </p>
           <Link
             href="/mon-business/produits/nouveau"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#8b5cf6] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:bg-[#7c3aed]"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-foreground shadow-lg shadow-purple-500/20 transition-all hover:bg-primary/90"
           >
             <Plus className="h-4 w-4" />
             Ajouter un produit
@@ -179,7 +179,7 @@ export default async function ProduitsPage() {
             }
             const typeInfo = TYPE_LABELS[product.type] ?? {
               label: product.type,
-              color: 'bg-white/[0.06] text-muted-foreground',
+              color: 'bg-muted text-muted-foreground',
             }
 
             // Stock color
@@ -201,7 +201,7 @@ export default async function ProduitsPage() {
             return (
               <div
                 key={product.id}
-                className={`group overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a24] transition-all hover:border-white/[0.12] hover:shadow-lg hover:shadow-black/20 ${
+                className={`group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-border hover:shadow-lg hover:shadow-black/20 ${
                   !product.isActive ? 'opacity-60' : ''
                 }`}
               >
@@ -215,11 +215,11 @@ export default async function ProduitsPage() {
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a24]/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
                   </div>
                 ) : (
-                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-[#8b5cf6]/10 via-[#1a1a24] to-[#3b82f6]/10">
-                    <span className="text-4xl font-bold text-white/10">
+                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-primary/10 via-card to-blue-500/10">
+                    <span className="text-4xl font-bold text-muted-foreground/20">
                       {product.name.slice(0, 2).toUpperCase()}
                     </span>
                   </div>
@@ -229,7 +229,7 @@ export default async function ProduitsPage() {
                 <div className="space-y-3 p-4">
                   {/* Name + Type badge */}
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold leading-tight text-white">
+                    <h3 className="font-semibold leading-tight text-foreground">
                       {product.name}
                     </h3>
                     <span
@@ -240,7 +240,7 @@ export default async function ProduitsPage() {
                   </div>
 
                   {/* Price */}
-                  <p className="text-lg font-bold text-white">
+                  <p className="text-lg font-bold text-foreground">
                     {priceDisplay}
                   </p>
 
@@ -267,22 +267,22 @@ export default async function ProduitsPage() {
                   </div>
 
                   {/* Performance stats */}
-                  <div className="flex items-center gap-4 border-t border-white/[0.06] pt-3">
+                  <div className="flex items-center gap-4 border-t border-border pt-3">
                     <div className="flex items-center gap-1.5">
                       <BarChart3 className="h-3.5 w-3.5 text-muted-foreground/60" />
                       <span className="text-xs text-muted-foreground">
                         Ventes:{' '}
-                        <span className="font-medium text-white">
+                        <span className="font-medium text-foreground">
                           {stats.totalSold}
                         </span>
                       </span>
                     </div>
-                    <div className="h-3 w-px bg-white/[0.06]" />
+                    <div className="h-3 w-px bg-muted" />
                     <div className="flex items-center gap-1.5">
                       <TrendingUp className="h-3.5 w-3.5 text-muted-foreground/60" />
                       <span className="text-xs text-muted-foreground">
                         Revenu:{' '}
-                        <span className="font-medium text-white">
+                        <span className="font-medium text-foreground">
                           {stats.totalRevenue.toLocaleString('fr-FR')} $
                         </span>
                       </span>
@@ -290,14 +290,14 @@ export default async function ProduitsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 border-t border-white/[0.06] pt-3">
+                  <div className="flex items-center gap-2 border-t border-border pt-3">
                     <ToggleActiveButton
                       productId={product.id}
                       isActive={product.isActive}
                     />
                     <Link
                       href={`/mon-business/produits/${product.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-transparent px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/[0.04] hover:text-white"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-transparent px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                     >
                       <Pencil className="h-3 w-3" />
                       Modifier

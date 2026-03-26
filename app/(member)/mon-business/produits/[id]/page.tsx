@@ -43,12 +43,12 @@ export default async function EditProductPage({
       <div>
         <Link
           href="/mon-business/produits"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-white"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour aux produits
         </Link>
-        <h1 className="text-2xl font-bold text-white">Modifier le produit</h1>
+        <h1 className="text-2xl font-bold text-foreground">Modifier le produit</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Mettez a jour les informations de votre produit
         </p>

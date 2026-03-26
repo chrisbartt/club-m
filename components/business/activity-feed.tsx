@@ -96,9 +96,9 @@ function getActivityConfig(type: string) {
       return {
         icon: <ShoppingCart className="h-3.5 w-3.5" />,
         label: type,
-        iconBg: 'bg-white/5',
+        iconBg: 'bg-muted',
         iconColor: 'text-muted-foreground',
-        dotColor: 'bg-white/20',
+        dotColor: 'bg-muted-foreground',
       }
   }
 }
@@ -121,7 +121,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
           <div key={`${activity.id}-${activity.type}`} className="relative flex gap-3">
             {/* Timeline line */}
             {!isLast && (
-              <div className="absolute left-[15px] top-[32px] bottom-0 w-px bg-white/[0.06]" />
+              <div className="absolute left-[15px] top-[32px] bottom-0 w-px bg-border" />
             )}
 
             {/* Icon */}
@@ -137,17 +137,17 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                 href={`/mon-business/commandes/${activity.id}`}
                 className="group block"
               >
-                <p className="text-[13px] font-medium text-white group-hover:text-purple-400 transition-colors">
+                <p className="text-[13px] font-medium text-foreground group-hover:text-purple-400 transition-colors">
                   {config.label}
                 </p>
                 <p className="mt-0.5 text-[12px] text-muted-foreground">
                   {activity.buyerName} &middot;{' '}
-                  <span className="text-white/60">
+                  <span className="text-muted-foreground">
                     {formatCurrency(activity.amount)}
                   </span>
                 </p>
               </Link>
-              <p className="mt-1 text-[11px] text-white/30">
+              <p className="mt-1 text-[11px] text-muted-foreground/50">
                 {formatRelativeTime(activity.date)}
               </p>
             </div>

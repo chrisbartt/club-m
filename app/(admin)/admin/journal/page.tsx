@@ -90,7 +90,7 @@ export default async function AdminJournalPage({ searchParams }: Props) {
       </div>
 
       {/* Audit Logs Table */}
-      <div className="rounded-md border">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

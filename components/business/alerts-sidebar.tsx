@@ -20,13 +20,13 @@ export function AlertsSidebar({
     <div className="space-y-4">
       {/* Pending orders alert */}
       {pendingOrders > 0 && (
-        <div className="rounded-xl border border-amber-500/20 bg-[#1a1a24] p-5">
+        <div className="rounded-xl border border-amber-500/20 bg-card p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-500/10">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">
+              <p className="text-sm font-semibold text-foreground">
                 Commandes en attente
               </p>
               <p className="mt-1 text-[12px] text-muted-foreground">
@@ -42,13 +42,13 @@ export function AlertsSidebar({
 
       {/* Low stock alert */}
       {lowStockProducts.length > 0 && (
-        <div className="rounded-xl border border-orange-500/20 bg-[#1a1a24] p-5">
+        <div className="rounded-xl border border-orange-500/20 bg-card p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
               <Package className="h-4 w-4 text-orange-500" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white">Stock faible</p>
+              <p className="text-sm font-semibold text-foreground">Stock faible</p>
               <p className="mt-1 text-[12px] text-muted-foreground">
                 <span className="font-medium text-orange-400">
                   {lowStockProducts.length}
@@ -61,7 +61,7 @@ export function AlertsSidebar({
                     key={product.id}
                     className="flex items-center justify-between text-[12px]"
                   >
-                    <span className="truncate pr-2 text-white/80">
+                    <span className="truncate pr-2 text-foreground">
                       {product.name}
                     </span>
                     <span className="shrink-0 rounded-full border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 text-[11px] font-medium text-orange-400">
@@ -83,8 +83,8 @@ export function AlertsSidebar({
       )}
 
       {/* Top products */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
-        <h3 className="text-sm font-semibold text-white">Top produits</h3>
+      <div className="rounded-xl border border-border bg-card p-5">
+        <h3 className="text-sm font-semibold text-foreground">Top produits</h3>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
           Par chiffre d&apos;affaires
         </p>
@@ -100,7 +100,7 @@ export function AlertsSidebar({
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-medium text-white">
+                  <p className="truncate text-[13px] font-medium text-foreground">
                     {product.name}
                   </p>
                   <p className="text-[11px] text-muted-foreground">

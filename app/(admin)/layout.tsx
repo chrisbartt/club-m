@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
+import { MobileSidebar } from '@/components/shared/mobile-sidebar'
 import { getKycCount } from '@/domains/kyc/queries'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -25,7 +26,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex h-screen">
       <AdminSidebar pendingKycCount={pendingKycCount} />
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="flex h-14 items-center gap-3 border-b px-4 lg:hidden">
+          <MobileSidebar>
+            <AdminSidebar pendingKycCount={pendingKycCount} />
+          </MobileSidebar>
+          <span className="text-lg font-bold">Club M Admin</span>
+        </header>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }

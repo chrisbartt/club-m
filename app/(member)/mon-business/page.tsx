@@ -261,7 +261,7 @@ export default async function MonBusinessPage() {
     <div className="space-y-6">
         {/* Page header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Tableau de bord</h1>
+          <h1 className="text-2xl font-bold text-foreground">Tableau de bord</h1>
           <p className="mt-1 text-[13px] text-muted-foreground">
             Vue d&apos;ensemble de votre activité commerciale
           </p>
@@ -381,9 +381,9 @@ export default async function MonBusinessPage() {
         {/* Row 4: Charts */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Revenue Chart */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-7">
+          <div className="rounded-xl border border-border bg-card p-5 lg:col-span-7">
             <div className="mb-4">
-              <h2 className="text-base font-semibold text-white">Revenus</h2>
+              <h2 className="text-base font-semibold text-foreground">Revenus</h2>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
                 6 derniers mois
               </p>
@@ -392,9 +392,9 @@ export default async function MonBusinessPage() {
           </div>
 
           {/* Orders Status Chart */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-5">
+          <div className="rounded-xl border border-border bg-card p-5 lg:col-span-5">
             <div className="mb-4">
-              <h2 className="text-base font-semibold text-white">
+              <h2 className="text-base font-semibold text-foreground">
                 Commandes par statut
               </h2>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
@@ -411,10 +411,10 @@ export default async function MonBusinessPage() {
         {/* Row 5: Recent Orders + Activity Feed */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Recent Orders Table */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-8">
+          <div className="rounded-xl border border-border bg-card p-5 lg:col-span-8">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold text-white">
+                <h2 className="text-base font-semibold text-foreground">
                   Dernières commandes
                 </h2>
                 <p className="mt-0.5 text-[12px] text-muted-foreground">
@@ -433,10 +433,10 @@ export default async function MonBusinessPage() {
           </div>
 
           {/* Activity Feed */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-4">
+          <div className="rounded-xl border border-border bg-card p-5 lg:col-span-4">
             <div className="mb-4 flex items-center gap-2">
               <Activity className="h-4 w-4 text-purple-400" />
-              <h2 className="text-base font-semibold text-white">
+              <h2 className="text-base font-semibold text-foreground">
                 Activité récente
               </h2>
             </div>
@@ -461,7 +461,7 @@ export default async function MonBusinessPage() {
 
           {/* Clients card */}
           <div className="lg:col-span-4">
-            <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
+            <div className="rounded-xl border border-border bg-card p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/10">
@@ -471,7 +471,7 @@ export default async function MonBusinessPage() {
                     <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                       Clients
                     </p>
-                    <p className="text-xl font-bold text-white">
+                    <p className="text-xl font-bold text-foreground">
                       {clients.length}
                     </p>
                   </div>

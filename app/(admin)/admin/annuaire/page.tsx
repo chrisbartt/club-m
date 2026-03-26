@@ -79,7 +79,7 @@ export default async function AdminAnnuairePage({ searchParams }: Props) {
           <p className="text-muted-foreground">Aucun profil trouve</p>
         </div>
       ) : (
-        <div className="rounded-md border">
+        <div className="overflow-x-auto rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>

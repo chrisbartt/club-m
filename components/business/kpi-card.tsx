@@ -38,7 +38,7 @@ export function KpiCard({
       </p>
 
       {/* Value */}
-      <p className="mt-1 text-[28px] font-bold leading-tight text-white">{value}</p>
+      <p className="mt-1 text-[28px] font-bold leading-tight text-foreground">{value}</p>
 
       {/* Subtitle */}
       {subtitle && (
@@ -61,13 +61,13 @@ export function KpiCard({
   )
 
   const baseClasses =
-    'relative rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5'
+    'relative rounded-xl border border-border bg-card p-5'
 
   if (href) {
     return (
       <Link
         href={href}
-        className={`${baseClasses} block transition-colors hover:border-white/[0.12] hover:bg-[#1e1e2a]`}
+        className={`${baseClasses} block transition-colors hover:border-border hover:bg-accent`}
       >
         {content}
       </Link>

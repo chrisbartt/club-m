@@ -231,3 +231,42 @@ Voir NEXT_STEPS.md pour le plan complet.
 - Tester visuellement les nouvelles features (notifications, onboarding, upload)
 - Configurer le preset Cloudinary `clubm_uploads` (unsigned) dans le dashboard Cloudinary
 - Continuer avec Phase 3 ou autres priorites du NEXT_STEPS.md
+
+## Session Phase 2B — 2026-03-26
+
+### Actions
+- Ecrit spec + plan design harmonization + responsive (Plan 7)
+- Execute Plan 7 (13 tasks) sur branche `phase2b-design-harmonization`:
+  1. Rewrite CSS variables globals.css (hex, light/dark propres) + fix theme provider default → light
+  2. Composant ThemeToggle (Sun/Moon)
+  3. Composant MobileSidebar (Sheet hamburger)
+  4. Unification member sidebar (business links, theme toggle, responsive hide)
+  5. Refonte layouts (member layout unifie, business layout simplifie auth-only)
+  6. Migration 5 composants business (kpi-card, alerts, orders-table, quick-actions, activity-feed)
+  7. Migration charts business (revenue-chart, orders-status-chart) → theme-aware
+  8. Migration product-form → semantic classes
+  9. Migration 9 pages business → semantic classes
+  10. Admin sidebar + layout (theme toggle, mobile responsive)
+  11. Suppression business-sidebar, business-navbar, business-layout-shell
+  12. Responsive grids (grid-cols-1 mobile) + tables (overflow-x-auto) — 12 fichiers
+  13. Verification finale (0 erreur TypeScript)
+
+### Fichiers supprimes
+- `components/business/business-sidebar.tsx`
+- `components/business/business-navbar.tsx`
+- `components/business/business-layout-shell.tsx`
+
+### Fichiers crees
+- `components/shared/theme-toggle.tsx`
+- `components/shared/mobile-sidebar.tsx`
+
+### Resultats
+- 4 systemes de design → 2 (vitrine light + dashboard light/dark toggle)
+- 12 commits, 0 erreur TypeScript
+- Couleur primaire unifiee #a55b46 partout
+- Sidebars responsives sur mobile (member + admin)
+
+### Prochaine action recommandee
+- Merge phase2b-design-harmonization → main
+- Tester visuellement light/dark toggle et responsive mobile
+- Mettre a jour PROJECT_STATE.md et NEXT_STEPS.md
