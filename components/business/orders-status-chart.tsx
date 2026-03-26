@@ -49,10 +49,10 @@ export function OrdersStatusChart({ data, total }: OrdersStatusChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1a24',
-                border: '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
-                color: '#fff',
+                color: 'hsl(var(--card-foreground))',
                 fontSize: '13px',
               }}
               formatter={(value: number, name: string) => [value, name]}
@@ -61,7 +61,7 @@ export function OrdersStatusChart({ data, total }: OrdersStatusChartProps) {
         </ResponsiveContainer>
         {/* Center label */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[28px] font-bold text-white">{total}</span>
+          <span className="text-[28px] font-bold text-foreground">{total}</span>
           <span className="text-[11px] text-muted-foreground">commandes</span>
         </div>
       </div>
@@ -76,7 +76,7 @@ export function OrdersStatusChart({ data, total }: OrdersStatusChartProps) {
             />
             <span className="text-[12px] text-muted-foreground">
               {entry.name}{' '}
-              <span className="font-medium text-white">{entry.value}</span>
+              <span className="font-medium text-foreground">{entry.value}</span>
             </span>
           </div>
         ))}

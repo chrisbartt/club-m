@@ -55,19 +55,19 @@ export function RevenueChart({ data }: RevenueChartProps) {
           </defs>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(255,255,255,0.06)"
+            stroke="hsl(var(--border))"
             vertical={false}
           />
           <XAxis
             dataKey="label"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
             tickFormatter={(v: number) =>
               v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)
             }
@@ -75,10 +75,10 @@ export function RevenueChart({ data }: RevenueChartProps) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1a1a24',
-              border: '1px solid rgba(255,255,255,0.1)',
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
               borderRadius: '8px',
-              color: '#fff',
+              color: 'hsl(var(--card-foreground))',
               fontSize: '13px',
             }}
             formatter={(value: number) => [
