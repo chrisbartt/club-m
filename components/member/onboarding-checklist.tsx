@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Check, Circle, X, Mail, User, ShieldCheck, ShoppingBag } from 'lucide-react'
+import { Check, Circle, X, Mail, User, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -27,10 +27,11 @@ export function OnboardingChecklist({
     setDismissed(localStorage.getItem(DISMISSED_KEY) === 'true')
   }, [])
 
-  if (dismissed) return null
-
   const profileComplete = hasPhone && hasBio
   const kycSubmitted = verificationStatus !== 'DECLARED'
+  const allDone = emailVerified && profileComplete && kycSubmitted
+
+  if (dismissed || allDone) return null
 
   const steps = [
     {
@@ -53,17 +54,10 @@ export function OnboardingChecklist({
       href: '/kyc',
       icon: ShieldCheck,
     },
-    {
-      label: 'Explorer la marketplace',
-      href: '/marketplace',
-      icon: ShoppingBag,
-      isLink: true,
-    },
   ]
 
   const completedCount = [emailVerified, profileComplete, kycSubmitted].filter(Boolean).length
   const totalCheckable = 3
-  const allDone = completedCount === totalCheckable
 
   function handleDismiss() {
     localStorage.setItem(DISMISSED_KEY, 'true')
@@ -122,7 +116,7 @@ export function OnboardingChecklist({
               {!isDone && (
                 <Button variant="outline" size="sm" asChild>
                   <Link href={step.href}>
-                    {step.isLink ? 'Decouvrir' : 'Completer'}
+                    Completer
                   </Link>
                 </Button>
               )}
