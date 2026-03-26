@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Star,
   Tag,
+  AlertTriangle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,7 @@ const links = [
   { href: '/admin/commandes', label: 'Commandes', icon: ShoppingCart },
   { href: '/admin/paiements', label: 'Paiements', icon: CreditCard },
   { href: '/admin/avis', label: 'Avis', icon: Star },
+  { href: '/admin/litiges', label: 'Litiges', icon: AlertTriangle },
   { href: '/admin/journal', label: 'Journal', icon: FileText },
 ]
 
