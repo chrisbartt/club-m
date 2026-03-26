@@ -63,6 +63,8 @@ export default function ProductDetailClient({
         quantity,
         type: product.type,
         stock: product.stock,
+        variantId: null,
+        variantLabel: null,
       },
       business,
     )
@@ -91,6 +93,8 @@ export default function ProductDetailClient({
         quantity,
         type: product.type,
         stock: product.stock,
+        variantId: null,
+        variantLabel: null,
       },
       business,
     )

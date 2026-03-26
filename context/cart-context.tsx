@@ -21,6 +21,8 @@ interface CartItem {
   quantity: number
   type: 'PHYSICAL' | 'DIGITAL'
   stock: number | null
+  variantId: string | null
+  variantLabel: string | null
 }
 
 interface CartState {
@@ -36,8 +38,8 @@ interface CartContextType {
     item: CartItem,
     business: { id: string; name: string; slug: string },
   ) => boolean
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeItem: (productId: string, variantId?: string | null) => void
+  updateQuantity: (productId: string, quantity: number, variantId?: string | null) => void
   clearCart: () => void
   itemCount: number
   total: number
@@ -104,7 +106,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return prev
         }
 
-        const existing = prev.items.find((i) => i.productId === item.productId)
+        const existing = prev.items.find(
+          (i) => i.productId === item.productId && (i.variantId ?? null) === (item.variantId ?? null),
+        )
 
         // Respect stock limit
         if (existing) {
@@ -127,7 +131,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             businessName: business.name,
             businessSlug: business.slug,
             items: prev.items.map((i) =>
-              i.productId === item.productId
+              i.productId === item.productId && (i.variantId ?? null) === (item.variantId ?? null)
                 ? { ...i, quantity: i.quantity + item.quantity }
                 : i,
             ),
@@ -147,27 +151,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [],
   )
 
-  const removeItem = useCallback((productId: string) => {
+  const removeItem = useCallback((productId: string, variantId?: string | null) => {
     setCart((prev) => {
-      const newItems = prev.items.filter((i) => i.productId !== productId)
+      const newItems = prev.items.filter(
+        (i) => !(i.productId === productId && (i.variantId ?? null) === (variantId ?? null)),
+      )
       if (newItems.length === 0) return emptyCart
       return { ...prev, items: newItems }
     })
   }, [])
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, quantity: number, variantId?: string | null) => {
     if (quantity <= 0) {
-      removeItem(productId)
+      removeItem(productId, variantId)
       return
     }
     setCart((prev) => {
-      const item = prev.items.find((i) => i.productId === productId)
+      const item = prev.items.find(
+        (i) => i.productId === productId && (i.variantId ?? null) === (variantId ?? null),
+      )
       if (!item) return prev
       if (item.stock !== null && quantity > item.stock) return prev
       return {
         ...prev,
         items: prev.items.map((i) =>
-          i.productId === productId ? { ...i, quantity } : i,
+          i.productId === productId && (i.variantId ?? null) === (variantId ?? null)
+            ? { ...i, quantity }
+            : i,
         ),
       }
     })
