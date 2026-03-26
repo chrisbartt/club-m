@@ -76,14 +76,13 @@ export function CouponForm({ mode, defaultValues, onSuccess }: CouponFormProps) 
     const result =
       mode === 'create' ? await createCoupon(payload) : await updateCoupon(payload)
 
-    setPending(false)
-
     if (result.success) {
       toast.success(mode === 'create' ? 'Coupon cree avec succes' : 'Coupon mis a jour')
       onSuccess?.()
       router.push('/mon-business/coupons')
-      router.refresh()
+      return
     } else {
+      setPending(false)
       if (result.details) {
         setErrors(result.details)
       }
