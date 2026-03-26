@@ -108,8 +108,8 @@ export default async function ClientsPage({
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white">Clients</h1>
-            <span className="inline-flex items-center rounded-full bg-[#8b5cf6]/10 px-2.5 py-0.5 text-xs font-medium text-[#8b5cf6]">
+            <h1 className="text-2xl font-bold text-foreground">Clients</h1>
+            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
               {totalClients}
             </span>
           </div>
@@ -121,21 +121,21 @@ export default async function ClientsPage({
 
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#8b5cf6]/10">
-              <Users className="h-4.5 w-4.5 text-[#8b5cf6]" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+              <Users className="h-4.5 w-4.5 text-primary" />
             </div>
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Total clients
               </p>
-              <p className="text-lg font-bold text-white">{totalClients}</p>
+              <p className="text-lg font-bold text-foreground">{totalClients}</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10">
               <UserCheck className="h-4.5 w-4.5 text-emerald-400" />
@@ -144,12 +144,12 @@ export default async function ClientsPage({
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Clients actifs
               </p>
-              <p className="text-lg font-bold text-white">{activeClients}</p>
+              <p className="text-lg font-bold text-foreground">{activeClients}</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10">
               <ShoppingCart className="h-4.5 w-4.5 text-amber-400" />
@@ -158,14 +158,14 @@ export default async function ClientsPage({
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Panier moyen
               </p>
-              <p className="text-lg font-bold text-white">
+              <p className="text-lg font-bold text-foreground">
                 {avgBasket.toLocaleString('fr-FR')}$
               </p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500/10">
               <Crown className="h-4.5 w-4.5 text-rose-400" />
@@ -174,7 +174,7 @@ export default async function ClientsPage({
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 Meilleur client
               </p>
-              <p className="truncate text-sm font-bold text-white">
+              <p className="truncate text-sm font-bold text-foreground">
                 {bestClient ? bestClient.name : '-'}
               </p>
               {bestClient && (
@@ -196,24 +196,24 @@ export default async function ClientsPage({
             name="q"
             defaultValue={q ?? ''}
             placeholder="Rechercher par nom, telephone, email..."
-            className="h-10 w-full rounded-lg border border-white/[0.06] bg-[#1a1a24] pl-10 pr-4 text-sm text-white placeholder:text-muted-foreground focus:border-[#8b5cf6]/50 focus:outline-none focus:ring-1 focus:ring-[#8b5cf6]/50"
+            className="h-10 w-full rounded-lg border border-border bg-card pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
           />
         </div>
       </form>
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-[#1a1a24] py-16">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16">
           <Users className="mb-3 h-10 w-10 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground">
             {q ? 'Aucun client ne correspond a votre recherche.' : 'Aucun client pour le moment.'}
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#1a1a24]">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/[0.06]">
+              <tr className="border-b border-border">
                 <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Client
                 </th>
@@ -234,7 +234,7 @@ export default async function ClientsPage({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-border">
               {filtered.map((client) => {
                 const initials = client.name
                   .split(' ')
@@ -247,7 +247,7 @@ export default async function ClientsPage({
                 return (
                   <tr
                     key={`${client.type}:${client.id}`}
-                    className="transition-colors hover:bg-white/[0.02]"
+                    className="transition-colors hover:bg-muted/30"
                   >
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
@@ -257,13 +257,13 @@ export default async function ClientsPage({
                           {initials}
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-white">
+                          <p className="truncate font-medium text-foreground">
                             {client.name}
                           </p>
                           {client.phone && (
                             <a
                               href={`tel:${client.phone}`}
-                              className="flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-white"
+                              className="flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
                             >
                               <Phone className="h-2.5 w-2.5" />
                               {client.phone}
@@ -275,10 +275,10 @@ export default async function ClientsPage({
                     <td className="hidden px-5 py-3.5 text-muted-foreground md:table-cell">
                       {client.commune ?? '-'}
                     </td>
-                    <td className="px-5 py-3.5 text-right text-white">
+                    <td className="px-5 py-3.5 text-right text-foreground">
                       {client.orderCount}
                     </td>
-                    <td className="px-5 py-3.5 text-right font-semibold text-white">
+                    <td className="px-5 py-3.5 text-right font-semibold text-foreground">
                       {client.totalSpent.toLocaleString('fr-FR')}$
                     </td>
                     <td className="hidden px-5 py-3.5 text-right text-muted-foreground lg:table-cell">
@@ -287,7 +287,7 @@ export default async function ClientsPage({
                     <td className="px-5 py-3.5 text-right">
                       <Link
                         href={`/mon-business/clients/${client.type}_${client.id}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-white"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         Voir

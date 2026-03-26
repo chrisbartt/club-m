@@ -127,7 +127,7 @@ export default async function RevenusPage({
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Revenus</h1>
+            <h1 className="text-2xl font-bold text-foreground">Revenus</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Suivez l&apos;evolution de votre chiffre d&apos;affaires
             </p>
@@ -141,8 +141,8 @@ export default async function RevenusPage({
                 href={`/mon-business/revenus?period=${opt.value}`}
                 className={`rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors ${
                   period === opt.value
-                    ? 'bg-[#8b5cf6] text-white'
-                    : 'border border-white/[0.06] text-white/60 hover:border-white/[0.12] hover:text-white/80'
+                    ? 'bg-primary text-foreground'
+                    : 'border border-border text-muted-foreground hover:border-border hover:text-foreground'
                 }`}
               >
                 {opt.label}
@@ -211,8 +211,8 @@ export default async function RevenusPage({
         </div>
 
         {/* Revenue chart */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
-          <h2 className="text-lg font-semibold text-white">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-lg font-semibold text-foreground">
             Evolution du chiffre d&apos;affaires
           </h2>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
@@ -226,10 +226,10 @@ export default async function RevenusPage({
         {/* Revenue breakdown grid */}
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Revenue by product */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5 lg:col-span-7">
+          <div className="rounded-xl border border-border bg-card p-5 lg:col-span-7">
             <div className="mb-4 flex items-center gap-2">
               <BarChart3 className="h-4 w-4 text-purple-400" />
-              <h2 className="text-base font-semibold text-white">
+              <h2 className="text-base font-semibold text-foreground">
                 Par produit
               </h2>
             </div>
@@ -241,7 +241,7 @@ export default async function RevenusPage({
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-white/[0.06]">
+                    <tr className="border-b border-border">
                       <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                         Produit
                       </th>
@@ -256,7 +256,7 @@ export default async function RevenusPage({
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/[0.04]">
+                  <tbody className="divide-y divide-border">
                     {revenueStats.revenueByProduct.map((product, idx) => {
                       const pct =
                         totalProductRevenue > 0
@@ -268,10 +268,10 @@ export default async function RevenusPage({
                       return (
                         <tr
                           key={idx}
-                          className="transition-colors hover:bg-white/[0.02]"
+                          className="transition-colors hover:bg-muted/30"
                         >
                           <td className="py-3 pr-4">
-                            <p className="font-medium text-white">
+                            <p className="font-medium text-foreground">
                               {product.name}
                             </p>
                             <p className="text-[11px] text-muted-foreground">
@@ -281,14 +281,14 @@ export default async function RevenusPage({
                           <td className="py-3 text-right text-[13px] text-muted-foreground">
                             {product.sales}
                           </td>
-                          <td className="py-3 text-right font-semibold text-white">
+                          <td className="py-3 text-right font-semibold text-foreground">
                             {formatCurrency(product.revenue)}
                           </td>
                           <td className="py-3 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                              <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                                 <div
-                                  className="h-full rounded-full bg-[#8b5cf6]"
+                                  className="h-full rounded-full bg-primary"
                                   style={{
                                     width: `${pct}%`,
                                   }}
@@ -311,8 +311,8 @@ export default async function RevenusPage({
           {/* Right column: by type + orders ratio */}
           <div className="space-y-4 lg:col-span-5">
             {/* Revenue by type */}
-            <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
-              <h2 className="text-base font-semibold text-white">Par type</h2>
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h2 className="text-base font-semibold text-foreground">Par type</h2>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
                 Répartition du chiffre d&apos;affaires
               </p>
@@ -330,19 +330,19 @@ export default async function RevenusPage({
                     return (
                       <div key={item.type}>
                         <div className="flex items-center justify-between text-[13px]">
-                          <span className="font-medium text-white">
+                          <span className="font-medium text-foreground">
                             {TYPE_LABELS[item.type] ?? item.type}
                           </span>
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">
                               {formatCurrency(item.revenue)}
                             </span>
-                            <span className="text-[11px] text-white/40">
+                            <span className="text-[11px] text-muted-foreground/60">
                               {pct}%
                             </span>
                           </div>
                         </div>
-                        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
                           <div
                             className={`h-full rounded-full transition-all ${TYPE_COLORS[item.type] ?? 'bg-gray-500'}`}
                             style={{ width: `${pct}%` }}
@@ -356,8 +356,8 @@ export default async function RevenusPage({
             </div>
 
             {/* Orders completion ratio */}
-            <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
-              <h2 className="text-base font-semibold text-white">Commandes</h2>
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h2 className="text-base font-semibold text-foreground">Commandes</h2>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
                 Complétées vs Annulées
               </p>
@@ -372,7 +372,7 @@ export default async function RevenusPage({
                       {revenueStats.completedOrders}
                     </span>
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-emerald-500 transition-all"
                       style={{
@@ -393,7 +393,7 @@ export default async function RevenusPage({
                       {revenueStats.cancelledOrders}
                     </span>
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-red-500 transition-all"
                       style={{
@@ -407,7 +407,7 @@ export default async function RevenusPage({
                 </div>
 
                 {/* Summary */}
-                <div className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2">
+                <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2">
                   <span className="text-[12px] text-muted-foreground">
                     Taux de complétion
                   </span>
@@ -427,12 +427,12 @@ export default async function RevenusPage({
         </div>
 
         {/* Monthly breakdown table */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-5">
-          <h2 className="text-lg font-semibold text-white">Détail par mois</h2>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-lg font-semibold text-foreground">Détail par mois</h2>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06]">
+                <tr className="border-b border-border">
                   <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Mois
                   </th>
@@ -444,7 +444,7 @@ export default async function RevenusPage({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-border">
                 {revenueByMonth.map((entry) => {
                   const [year, month] = entry.month.split('-')
                   const totalMonthlyRevenue = revenueByMonth.reduce(
@@ -458,19 +458,19 @@ export default async function RevenusPage({
                   return (
                     <tr
                       key={entry.month}
-                      className="transition-colors hover:bg-white/[0.02]"
+                      className="transition-colors hover:bg-muted/30"
                     >
-                      <td className="py-3 font-medium text-white">
+                      <td className="py-3 font-medium text-foreground">
                         {MONTH_LABELS[month] ?? month} {year}
                       </td>
-                      <td className="py-3 text-right font-semibold text-white">
+                      <td className="py-3 text-right font-semibold text-foreground">
                         {entry.revenue.toLocaleString('fr-FR')} $US
                       </td>
                       <td className="py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                             <div
-                              className="h-full rounded-full bg-[#8b5cf6]"
+                              className="h-full rounded-full bg-primary"
                               style={{ width: `${pct}%` }}
                             />
                           </div>

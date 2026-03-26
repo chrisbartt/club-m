@@ -110,13 +110,13 @@ export default async function ClientDetailPage({
       <div className="flex items-center gap-3">
         <Link
           href="/mon-business/clients"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-white"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Clients
         </Link>
         <span className="text-muted-foreground/40">/</span>
-        <span className="text-sm font-medium text-white">{client.name}</span>
+        <span className="text-sm font-medium text-foreground">{client.name}</span>
       </div>
 
       {/* Two-column layout */}
@@ -124,11 +124,11 @@ export default async function ClientDetailPage({
         {/* Left column */}
         <div className="space-y-6 lg:col-span-8">
           {/* Order history card */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24]">
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <div className="rounded-xl border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="h-4.5 w-4.5 text-[#8b5cf6]" />
-                <h2 className="text-sm font-semibold text-white">
+                <ShoppingBag className="h-4.5 w-4.5 text-primary" />
+                <h2 className="text-sm font-semibold text-foreground">
                   Historique des commandes
                 </h2>
               </div>
@@ -148,7 +148,7 @@ export default async function ClientDetailPage({
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-white/[0.06]">
+                    <tr className="border-b border-border">
                       <th className="px-5 py-2.5 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                         Commande
                       </th>
@@ -169,7 +169,7 @@ export default async function ClientDetailPage({
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/[0.04]">
+                  <tbody className="divide-y divide-border">
                     {client.orders.map((order) => {
                       const cfg = STATUS_CONFIG[order.status] ?? {
                         label: order.status,
@@ -186,17 +186,17 @@ export default async function ClientDetailPage({
                       return (
                         <tr
                           key={order.id}
-                          className="transition-colors hover:bg-white/[0.02]"
+                          className="transition-colors hover:bg-muted/30"
                         >
                           <td className="px-5 py-3">
                             <span className="font-mono text-xs text-muted-foreground">
                               #{order.id.slice(-8)}
                             </span>
                           </td>
-                          <td className="max-w-[200px] truncate px-5 py-3 text-white">
+                          <td className="max-w-[200px] truncate px-5 py-3 text-foreground">
                             {productSummary}
                           </td>
-                          <td className="px-5 py-3 text-right font-semibold text-white">
+                          <td className="px-5 py-3 text-right font-semibold text-foreground">
                             {order.totalAmount.toLocaleString('fr-FR')}$
                           </td>
                           <td className="px-5 py-3">
@@ -219,7 +219,7 @@ export default async function ClientDetailPage({
                           <td className="px-5 py-3 text-right">
                             <Link
                               href={`/mon-business/commandes/${order.id}`}
-                              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-white"
+                              className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                             >
                               <Eye className="h-3 w-3" />
                               Voir
@@ -235,26 +235,26 @@ export default async function ClientDetailPage({
           </div>
 
           {/* Statistics card */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24]">
-            <div className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-4">
-              <TrendingUp className="h-4.5 w-4.5 text-[#8b5cf6]" />
-              <h2 className="text-sm font-semibold text-white">Statistiques</h2>
+          <div className="rounded-xl border border-border bg-card">
+            <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+              <TrendingUp className="h-4.5 w-4.5 text-primary" />
+              <h2 className="text-sm font-semibold text-foreground">Statistiques</h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-px bg-white/[0.04] sm:grid-cols-4">
-              <div className="bg-[#1a1a24] p-4">
+            <div className="grid grid-cols-2 gap-px bg-muted/50 sm:grid-cols-4">
+              <div className="bg-card p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Panier moyen
                 </p>
-                <p className="mt-1 text-lg font-bold text-white">
+                <p className="mt-1 text-lg font-bold text-foreground">
                   {client.averageBasket.toLocaleString('fr-FR')}$
                 </p>
               </div>
-              <div className="bg-[#1a1a24] p-4">
+              <div className="bg-card p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Frequence d&apos;achat
                 </p>
-                <p className="mt-1 text-lg font-bold text-white">
+                <p className="mt-1 text-lg font-bold text-foreground">
                   {client.avgDaysBetweenOrders !== null
                     ? `${client.avgDaysBetweenOrders}j`
                     : '-'}
@@ -265,11 +265,11 @@ export default async function ClientDetailPage({
                   </p>
                 )}
               </div>
-              <div className="bg-[#1a1a24] p-4">
+              <div className="bg-card p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Premiere commande
                 </p>
-                <p className="mt-1 text-sm font-semibold text-white">
+                <p className="mt-1 text-sm font-semibold text-foreground">
                   {new Date(client.firstOrder).toLocaleDateString('fr-FR', {
                     day: 'numeric',
                     month: 'short',
@@ -277,11 +277,11 @@ export default async function ClientDetailPage({
                   })}
                 </p>
               </div>
-              <div className="bg-[#1a1a24] p-4">
+              <div className="bg-card p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Derniere commande
                 </p>
-                <p className="mt-1 text-sm font-semibold text-white">
+                <p className="mt-1 text-sm font-semibold text-foreground">
                   {new Date(client.lastOrder).toLocaleDateString('fr-FR', {
                     day: 'numeric',
                     month: 'short',
@@ -293,7 +293,7 @@ export default async function ClientDetailPage({
 
             {/* Favorite products */}
             {client.favoriteProducts.length > 0 && (
-              <div className="border-t border-white/[0.06] px-5 py-4">
+              <div className="border-t border-border px-5 py-4">
                 <div className="mb-3 flex items-center gap-2">
                   <Star className="h-3.5 w-3.5 text-amber-400" />
                   <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -304,10 +304,10 @@ export default async function ClientDetailPage({
                   {client.favoriteProducts.map((product) => (
                     <span
                       key={product.name}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-white"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1.5 text-xs text-foreground"
                     >
                       {product.name}
-                      <span className="rounded-full bg-[#8b5cf6]/20 px-1.5 py-0.5 text-[10px] font-medium text-[#8b5cf6]">
+                      <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-medium text-primary">
                         x{product.count}
                       </span>
                     </span>
@@ -321,9 +321,9 @@ export default async function ClientDetailPage({
         {/* Right column */}
         <div className="space-y-6 lg:col-span-4">
           {/* Client info card */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24]">
-            <div className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-sm font-semibold text-white">
+          <div className="rounded-xl border border-border bg-card">
+            <div className="border-b border-border px-5 py-4">
+              <h2 className="text-sm font-semibold text-foreground">
                 Informations client
               </h2>
             </div>
@@ -336,7 +336,7 @@ export default async function ClientDetailPage({
                   {initials}
                 </div>
                 <div>
-                  <p className="text-base font-semibold text-white">
+                  <p className="text-base font-semibold text-foreground">
                     {client.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -351,7 +351,7 @@ export default async function ClientDetailPage({
                     <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <a
                       href={`tel:${client.phone}`}
-                      className="text-sm text-white transition-colors hover:text-[#8b5cf6]"
+                      className="text-sm text-foreground transition-colors hover:text-primary"
                     >
                       {client.phone}
                     </a>
@@ -362,7 +362,7 @@ export default async function ClientDetailPage({
                     <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <a
                       href={`mailto:${client.email}`}
-                      className="truncate text-sm text-white transition-colors hover:text-[#8b5cf6]"
+                      className="truncate text-sm text-foreground transition-colors hover:text-primary"
                     >
                       {client.email}
                     </a>
@@ -371,7 +371,7 @@ export default async function ClientDetailPage({
                 {client.address && (
                   <div className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    <p className="text-sm text-white">{client.address}</p>
+                    <p className="text-sm text-foreground">{client.address}</p>
                   </div>
                 )}
               </div>
@@ -382,7 +382,7 @@ export default async function ClientDetailPage({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-emerald-500"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Contacter sur WhatsApp
@@ -392,9 +392,9 @@ export default async function ClientDetailPage({
           </div>
 
           {/* Summary card */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24]">
-            <div className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-sm font-semibold text-white">Resume</h2>
+          <div className="rounded-xl border border-border bg-card">
+            <div className="border-b border-border px-5 py-4">
+              <h2 className="text-sm font-semibold text-foreground">Resume</h2>
             </div>
             <div className="px-5 py-5">
               <div className="space-y-4">
@@ -402,19 +402,19 @@ export default async function ClientDetailPage({
                   <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Total depense
                   </p>
-                  <p className="mt-0.5 text-2xl font-bold text-white">
+                  <p className="mt-0.5 text-2xl font-bold text-foreground">
                     {client.totalSpent.toLocaleString('fr-FR')}$
                   </p>
                 </div>
 
-                <div className="h-px bg-white/[0.06]" />
+                <div className="h-px bg-muted" />
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                       Commandes
                     </p>
-                    <p className="mt-0.5 text-lg font-bold text-white">
+                    <p className="mt-0.5 text-lg font-bold text-foreground">
                       {client.orderCount}
                     </p>
                   </div>
@@ -422,13 +422,13 @@ export default async function ClientDetailPage({
                     <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                       Panier moyen
                     </p>
-                    <p className="mt-0.5 text-lg font-bold text-white">
+                    <p className="mt-0.5 text-lg font-bold text-foreground">
                       {client.averageBasket.toLocaleString('fr-FR')}$
                     </p>
                   </div>
                 </div>
 
-                <div className="h-px bg-white/[0.06]" />
+                <div className="h-px bg-muted" />
 
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -436,7 +436,7 @@ export default async function ClientDetailPage({
                   </p>
                   <div className="mt-0.5 flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-foreground">
                       {new Date(client.lastOrder).toLocaleDateString('fr-FR', {
                         day: 'numeric',
                         month: 'long',
@@ -452,7 +452,7 @@ export default async function ClientDetailPage({
                   </p>
                   <div className="mt-0.5 flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-foreground">
                       {new Date(client.firstOrder).toLocaleDateString('fr-FR', {
                         day: 'numeric',
                         month: 'long',

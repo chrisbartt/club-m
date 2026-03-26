@@ -151,12 +151,12 @@ export default async function SellerOrderDetailPage({
       <div className="space-y-1">
         <Link
           href="/mon-business/commandes"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-white"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Commandes
         </Link>
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-foreground">
           Commande{' '}
           <span className="font-mono text-muted-foreground">
             #{order.id.slice(-8).toUpperCase()}
@@ -169,8 +169,8 @@ export default async function SellerOrderDetailPage({
         {/* Left column */}
         <div className="space-y-5 lg:col-span-8">
           {/* Recapitulatif */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Recapitulatif
             </h2>
             <div className="space-y-3">
@@ -178,19 +178,19 @@ export default async function SellerOrderDetailPage({
                 <span className="text-sm text-muted-foreground">
                   ID commande
                 </span>
-                <span className="font-mono text-sm text-white">
+                <span className="font-mono text-sm text-foreground">
                   #{order.id.slice(-8).toUpperCase()}
                 </span>
               </div>
-              <div className="border-t border-white/[0.04]" />
+              <div className="border-t border-border" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Total</span>
-                <span className="text-lg font-bold text-white">
+                <span className="text-lg font-bold text-foreground">
                   {total.toLocaleString('fr-FR')}
                   {symbol}
                 </span>
               </div>
-              <div className="border-t border-white/[0.04]" />
+              <div className="border-t border-border" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   Commission Club M ({(COMMISSION_RATE * 100).toFixed(0)}%)
@@ -200,7 +200,7 @@ export default async function SellerOrderDetailPage({
                   {symbol}
                 </span>
               </div>
-              <div className="border-t border-white/[0.04]" />
+              <div className="border-t border-border" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   Net vendeuse
@@ -210,7 +210,7 @@ export default async function SellerOrderDetailPage({
                   {symbol}
                 </span>
               </div>
-              <div className="border-t border-white/[0.04]" />
+              <div className="border-t border-border" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Statut</span>
                 <span
@@ -219,19 +219,19 @@ export default async function SellerOrderDetailPage({
                   {statusCfg.label}
                 </span>
               </div>
-              <div className="border-t border-white/[0.04]" />
+              <div className="border-t border-border" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Date</span>
-                <span className="text-sm text-white">
+                <span className="text-sm text-foreground">
                   {formatDate(new Date(order.createdAt))}
                 </span>
               </div>
-              <div className="border-t border-white/[0.04]" />
+              <div className="border-t border-border" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   Code de confirmation
                 </span>
-                <span className="inline-flex items-center rounded-lg bg-white/[0.06] px-4 py-2 font-mono text-2xl font-bold tracking-widest text-white">
+                <span className="inline-flex items-center rounded-lg bg-muted px-4 py-2 font-mono text-2xl font-bold tracking-widest text-foreground">
                   {order.confirmationCode}
                 </span>
               </div>
@@ -239,12 +239,12 @@ export default async function SellerOrderDetailPage({
           </div>
 
           {/* Articles */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Articles</h2>
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Articles</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/[0.06]">
+                  <tr className="border-b border-border">
                     <th className="pb-3 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                       Produit
                     </th>
@@ -259,12 +259,12 @@ export default async function SellerOrderDetailPage({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.04]">
+                <tbody className="divide-y divide-border">
                   {order.items.map((item) => {
                     const unitPrice = Number(item.unitPrice)
                     return (
                       <tr key={item.id}>
-                        <td className="py-3 font-medium text-white">
+                        <td className="py-3 font-medium text-foreground">
                           {item.product.name}
                         </td>
                         <td className="py-3 text-right text-muted-foreground">
@@ -274,7 +274,7 @@ export default async function SellerOrderDetailPage({
                           {unitPrice.toLocaleString('fr-FR')}
                           {symbol}
                         </td>
-                        <td className="py-3 text-right font-medium text-white">
+                        <td className="py-3 text-right font-medium text-foreground">
                           {(unitPrice * item.quantity).toLocaleString('fr-FR')}
                           {symbol}
                         </td>
@@ -283,14 +283,14 @@ export default async function SellerOrderDetailPage({
                   })}
                 </tbody>
                 <tfoot>
-                  <tr className="border-t border-white/[0.06]">
+                  <tr className="border-t border-border">
                     <td
                       colSpan={3}
                       className="pt-3 text-right text-sm font-medium text-muted-foreground"
                     >
                       Sous-total
                     </td>
-                    <td className="pt-3 text-right text-sm font-semibold text-white">
+                    <td className="pt-3 text-right text-sm font-semibold text-foreground">
                       {total.toLocaleString('fr-FR')}
                       {symbol}
                     </td>
@@ -302,8 +302,8 @@ export default async function SellerOrderDetailPage({
 
           {/* Actions card */}
           {order.status === 'PAID' && (
-            <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-              <h2 className="text-lg font-semibold text-white mb-2">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-2">
                 Actions
               </h2>
               <p className="text-sm text-muted-foreground mb-4">
@@ -314,8 +314,8 @@ export default async function SellerOrderDetailPage({
           )}
 
           {order.status === 'SHIPPED' && (
-            <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-              <h2 className="text-lg font-semibold text-white mb-2">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-2">
                 Actions
               </h2>
               <p className="text-sm text-muted-foreground mb-4">
@@ -345,8 +345,8 @@ export default async function SellerOrderDetailPage({
           )}
 
           {/* Historique / Timeline */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Historique
             </h2>
             <div className="space-y-0">
@@ -364,9 +364,9 @@ export default async function SellerOrderDetailPage({
                         className={`flex h-8 w-8 items-center justify-center rounded-full ${
                           isCompleted
                             ? isCurrent
-                              ? `${stepCfg?.bg ?? 'bg-white/10'} ${stepCfg?.text ?? 'text-white'}`
+                              ? `${stepCfg?.bg ?? 'bg-white/10'} ${stepCfg?.text ?? 'text-foreground'}`
                               : 'bg-emerald-500/10 text-emerald-400'
-                            : 'bg-white/[0.04] text-muted-foreground/30'
+                            : 'bg-muted/50 text-muted-foreground/30'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -376,7 +376,7 @@ export default async function SellerOrderDetailPage({
                           className={`h-6 w-px ${
                             !isCancelled && idx < currentStep
                               ? 'bg-emerald-500/30'
-                              : 'bg-white/[0.06]'
+                              : 'bg-muted'
                           }`}
                         />
                       )}
@@ -386,7 +386,7 @@ export default async function SellerOrderDetailPage({
                       <p
                         className={`text-sm ${
                           isCompleted
-                            ? 'font-medium text-white'
+                            ? 'font-medium text-foreground'
                             : 'text-muted-foreground/40'
                         }`}
                       >
@@ -408,15 +408,15 @@ export default async function SellerOrderDetailPage({
         {/* Right column */}
         <div className="space-y-5 lg:col-span-4">
           {/* Client card */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Client</h2>
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Client</h2>
             <div className="space-y-4">
-              <p className="text-lg font-bold text-white">{buyerName}</p>
+              <p className="text-lg font-bold text-foreground">{buyerName}</p>
 
               {buyerPhone && (
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-white">{buyerPhone}</span>
+                  <span className="text-sm text-foreground">{buyerPhone}</span>
                 </div>
               )}
 
@@ -445,7 +445,7 @@ export default async function SellerOrderDetailPage({
                   href={`https://wa.me/${whatsappNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#20bd5a]"
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-[#20bd5a]"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Contacter sur WhatsApp
@@ -455,8 +455,8 @@ export default async function SellerOrderDetailPage({
           </div>
 
           {/* Livraison card */}
-          <div className="rounded-xl border border-white/[0.06] bg-[#1a1a24] p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Livraison
             </h2>
             <div className="space-y-4">
@@ -465,8 +465,8 @@ export default async function SellerOrderDetailPage({
                 <p className="text-sm text-muted-foreground mb-2">
                   Code de confirmation
                 </p>
-                <div className="flex items-center justify-center rounded-lg bg-white/[0.06] px-4 py-4">
-                  <span className="font-mono text-2xl font-bold tracking-widest text-white">
+                <div className="flex items-center justify-center rounded-lg bg-muted px-4 py-4">
+                  <span className="font-mono text-2xl font-bold tracking-widest text-foreground">
                     {order.confirmationCode}
                   </span>
                 </div>
@@ -477,7 +477,7 @@ export default async function SellerOrderDetailPage({
                 <span className="text-sm text-muted-foreground">
                   Expiration
                 </span>
-                <span className="text-sm text-white">
+                <span className="text-sm text-foreground">
                   {new Date(order.codeExpiresAt).toLocaleDateString('fr-FR', {
                     day: '2-digit',
                     month: '2-digit',
@@ -503,7 +503,7 @@ export default async function SellerOrderDetailPage({
               </div>
 
               {/* Instructions */}
-              <div className="rounded-lg bg-white/[0.03] p-3">
+              <div className="rounded-lg bg-muted/30 p-3">
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Le client doit donner ce code au livreur pour confirmer la
                   reception de la commande.
