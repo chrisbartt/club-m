@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { CloudinaryUpload } from '@/components/shared/cloudinary-upload'
 import {
   Select,
   SelectContent,
@@ -45,16 +46,11 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
   const [type, setType] = useState<ProductType>(defaultValues?.type ?? 'PHYSICAL')
   const [category, setCategory] = useState(defaultValues?.category ?? '')
   const [stock, setStock] = useState(defaultValues?.stock?.toString() ?? '')
-  const [imagesStr, setImagesStr] = useState(defaultValues?.images?.join(', ') ?? '')
+  const [images, setImages] = useState<string[]>(defaultValues?.images ?? [])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErrors({})
-
-    const images = imagesStr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
 
     const input = {
       ...(mode === 'edit' && defaultValues ? { id: defaultValues.id } : {}),
@@ -226,16 +222,12 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
 
         {/* Images */}
         <div className="space-y-1.5">
-          <Label htmlFor="images" className="text-sm text-muted-foreground">
-            Images (URLs separees par des virgules)
-          </Label>
-          <Textarea
-            id="images"
-            value={imagesStr}
-            onChange={(e) => setImagesStr(e.target.value)}
-            placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-            rows={2}
-            className="border-white/[0.06] bg-white/[0.03] text-white placeholder:text-muted-foreground/50 focus-visible:border-[#8b5cf6]/50 focus-visible:ring-[#8b5cf6]/20"
+          <Label className="text-sm text-muted-foreground">Images</Label>
+          <CloudinaryUpload
+            folder="products"
+            multiple
+            onUpload={setImages}
+            currentImages={images}
           />
           {errors.images && (
             <p className="text-sm text-red-400">{errors.images[0]}</p>
