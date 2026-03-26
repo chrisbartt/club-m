@@ -4,6 +4,7 @@ import { getMemberProfile, getMemberStats } from '@/domains/members/profile-quer
 import { DashboardFree } from '@/components/member/dashboard-free'
 import { DashboardPremium } from '@/components/member/dashboard-premium'
 import { DashboardBusiness } from '@/components/member/dashboard-business'
+import { OnboardingChecklist } from '@/components/member/onboarding-checklist'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -14,12 +15,26 @@ export default async function DashboardPage() {
 
   const stats = await getMemberStats(profile.id)
 
-  switch (profile.tier) {
-    case 'BUSINESS':
-      return <DashboardBusiness profile={profile} stats={stats} />
-    case 'PREMIUM':
-      return <DashboardPremium profile={profile} stats={stats} />
-    default:
-      return <DashboardFree profile={profile} stats={stats} />
-  }
+  const dashboard = (() => {
+    switch (profile.tier) {
+      case 'BUSINESS':
+        return <DashboardBusiness profile={profile} stats={stats} />
+      case 'PREMIUM':
+        return <DashboardPremium profile={profile} stats={stats} />
+      default:
+        return <DashboardFree profile={profile} stats={stats} />
+    }
+  })()
+
+  return (
+    <>
+      <OnboardingChecklist
+        emailVerified={profile.user.emailVerified}
+        hasPhone={!!profile.phone}
+        hasAvatar={!!profile.avatar}
+        verificationStatus={profile.verificationStatus}
+      />
+      {dashboard}
+    </>
+  )
 }
