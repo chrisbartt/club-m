@@ -10,6 +10,10 @@ import {
   BookOpen,
   Ticket,
   ShoppingBag,
+  ShoppingCart,
+  Package,
+  Users,
+  BarChart3,
   Bell,
   Briefcase,
   ArrowUpCircle,
@@ -19,6 +23,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { VerifiedBadge } from '@/components/member/verified-badge'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 
 interface MemberSidebarProps {
   memberTier: string
@@ -45,7 +50,13 @@ export function MemberSidebar({ memberTier, verificationStatus, unreadNotificati
     ...baseLinks,
     { href: '/notifications', label: 'Notifications', icon: Bell },
     ...(memberTier === 'PREMIUM' || memberTier === 'BUSINESS'
-      ? [{ href: '/mon-business', label: 'Mon business', icon: Briefcase }]
+      ? [
+          { href: '/mon-business', label: 'Mon business', icon: Briefcase },
+          { href: '/mon-business/commandes', label: 'Commandes', icon: ShoppingCart },
+          { href: '/mon-business/produits', label: 'Produits', icon: Package },
+          { href: '/mon-business/clients', label: 'Clients', icon: Users },
+          { href: '/mon-business/revenus', label: 'Revenus', icon: BarChart3 },
+        ]
       : []),
     ...(showUpgrade
       ? [{ href: '/upgrade', label: 'Upgrade', icon: ArrowUpCircle }]
@@ -56,7 +67,7 @@ export function MemberSidebar({ memberTier, verificationStatus, unreadNotificati
   ]
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r bg-background">
+    <aside className="hidden h-full w-64 flex-col border-r bg-background lg:flex">
       <div className="flex h-14 items-center justify-between border-b px-4">
         <Link href="/dashboard" className="text-xl font-bold tracking-tight">
           Club M
@@ -89,7 +100,8 @@ export function MemberSidebar({ memberTier, verificationStatus, unreadNotificati
           )
         })}
       </nav>
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-1">
+        <ThemeToggle />
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-muted-foreground"
