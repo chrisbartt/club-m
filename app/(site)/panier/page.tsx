@@ -120,6 +120,9 @@ export default function PanierPage() {
                         <div className="min-w-0">
                           <h3 className="font-semibold text-[#091626] text-sm lg:text-base truncate">
                             {item.productName}
+                            {item.variantLabel && (
+                              <span className="text-muted-foreground font-normal"> — {item.variantLabel}</span>
+                            )}
                           </h3>
                           {cart.businessName && cart.businessSlug && (
                             <Link
