@@ -1,6 +1,6 @@
 # Club M — Etat du Projet
 
-**Derniere mise a jour** : 26 mars 2026
+**Derniere mise a jour** : 26 mars 2026 (Phase 2B)
 **Version** : MVP 1.0
 **Status global** : MVP fonctionnel, gaps identifies, pret pour Phase 2
 
