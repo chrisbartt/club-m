@@ -1,6 +1,28 @@
+import type { Metadata } from 'next'
 import { getEventById } from "@/domains/events/queries";
 import { notFound } from "next/navigation";
 import Container from "./_layout/container";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const event = await getEventById(id)
+
+  if (!event) return { title: 'Evenement | Club M' }
+
+  return {
+    title: `${event.title} | Club M`,
+    description: event.description?.slice(0, 160) || 'Evenement Club M a Kinshasa',
+    openGraph: {
+      title: event.title,
+      description: event.description?.slice(0, 160),
+      ...(event.coverImage ? { images: [event.coverImage] } : {}),
+    },
+  }
+}
 
 export default async function EvenementDetailPage({
   params,

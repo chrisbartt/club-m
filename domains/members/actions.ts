@@ -6,6 +6,7 @@ import { db } from '@/lib/db'
 import { generateSecureToken, hashToken } from '@/lib/server-utils'
 import { EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS } from '@/lib/constants'
 import { sendWelcomeEmail } from '@/lib/email'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import { registerMemberSchema, registerCustomerSchema } from './validators'
 import { getUserByEmail } from './queries'
 
@@ -37,6 +38,12 @@ export async function registerMember(
       error: 'INVALID_INPUT',
       details: flattenFieldErrors(parsed.error),
     }
+  }
+
+  const ip = await getClientIp()
+  const rl = rateLimit(`register:${ip}`, 3, 60 * 60 * 1000)
+  if (!rl.success) {
+    return { success: false, error: 'Trop de tentatives. Reessayez dans une heure.' }
   }
 
   const { email, password, firstName, lastName } = parsed.data

@@ -348,3 +348,21 @@ Voir NEXT_STEPS.md pour le plan complet.
 - Coupons : creation vendeuse, application checkout, validation complete
 - Litiges : ouverture acheteur, reponse vendeuse, resolution admin
 - Phase 3 COMPLETE
+
+## Session Phase 4 — 2026-03-26
+
+### Actions
+- Ecrit spec + plan polish (Plan 11)
+- Execute Plan 11 (6 tasks) sur branche `phase4-polish`:
+  1. Rate limiter in-memory (lib/rate-limit.ts)
+  2. Rate limiting sur login (5/15min), register (3/h), password reset (3/h)
+  3. Pages legales : CGU + Confidentialite + liens footer
+  4. SEO : sitemap dynamique (produits, boutiques, evenements) + robots.txt
+  5. SEO : meta tags sur 6 pages publiques (marketplace, evenements, annuaires, contact, mentions-legales)
+  6. Verification finale (0 erreur TypeScript)
+
+### Resultats
+- 5 commits, 0 erreur TypeScript
+- Rate limiting operationnel sur les endpoints critiques
+- Pages legales accessibles depuis le footer
+- SEO : sitemap.xml + robots.txt + meta tags dynamiques
