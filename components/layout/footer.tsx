@@ -226,16 +226,16 @@ const Footer = () => {
               Mentions légales
             </Link>
             <Link
-              href="/mentions-legales#cookies"
+              href="/cgu"
               className="text-white text-[14px] opacity-50 hover:text-[#a55b46] hover:opacity-100 transition-colors"
             >
-              Politique de cookies
+              Conditions d&apos;utilisation
             </Link>
             <Link
-              href="/mentions-legales#donnees"
+              href="/confidentialite"
               className="text-white text-[14px] opacity-50 hover:text-[#a55b46] hover:opacity-100 transition-colors"
             >
-              Données personnelles
+              Confidentialité
             </Link>
           </div>
         </div>
