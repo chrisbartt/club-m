@@ -15,6 +15,7 @@ import {
   LogOut,
   ShieldCheck,
   Star,
+  Tag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ const links = [
   { href: '/admin/kyc', label: 'KYC', icon: ShieldCheck },
   { href: '/admin/evenements', label: 'Evenements', icon: Calendar },
   { href: '/admin/annuaire', label: 'Annuaire', icon: BookOpen },
+  { href: '/admin/categories', label: 'Categories', icon: Tag },
   { href: '/admin/produits', label: 'Produits', icon: Package },
   { href: '/admin/commandes', label: 'Commandes', icon: ShoppingCart },
   { href: '/admin/paiements', label: 'Paiements', icon: CreditCard },
