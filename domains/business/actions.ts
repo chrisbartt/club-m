@@ -61,6 +61,23 @@ export async function createProduct(
       },
     })
 
+    if (data.variants && data.variants.length > 0) {
+      await Promise.all(
+        data.variants.map((v, i) =>
+          db.productVariant.create({
+            data: {
+              productId: product.id,
+              label: v.label.trim().toUpperCase(),
+              sku: v.sku || null,
+              price: v.price ?? null,
+              stock: v.stock,
+              position: v.position ?? i,
+            },
+          })
+        )
+      )
+    }
+
     return { success: true, data: { productId: product.id } }
   } catch (error) {
     return {
@@ -104,10 +121,32 @@ export async function updateProduct(
       return { success: false, error: 'NOT_OWNER' }
     }
 
+    const { variants, ...updateData } = data
+
     await db.product.update({
       where: { id },
-      data,
+      data: updateData,
     })
+
+    if (variants !== undefined) {
+      await db.productVariant.deleteMany({ where: { productId: id } })
+      if (variants && variants.length > 0) {
+        await Promise.all(
+          variants.map((v, i) =>
+            db.productVariant.create({
+              data: {
+                productId: id,
+                label: v.label.trim().toUpperCase(),
+                sku: v.sku || null,
+                price: v.price ?? null,
+                stock: v.stock,
+                position: v.position ?? i,
+              },
+            })
+          )
+        )
+      }
+    }
 
     return { success: true, data: { productId: id } }
   } catch (error) {

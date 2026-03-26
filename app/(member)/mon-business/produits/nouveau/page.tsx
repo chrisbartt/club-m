@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getProfileByMemberId } from '@/domains/directory/queries'
+import { getActiveCategories } from '@/domains/categories/queries'
 import { ProductForm } from '@/components/directory/product-form'
 import { ArrowLeft } from 'lucide-react'
 
@@ -27,6 +28,8 @@ export default async function NouveauProduitPage() {
     redirect('/mon-business')
   }
 
+  const categories = await getActiveCategories()
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
@@ -42,7 +45,11 @@ export default async function NouveauProduitPage() {
           Ajoutez un nouveau produit a votre catalogue
         </p>
       </div>
-      <ProductForm mode="create" businessId={profile.id} />
+      <ProductForm
+        mode="create"
+        businessId={profile.id}
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      />
     </div>
   )
 }

@@ -22,6 +22,7 @@ export async function getProductById(productId: string): Promise<ProductWithBusi
     include: {
       business: { select: businessSelect },
       category: { select: { id: true, name: true, slug: true } },
+      variants: { orderBy: { position: 'asc' } },
     },
   })
 }
