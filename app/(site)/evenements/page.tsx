@@ -1,5 +1,11 @@
+import type { Metadata } from 'next'
 import { getPublishedEvents } from "@/domains/events/queries";
 import Container from "./_layout/container";
+
+export const metadata: Metadata = {
+  title: 'Evenements | Club M',
+  description: 'Retrouvez tous les evenements Club M pour femmes entrepreneures a Kinshasa.',
+}
 
 export default async function EvenementsPage() {
   const events = await getPublishedEvents();

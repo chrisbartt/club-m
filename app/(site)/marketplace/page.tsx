@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import AppContainerWebSite from '@/components/common/containers/AppContainerWebSite'
 import {
   getMarketplaceProducts,
@@ -25,9 +26,9 @@ function parsePriceRange(price: string | undefined) {
   return result
 }
 
-export const metadata = {
-  title: 'Marketplace — Club M',
-  description: 'Decouvrez les produits et services de nos entrepreneures a Kinshasa.',
+export const metadata: Metadata = {
+  title: 'Marketplace | Club M',
+  description: 'Decouvrez les produits et services de nos femmes entrepreneures a Kinshasa.',
 }
 
 export default async function MarketplacePage({
