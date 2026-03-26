@@ -66,6 +66,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const outOfStock = isPhysical && product.stock !== null && product.stock <= 0
 
+  // Serialize variants for client component
+  const variants = (product.variants ?? []).map((v) => ({
+    id: v.id,
+    label: v.label,
+    price: v.price !== null
+      ? typeof v.price === 'object' && v.price !== null && 'toNumber' in v.price
+        ? (v.price as unknown as { toNumber(): number }).toNumber()
+        : Number(v.price)
+      : null,
+    stock: v.stock,
+    isActive: v.isActive,
+  }))
+
+  const hasActiveVariants = variants.some((v) => v.isActive)
+
   return (
     <AppContainerWebSite>
       <div className="bg-[#f8f8f8] min-h-screen">
@@ -140,13 +155,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   {product.name}
                 </h1>
 
-                {/* Price */}
-                <p className="text-3xl font-bold text-[#091626] mb-4">
-                  {price.toLocaleString('fr-FR')} {symbol}
-                </p>
+                {/* Price (hidden when variants control price) */}
+                {!hasActiveVariants && (
+                  <p className="text-3xl font-bold text-[#091626] mb-4">
+                    {price.toLocaleString('fr-FR')} {symbol}
+                  </p>
+                )}
+                {hasActiveVariants && (
+                  <p className="text-xl font-bold text-[#091626] mb-4">
+                    A partir de {price.toLocaleString('fr-FR')} {symbol}
+                  </p>
+                )}
 
-                {/* Stock badge */}
-                {stockInfo && (
+                {/* Stock badge (hidden when variants control stock) */}
+                {stockInfo && !hasActiveVariants && (
                   <div className="mb-4">
                     <span className={`inline-flex items-center text-xs font-semibold rounded-full px-3 py-1.5 ${stockInfo.color}`}>
                       {stockInfo.text}
@@ -178,6 +200,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       type: product.type as 'PHYSICAL' | 'DIGITAL',
                       stock: product.stock,
                     }}
+                    variants={variants}
                     business={{
                       id: profile.id,
                       name: profile.businessName,
