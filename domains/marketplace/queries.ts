@@ -193,7 +193,7 @@ export async function getFeaturedStores(limit = 6) {
 }
 
 export async function getProductCategories() {
-  const categories = await db.category.findMany({
+  return db.category.findMany({
     where: {
       isActive: true,
       products: {
@@ -203,11 +203,9 @@ export async function getProductCategories() {
         },
       },
     },
-    select: { name: true, slug: true },
+    select: { id: true, name: true, slug: true },
     orderBy: { name: 'asc' },
   })
-
-  return categories.map((c) => c.name)
 }
 
 export async function getMarketplaceStats() {

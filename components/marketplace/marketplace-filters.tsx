@@ -28,7 +28,7 @@ const SORT_OPTIONS = [
 ]
 
 interface MarketplaceFiltersProps {
-  categories: string[]
+  categories: { id: string; name: string; slug: string }[]
 }
 
 export default function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
@@ -71,8 +71,8 @@ export default function MarketplaceFilters({ categories }: MarketplaceFiltersPro
         >
           <option value="">Toutes les categories</option>
           {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
+            <option key={cat.slug} value={cat.slug}>
+              {cat.name}
             </option>
           ))}
         </select>
