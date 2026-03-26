@@ -1,9 +1,12 @@
 import { requireMember } from '@/lib/auth-guards'
 import { getOrderForBuyer, getOrderTimeline } from '@/domains/orders/queries'
+import { getReviewByOrder } from '@/domains/reviews/queries'
 import { notFound } from 'next/navigation'
 import { formatOrderNumber } from '@/lib/server-utils'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import { OrderTimeline } from '@/components/orders/order-timeline'
+import { ReviewForm } from '@/components/orders/review-form'
+import { ReviewCard } from '@/components/orders/review-card'
 import { ConfirmationCodeDisplay } from '@/components/orders/confirmation-code-display'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,7 +32,10 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
 
   if (!order) notFound()
 
-  const timeline = await getOrderTimeline(id)
+  const [timeline, review] = await Promise.all([
+    getOrderTimeline(order.id),
+    getReviewByOrder(order.id),
+  ])
   const timelineEntries = timeline.map(entry => ({
     id: entry.id,
     status: entry.status,
@@ -224,6 +230,17 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
           <OrderTimeline timeline={timelineEntries} />
         </CardContent>
       </Card>
+
+      {/* Review */}
+      {order.status === 'DELIVERED' && !review && (
+        <ReviewForm orderId={order.id} />
+      )}
+      {review && (
+        <div className="rounded-lg border p-4">
+          <h2 className="mb-3 text-lg font-semibold">Votre avis</h2>
+          <ReviewCard review={JSON.parse(JSON.stringify(review))} />
+        </div>
+      )}
     </div>
   )
 }
