@@ -10,6 +10,7 @@ import {
   BookOpen,
   Ticket,
   ShoppingBag,
+  Bell,
   Briefcase,
   ArrowUpCircle,
   ShieldCheck,
@@ -22,6 +23,7 @@ import { VerifiedBadge } from '@/components/member/verified-badge'
 interface MemberSidebarProps {
   memberTier: string
   verificationStatus: string
+  unreadNotificationCount?: number
 }
 
 const baseLinks = [
@@ -33,7 +35,7 @@ const baseLinks = [
   { href: '/achats', label: 'Mes achats', icon: ShoppingBag },
 ]
 
-export function MemberSidebar({ memberTier, verificationStatus }: MemberSidebarProps) {
+export function MemberSidebar({ memberTier, verificationStatus, unreadNotificationCount = 0 }: MemberSidebarProps) {
   const pathname = usePathname()
   const isVerified = verificationStatus === 'VERIFIED'
   const showUpgrade = memberTier === 'FREE' || memberTier === 'PREMIUM'
@@ -41,6 +43,7 @@ export function MemberSidebar({ memberTier, verificationStatus }: MemberSidebarP
 
   const links = [
     ...baseLinks,
+    { href: '/notifications', label: 'Notifications', icon: Bell },
     ...(memberTier === 'PREMIUM' || memberTier === 'BUSINESS'
       ? [{ href: '/mon-business', label: 'Mon business', icon: Briefcase }]
       : []),
@@ -77,6 +80,11 @@ export function MemberSidebar({ memberTier, verificationStatus }: MemberSidebarP
             >
               <Icon className="h-4 w-4" />
               {link.label}
+              {link.href === '/notifications' && unreadNotificationCount > 0 && (
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white">
+                  {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                </span>
+              )}
             </Link>
           )
         })}
