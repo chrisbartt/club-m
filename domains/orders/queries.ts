@@ -105,3 +105,10 @@ export async function getAdminOrders(filters?: {
     orderBy: { createdAt: 'desc' },
   })
 }
+
+export async function getOrderTimeline(orderId: string) {
+  return db.orderStatusHistory.findMany({
+    where: { orderId },
+    orderBy: { createdAt: 'asc' },
+  })
+}

@@ -130,6 +130,13 @@ export async function purchaseProduct(
       return newOrder
     })
 
+    // Timeline entry
+    try {
+      await db.orderStatusHistory.create({
+        data: { orderId: order.id, status: 'PAID' },
+      })
+    } catch (e) { console.error('Timeline entry failed:', e) }
+
     // Audit log
     await createAuditLog({
       userId: user.id,
@@ -334,6 +341,13 @@ export async function createCartOrder(
       return newOrder
     })
 
+    // Timeline entry
+    try {
+      await db.orderStatusHistory.create({
+        data: { orderId: order.id, status: 'PAID' },
+      })
+    } catch (e) { console.error('Timeline entry failed:', e) }
+
     // Audit log
     await createAuditLog({
       userId: user.id,
@@ -435,6 +449,13 @@ export async function markAsShipped(
       where: { id: orderId },
       data: { status: 'SHIPPED', shippedAt: new Date() },
     })
+
+    // Timeline entry
+    try {
+      await db.orderStatusHistory.create({
+        data: { orderId, status: 'SHIPPED' },
+      })
+    } catch (e) { console.error('Timeline entry failed:', e) }
 
     await createAuditLog({
       userId: user.id,
@@ -539,6 +560,13 @@ export async function confirmDelivery(
         codeUsed: true,
       },
     })
+
+    // Timeline entry
+    try {
+      await db.orderStatusHistory.create({
+        data: { orderId, status: 'DELIVERED' },
+      })
+    } catch (e) { console.error('Timeline entry failed:', e) }
 
     await createAuditLog({
       userId: user.id,
