@@ -122,7 +122,7 @@ export default async function MarketplacePage({
                         currency: product.currency,
                         images: product.images,
                         type: product.type,
-                        category: product.category,
+                        category: product.category?.name ?? null,
                         stock: product.stock,
                       }}
                       business={{

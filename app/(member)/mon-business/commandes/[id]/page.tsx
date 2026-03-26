@@ -257,6 +257,9 @@ export default async function SellerOrderDetailPage({
                       <tr key={item.id}>
                         <td className="py-3 font-medium text-foreground">
                           {item.product.name}
+                          {item.variantLabel && (
+                            <span className="text-muted-foreground font-normal"> — {item.variantLabel}</span>
+                          )}
                         </td>
                         <td className="py-3 text-right text-muted-foreground">
                           {item.quantity}

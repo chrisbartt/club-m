@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getProductById } from '@/domains/business/queries'
+import { getActiveCategories } from '@/domains/categories/queries'
 import { ProductForm } from '@/components/directory/product-form'
 import { ArrowLeft } from 'lucide-react'
 
@@ -27,7 +28,10 @@ export default async function EditProductPage({
 
   if (!user?.member) redirect('/')
 
-  const product = await getProductById(id)
+  const [product, categories] = await Promise.all([
+    getProductById(id),
+    getActiveCategories(),
+  ])
 
   if (!product) {
     redirect('/mon-business/produits')
@@ -37,6 +41,13 @@ export default async function EditProductPage({
   if (product.business.memberId !== user.member.id) {
     redirect('/mon-business/produits')
   }
+
+  const existingVariants = (product.variants ?? []).map((v) => ({
+    label: v.label,
+    sku: v.sku ?? '',
+    price: v.price != null ? String(v.price) : '',
+    stock: String(v.stock),
+  }))
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -55,6 +66,7 @@ export default async function EditProductPage({
       </div>
       <ProductForm
         mode="edit"
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
         defaultValues={{
           id: product.id,
           name: product.name,
@@ -62,9 +74,10 @@ export default async function EditProductPage({
           price: Number(product.price),
           currency: product.currency,
           type: product.type,
-          category: product.category,
+          categoryId: product.categoryId ?? null,
           stock: product.stock,
           images: product.images,
+          variants: existingVariants,
         }}
       />
     </div>

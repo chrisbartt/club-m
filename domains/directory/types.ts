@@ -1,5 +1,6 @@
 import type {
   BusinessProfile,
+  Category,
   Member,
   Product,
 } from '@/lib/generated/prisma/client'
@@ -10,7 +11,7 @@ export type ProfileWithMember = BusinessProfile & {
 
 export type ProfileWithProducts = BusinessProfile & {
   member: Pick<Member, 'id' | 'firstName' | 'lastName' | 'avatar' | 'tier' | 'verificationStatus'>
-  products: Product[]
+  products: (Product & { category?: Pick<Category, 'id' | 'name' | 'slug'> | null })[]
 }
 
 export type PublicProfileListItem = Pick<

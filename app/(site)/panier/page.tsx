@@ -120,6 +120,9 @@ export default function PanierPage() {
                         <div className="min-w-0">
                           <h3 className="font-semibold text-[#091626] text-sm lg:text-base truncate">
                             {item.productName}
+                            {item.variantLabel && (
+                              <span className="text-muted-foreground font-normal"> — {item.variantLabel}</span>
+                            )}
                           </h3>
                           {cart.businessName && cart.businessSlug && (
                             <Link
@@ -131,7 +134,7 @@ export default function PanierPage() {
                           )}
                         </div>
                         <button
-                          onClick={() => removeItem(item.productId)}
+                          onClick={() => removeItem(item.productId, item.variantId)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -142,7 +145,7 @@ export default function PanierPage() {
                         {/* Quantity */}
                         <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                           <button
-                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
                             className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                           >
                             <Minus className="w-3 h-3" />
@@ -151,7 +154,7 @@ export default function PanierPage() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
                             disabled={item.quantity >= maxQty}
                             className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-colors"
                           >

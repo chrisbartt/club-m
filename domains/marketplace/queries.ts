@@ -40,7 +40,7 @@ export async function getMarketplaceProducts(filters?: {
   }
 
   if (filters?.category) {
-    where.category = filters.category
+    where.category = { slug: filters.category }
   }
 
   if (filters?.type) {
@@ -93,6 +93,7 @@ export async function getMarketplaceProducts(filters?: {
       where,
       include: {
         business: { select: businessSelect },
+        category: { select: { id: true, name: true, slug: true } },
         _count: { select: { orderItems: true } },
       },
       orderBy,
@@ -148,6 +149,7 @@ export async function getPopularProducts(limit = 8) {
     },
     include: {
       business: { select: businessSelect },
+      category: { select: { id: true, name: true, slug: true } },
       _count: { select: { orderItems: true } },
     },
     orderBy: { orderItems: { _count: 'desc' } },
@@ -163,6 +165,7 @@ export async function getNewProducts(limit = 8) {
     },
     include: {
       business: { select: businessSelect },
+      category: { select: { id: true, name: true, slug: true } },
       _count: { select: { orderItems: true } },
     },
     orderBy: { createdAt: 'desc' },
@@ -190,20 +193,19 @@ export async function getFeaturedStores(limit = 6) {
 }
 
 export async function getProductCategories() {
-  const products = await db.product.findMany({
+  return db.category.findMany({
     where: {
       isActive: true,
-      category: { not: null },
-      business: approvedStoreBusiness,
+      products: {
+        some: {
+          isActive: true,
+          business: approvedStoreBusiness,
+        },
+      },
     },
-    select: { category: true },
-    distinct: ['category'],
-    orderBy: { category: 'asc' },
+    select: { id: true, name: true, slug: true },
+    orderBy: { name: 'asc' },
   })
-
-  return products
-    .map((p) => p.category)
-    .filter((c): c is string => c !== null)
 }
 
 export async function getMarketplaceStats() {

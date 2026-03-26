@@ -61,6 +61,8 @@ export default function ProductCard({ product, business }: ProductCardProps) {
         quantity: 1,
         type: product.type as 'PHYSICAL' | 'DIGITAL',
         stock: product.stock,
+        variantId: null,
+        variantLabel: null,
       },
       { id: business.id, name: business.businessName, slug: business.slug },
     )

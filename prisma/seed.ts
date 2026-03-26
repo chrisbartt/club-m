@@ -62,13 +62,18 @@ function pickN<T>(arr: T[], n: number): T[] {
 
 async function cleanDatabase() {
   console.log('  Cleaning existing data...')
+  await db.notification.deleteMany()
+  await db.review.deleteMany()
   await db.payment.deleteMany()
+  await db.orderStatusHistory.deleteMany()
   await db.orderItem.deleteMany()
   await db.order.deleteMany()
   await db.ticket.deleteMany()
   await db.eventPrice.deleteMany()
   await db.event.deleteMany()
+  await db.productVariant.deleteMany()
   await db.product.deleteMany()
+  await db.category.deleteMany()
   await db.businessProfile.deleteMany()
   await db.kycVerification.deleteMany()
   await db.upgradeRequest.deleteMany()
@@ -78,6 +83,8 @@ async function cleanDatabase() {
   await db.member.deleteMany()
   await db.customer.deleteMany()
   await db.adminAccount.deleteMany()
+  await db.passwordResetToken.deleteMany()
+  await db.emailVerificationToken.deleteMany()
   await db.user.deleteMany()
   console.log('  Done cleaning.')
 }
@@ -319,7 +326,7 @@ const businessDefs: BusinessDef[] = [
   },
 ]
 
-async function createBusinesses(passwordHash: string) {
+async function createBusinesses(passwordHash: string, categoryByName: Record<string, { id: string; name: string }>) {
   console.log('  Creating business members...')
 
   const results: {
@@ -368,6 +375,9 @@ async function createBusinesses(passwordHash: string) {
 
     const createdProducts: { id: string; price: number; name: string }[] = []
 
+    // Resolve the category for this business's products
+    const bizCategory = categoryByName[biz.category]
+
     for (const prod of biz.products) {
       const p = await db.product.create({
         data: {
@@ -379,6 +389,7 @@ async function createBusinesses(passwordHash: string) {
           images: prod.images,
           isActive: true,
           stock: prod.type === 'PHYSICAL' ? Math.floor(Math.random() * 50) + 10 : null,
+          categoryId: bizCategory?.id ?? null,
         },
       })
       createdProducts.push({ id: p.id, price: prod.price, name: prod.name })
@@ -744,33 +755,52 @@ async function main() {
   const passwordHash = await hash('member123', 12)
   const adminPasswordHash = await hash('admin123', 12)
 
-  // 3. Admin
+  // 3. Categories
+  console.log('  Creating categories...')
+  const categories = await Promise.all([
+    db.category.upsert({ where: { slug: 'mode' }, update: {}, create: { name: 'Mode', slug: 'mode' } }),
+    db.category.upsert({ where: { slug: 'beaute' }, update: {}, create: { name: 'Beaute', slug: 'beaute' } }),
+    db.category.upsert({ where: { slug: 'alimentation' }, update: {}, create: { name: 'Alimentation', slug: 'alimentation' } }),
+    db.category.upsert({ where: { slug: 'decoration' }, update: {}, create: { name: 'Decoration', slug: 'decoration' } }),
+    db.category.upsert({ where: { slug: 'cosmetiques' }, update: {}, create: { name: 'Cosmetiques', slug: 'cosmetiques' } }),
+    db.category.upsert({ where: { slug: 'services' }, update: {}, create: { name: 'Services', slug: 'services' } }),
+    db.category.upsert({ where: { slug: 'evenements' }, update: {}, create: { name: 'Evenements', slug: 'evenements' } }),
+    db.category.upsert({ where: { slug: 'restauration' }, update: {}, create: { name: 'Restauration', slug: 'restauration' } }),
+    db.category.upsert({ where: { slug: 'evenementiel' }, update: {}, create: { name: 'Evenementiel', slug: 'evenementiel' } }),
+  ])
+  console.log(`    ${categories.length} categories created`)
+
+  // Build a lookup map for categories by name
+  const categoryByName = Object.fromEntries(categories.map(c => [c.name, c]))
+
+  // 4. Admin
   const admin = await createAdmin(adminPasswordHash)
 
-  // 4. Business members + profiles + products
-  const businesses = await createBusinesses(passwordHash)
+  // 5. Business members + profiles + products
+  const businesses = await createBusinesses(passwordHash, categoryByName)
 
-  // 5. Free members
+  // 6. Free members
   const freeMembers = await createFreeMembers(passwordHash)
 
-  // 6. Customers
+  // 7. Customers
   const customers = await createCustomers(passwordHash)
 
-  // 7. Orders (~50)
+  // 8. Orders (~50)
   await createOrders(businesses, freeMembers, customers)
 
-  // 8. Events
+  // 9. Events
   const events = await createEvents(admin)
 
-  // 9. Tickets
+  // 10. Tickets
   await createTickets(freeMembers, events)
 
   console.log('\n✅ Seeding complete!')
   console.log('   - 1 admin (admin@clubm.cd / admin123)')
+  console.log(`   - ${categories.length} categories`)
   console.log('   - 5 business members (member123)')
   console.log('   - 5 free members (member123)')
   console.log('   - 10 customers (member123)')
-  console.log('   - 15 products')
+  console.log('   - 15 products (linked to categories)')
   console.log('   - ~50 orders')
   console.log('   - 3 events')
   console.log('   - 10 tickets')

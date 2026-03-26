@@ -48,6 +48,8 @@ export default function AddToCartButton({ product, business }: AddToCartButtonPr
         quantity: 1,
         type: product.type,
         stock: product.stock,
+        variantId: null,
+        variantLabel: null,
       },
       business,
     )

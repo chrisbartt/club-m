@@ -149,6 +149,7 @@ export default function CheckoutPage() {
         items: cart.items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
+          ...(item.variantId ? { variantId: item.variantId, variantLabel: item.variantLabel ?? undefined } : {}),
         })),
         businessId: cart.businessId,
         deliveryAddress: {
@@ -292,7 +293,11 @@ export default function CheckoutPage() {
                       return (
                         <div key={item.productId} className="flex items-center justify-between text-sm">
                           <span className="text-gray-600 truncate mr-2">
-                            {item.productName} <span className="text-gray-400">x{item.quantity}</span>
+                            {item.productName}
+                            {item.variantLabel && (
+                              <span className="text-muted-foreground"> — {item.variantLabel}</span>
+                            )}
+                            {' '}<span className="text-gray-400">x{item.quantity}</span>
                           </span>
                           <span className="font-medium text-[#091626] flex-shrink-0">
                             {(item.price * item.quantity).toLocaleString('fr-FR')} {itemSymbol}

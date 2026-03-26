@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
 import { CloudinaryUpload } from '@/components/shared/cloudinary-upload'
 import {
   Select,
@@ -16,11 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { VariantManager, type Variant } from './variant-manager'
 import type { Currency, ProductType } from '@/lib/generated/prisma/client'
 
 interface ProductFormProps {
   mode: 'create' | 'edit'
   businessId?: string
+  categories: { id: string; name: string }[]
   defaultValues?: {
     id: string
     name: string
@@ -28,13 +31,14 @@ interface ProductFormProps {
     price: number
     currency: Currency
     type: ProductType
-    category: string | null
+    categoryId: string | null
     stock: number | null
     images: string[]
+    variants?: Variant[]
   }
 }
 
-export function ProductForm({ mode, businessId, defaultValues }: ProductFormProps) {
+export function ProductForm({ mode, businessId, categories, defaultValues }: ProductFormProps) {
   const router = useRouter()
   const [pending, setPending] = useState(false)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
@@ -44,14 +48,31 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
   const [price, setPrice] = useState(defaultValues?.price?.toString() ?? '')
   const [currency, setCurrency] = useState<Currency>(defaultValues?.currency ?? 'USD')
   const [type, setType] = useState<ProductType>(defaultValues?.type ?? 'PHYSICAL')
-  const [category, setCategory] = useState(defaultValues?.category ?? '')
+  const [categoryId, setCategoryId] = useState(defaultValues?.categoryId ?? '')
   const [stock, setStock] = useState(defaultValues?.stock?.toString() ?? '')
   const [images, setImages] = useState<string[]>(defaultValues?.images ?? [])
+
+  const [hasVariants, setHasVariants] = useState(
+    (defaultValues?.variants && defaultValues.variants.length > 0) ?? false
+  )
+  const [variants, setVariants] = useState<Variant[]>(
+    defaultValues?.variants ?? []
+  )
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErrors({})
     setPending(true)
+
+    const variantsPayload = hasVariants && variants.length > 0
+      ? variants.map((v, i) => ({
+          label: v.label,
+          sku: v.sku || undefined,
+          price: v.price ? parseFloat(v.price) : undefined,
+          stock: parseInt(v.stock, 10) || 0,
+          position: i,
+        }))
+      : undefined
 
     const input = {
       ...(mode === 'edit' && defaultValues ? { id: defaultValues.id } : {}),
@@ -60,9 +81,10 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
       price: parseFloat(price) || 0,
       currency,
       type,
-      category: category || undefined,
-      stock: type === 'PHYSICAL' ? (parseInt(stock, 10) || 0) : undefined,
+      categoryId: categoryId || undefined,
+      stock: type === 'PHYSICAL' && !hasVariants ? (parseInt(stock, 10) || 0) : undefined,
       images,
+      variants: hasVariants ? variantsPayload ?? [] : undefined,
     }
 
     const result = await (mode === 'create'
@@ -181,36 +203,61 @@ export function ProductForm({ mode, businessId, defaultValues }: ProductFormProp
 
         {/* Category */}
         <div className="space-y-1.5">
-          <Label htmlFor="category" className="text-sm text-muted-foreground">
+          <Label className="text-sm text-muted-foreground">
             Categorie (optionnel)
           </Label>
-          <Input
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="Ex: Beaute, Mode, Alimentation"
-          />
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choisir une categorie" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Stock (only for PHYSICAL) */}
-        {type === 'PHYSICAL' && (
-          <div className="space-y-1.5">
-            <Label htmlFor="stock" className="text-sm text-muted-foreground">
-              Stock
-            </Label>
-            <Input
-              id="stock"
-              type="number"
-              min="0"
-              step="1"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
-              placeholder="0"
-            />
-            {errors.stock && (
-              <p className="text-sm text-destructive">{errors.stock[0]}</p>
-            )}
-          </div>
+        {/* Variants toggle */}
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="hasVariants"
+            checked={hasVariants}
+            onCheckedChange={(checked) => {
+              setHasVariants(checked === true)
+              if (checked && variants.length === 0) {
+                setVariants([{ label: '', sku: '', price: '', stock: '0' }])
+              }
+            }}
+          />
+          <Label htmlFor="hasVariants" className="text-sm text-foreground cursor-pointer">
+            Ce produit a des variantes
+          </Label>
+        </div>
+
+        {/* Variants or Stock */}
+        {hasVariants ? (
+          <VariantManager variants={variants} onChange={setVariants} />
+        ) : (
+          type === 'PHYSICAL' && (
+            <div className="space-y-1.5">
+              <Label htmlFor="stock" className="text-sm text-muted-foreground">
+                Stock
+              </Label>
+              <Input
+                id="stock"
+                type="number"
+                min="0"
+                step="1"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                placeholder="0"
+              />
+              {errors.stock && (
+                <p className="text-sm text-destructive">{errors.stock[0]}</p>
+              )}
+            </div>
+          )
         )}
 
         {/* Images */}

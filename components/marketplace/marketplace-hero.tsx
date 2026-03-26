@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react'
 import { Search } from 'lucide-react'
 
 interface MarketplaceHeroProps {
-  categories: string[]
+  categories: { id: string; name: string; slug: string }[]
   stats: { totalProducts: number; totalStores: number; totalCategories: number }
 }
 
@@ -30,12 +30,12 @@ export default function MarketplaceHero({ categories, stats }: MarketplaceHeroPr
   )
 
   const handleCategoryClick = useCallback(
-    (cat: string) => {
+    (slug: string) => {
       const params = new URLSearchParams(searchParams.toString())
-      if (params.get('category') === cat) {
+      if (params.get('category') === slug) {
         params.delete('category')
       } else {
-        params.set('category', cat)
+        params.set('category', slug)
       }
       params.delete('offset')
       router.push(`/marketplace?${params.toString()}`)
@@ -86,15 +86,15 @@ export default function MarketplaceHero({ categories, stats }: MarketplaceHeroPr
           <div className="flex flex-wrap justify-center gap-2 mb-8">
             {categories.slice(0, 10).map((cat) => (
               <button
-                key={cat}
-                onClick={() => handleCategoryClick(cat)}
+                key={cat.slug}
+                onClick={() => handleCategoryClick(cat.slug)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  activeCategory === cat
+                  activeCategory === cat.slug
                     ? 'bg-[#a55b46] text-white'
                     : 'bg-white/10 text-white/80 hover:bg-white/20'
                 }`}
               >
-                {cat}
+                {cat.name}
               </button>
             ))}
           </div>

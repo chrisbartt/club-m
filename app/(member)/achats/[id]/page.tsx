@@ -107,7 +107,12 @@ export default async function AchatDetailPage({ params }: { params: Promise<{ id
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{item.product.name}</p>
+                    <p className="font-medium truncate">
+                      {item.product.name}
+                      {item.variantLabel && (
+                        <span className="text-muted-foreground font-normal"> — {item.variantLabel}</span>
+                      )}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {item.quantity} x {symbol}{Number(item.unitPrice).toLocaleString('fr-FR')}
                     </p>
