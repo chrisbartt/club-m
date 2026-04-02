@@ -31,7 +31,7 @@ export function BookingButton({
   async function handleBook() {
     setLoading(true)
     try {
-      const result = await bookEvent(eventSlug)
+      const result = await bookEvent({ eventSlug })
 
       if (result.success) {
         toast.success('Reservation confirmee !')

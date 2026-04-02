@@ -25,6 +25,10 @@ export const createEventSchema = z.object({
   prices: z.array(eventPriceSchema).min(1, 'Au moins un tarif est requis'),
 })
 
+export const eventIdSchema = z.object({
+  eventId: z.string().min(1, 'Identifiant evenement requis'),
+})
+
 export const updateEventSchema = z.object({
   id: z.string({ error: "L'identifiant est requis" }),
   title: z.string().min(3, 'Le titre doit contenir au moins 3 caractères').optional(),

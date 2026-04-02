@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
 import { generateSlug } from '@/lib/utils'
-import { createEventSchema, updateEventSchema } from './validators'
+import { createEventSchema, updateEventSchema, eventIdSchema } from './validators'
 
 type ActionResult<T> =
   | { success: true; data: T }
@@ -148,10 +148,16 @@ export async function updateEvent(
 }
 
 export async function publishEvent(
-  eventId: string
+  input: unknown
 ): Promise<ActionResult<{ eventId: string }>> {
   try {
     const { user } = await requireAdmin()
+
+    const parsed = eventIdSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+    const { eventId } = parsed.data
 
     const event = await db.event.findUnique({ where: { id: eventId } })
     if (!event) {
@@ -182,10 +188,16 @@ export async function publishEvent(
 }
 
 export async function cancelEvent(
-  eventId: string
+  input: unknown
 ): Promise<ActionResult<{ eventId: string }>> {
   try {
     const { user } = await requireAdmin()
+
+    const parsed = eventIdSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+    const { eventId } = parsed.data
 
     const event = await db.event.findUnique({ where: { id: eventId } })
     if (!event) {

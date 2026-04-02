@@ -29,15 +29,8 @@ export function PurchaseButton({
   const symbol = CURRENCY_SYMBOLS[currency as Currency] ?? '$'
 
   function handlePurchase() {
-    startTransition(async () => {
-      const result = await purchaseProduct({ productId, quantity: 1 })
-      if (result.success) {
-        toast.success(`Commande confirmee ! Code: ${result.data.confirmationCode}`)
-        router.push('/achats')
-      } else {
-        toast.error(result.error)
-      }
-    })
+    // Redirect to checkout — payment requires Mobile Money provider selection
+    router.push('/panier')
   }
 
   return (

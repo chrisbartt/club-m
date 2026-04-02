@@ -3,7 +3,7 @@
 import type { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireMember } from '@/lib/auth-guards'
-import { createProductSchema, updateProductSchema } from './validators'
+import { createProductSchema, updateProductSchema, toggleProductSchema } from './validators'
 
 type ActionResult<T> =
   | { success: true; data: T }
@@ -158,10 +158,16 @@ export async function updateProduct(
 }
 
 export async function toggleProductActive(
-  productId: string,
+  input: unknown,
 ): Promise<ActionResult<{ productId: string; isActive: boolean }>> {
   try {
     const { member } = await requireMember('BUSINESS')
+
+    const parsed = toggleProductSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+    const { productId } = parsed.data
 
     const profile = await db.businessProfile.findUnique({
       where: { memberId: member.id },

@@ -82,7 +82,7 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
   return (
     <div>
       {/* Info bar */}
-      <div className="bg-[#f8f8f8] border-y border-gray-100">
+      <div className="bg-muted border-y border-gray-100">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex flex-wrap gap-6 text-sm text-gray-600">
             <span className="flex items-center gap-1.5">
@@ -116,8 +116,8 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
               onClick={() => setActiveTab(key)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === key
-                  ? 'bg-white text-[#091626] shadow-sm'
-                  : 'text-gray-500 hover:text-[#091626]'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-gray-500 hover:text-foreground'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -160,7 +160,7 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
         {/* Content */}
         {activeTab !== 'apropos' ? (
           displayProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
               {displayProducts.map((product) => (
                 <CatalogProductCard
                   key={product.id}
@@ -193,7 +193,7 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
       </div>
 
       {/* Trust footer */}
-      <div className="bg-[#f8f8f8] mt-12">
+      <div className="bg-muted mt-12">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
@@ -204,7 +204,7 @@ export default function StoreCatalog({ business, products }: StoreCatalogProps) 
             ].map((item) => (
               <div key={item.label} className="flex flex-col items-center gap-2">
                 <span className="text-2xl">{item.icon}</span>
-                <span className="text-sm font-medium text-[#091626]">{item.label}</span>
+                <span className="text-sm font-medium text-foreground">{item.label}</span>
               </div>
             ))}
           </div>
@@ -247,7 +247,7 @@ function CatalogProductCard({
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
-            <span className="text-2xl font-bold text-[#a55b46]/30">
+            <span className="text-2xl font-bold text-primary/30">
               {product.name.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -272,7 +272,7 @@ function CatalogProductCard({
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-semibold text-[#091626] text-sm leading-snug line-clamp-2 mb-1">
+        <h3 className="font-semibold text-foreground text-sm leading-snug line-clamp-2 mb-1">
           {product.name}
         </h3>
 
@@ -280,7 +280,7 @@ function CatalogProductCard({
           <p className="text-xs text-gray-500 line-clamp-2 mb-2">{product.description}</p>
         )}
 
-        <p className="font-bold text-[#091626] text-lg mb-3">
+        <p className="font-bold text-foreground text-lg mb-3">
           {isService && product.price === 0
             ? 'Sur devis'
             : isService
@@ -330,7 +330,7 @@ function AboutTab({
     <div className="max-w-2xl space-y-8">
       {/* Description */}
       <div>
-        <h3 className="text-lg font-bold text-[#091626] mb-3">A propos</h3>
+        <h3 className="text-lg font-bold text-foreground mb-3">A propos</h3>
         <p className="text-gray-600 leading-relaxed whitespace-pre-line">
           {business.description}
         </p>
@@ -338,16 +338,16 @@ function AboutTab({
 
       {/* Contact */}
       <div>
-        <h3 className="text-lg font-bold text-[#091626] mb-3">Contact</h3>
+        <h3 className="text-lg font-bold text-foreground mb-3">Contact</h3>
         <div className="space-y-3">
           {business.phone && (
-            <a href={`tel:${business.phone}`} className="flex items-center gap-3 text-sm text-gray-600 hover:text-[#091626]">
+            <a href={`tel:${business.phone}`} className="flex items-center gap-3 text-sm text-gray-600 hover:text-foreground">
               <Phone className="w-4 h-4 text-gray-400" />
               {business.phone}
             </a>
           )}
           {business.email && (
-            <a href={`mailto:${business.email}`} className="flex items-center gap-3 text-sm text-gray-600 hover:text-[#091626]">
+            <a href={`mailto:${business.email}`} className="flex items-center gap-3 text-sm text-gray-600 hover:text-foreground">
               <Mail className="w-4 h-4 text-gray-400" />
               {business.email}
             </a>
@@ -357,7 +357,7 @@ function AboutTab({
               href={`https://wa.me/${business.whatsapp.replace(/\D/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 text-sm text-gray-600 hover:text-[#091626]"
+              className="flex items-center gap-3 text-sm text-gray-600 hover:text-foreground"
             >
               <span className="w-4 h-4 text-gray-400 text-center text-xs">WA</span>
               {business.whatsapp}
@@ -368,7 +368,7 @@ function AboutTab({
               href={business.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 text-sm text-gray-600 hover:text-[#091626]"
+              className="flex items-center gap-3 text-sm text-gray-600 hover:text-foreground"
             >
               <Globe className="w-4 h-4 text-gray-400" />
               {business.website}
@@ -385,8 +385,8 @@ function AboutTab({
 
       {/* Member info */}
       <div>
-        <h3 className="text-lg font-bold text-[#091626] mb-3">Fondatrice</h3>
-        <div className="flex items-center gap-4 bg-[#f8f8f8] rounded-2xl p-4">
+        <h3 className="text-lg font-bold text-foreground mb-3">Fondatrice</h3>
+        <div className="flex items-center gap-4 bg-muted rounded-2xl p-4">
           <div className="w-14 h-14 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
             {business.member.avatar ? (
               <img
@@ -395,7 +395,7 @@ function AboutTab({
                 className="object-cover w-full h-full"
               />
             ) : (
-              <div className="w-full h-full bg-[#a55b46] flex items-center justify-center">
+              <div className="w-full h-full bg-primary flex items-center justify-center">
                 <span className="text-lg font-bold text-white">
                   {business.member.firstName.charAt(0)}
                 </span>
@@ -403,7 +403,7 @@ function AboutTab({
             )}
           </div>
           <div>
-            <p className="font-semibold text-[#091626]">
+            <p className="font-semibold text-foreground">
               {business.member.firstName} {business.member.lastName}
             </p>
             <p className="text-sm text-gray-500">
@@ -415,7 +415,7 @@ function AboutTab({
 
       {/* Trust */}
       <div>
-        <h3 className="text-lg font-bold text-[#091626] mb-3">Garanties</h3>
+        <h3 className="text-lg font-bold text-foreground mb-3">Garanties</h3>
         <div className="flex flex-wrap gap-2">
           <span className="bg-emerald-50 text-emerald-700 rounded-full px-4 py-2 text-sm font-medium flex items-center gap-1.5">
             <BadgeCheck className="w-4 h-4" />

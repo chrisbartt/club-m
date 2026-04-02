@@ -9,6 +9,7 @@ import {
   sendKycSubmittedAdminEmail,
   sendKycApprovedEmail,
   sendKycRejectedEmail,
+  sendVerificationPendingEmail,
 } from '@/lib/email'
 import { ADMIN_EMAIL } from '@/lib/constants'
 import { submitKycSchema, reviewKycSchema } from './validators'
@@ -86,6 +87,13 @@ export async function submitKyc(
       await sendKycSubmittedAdminEmail(ADMIN_EMAIL, memberName)
     } catch (e) {
       console.error('KYC submitted admin email failed:', e)
+    }
+
+    // Notify member that verification is pending
+    try {
+      await sendVerificationPendingEmail(user.email, member.firstName)
+    } catch (e) {
+      console.error('KYC pending email failed:', e)
     }
 
     return { success: true, data: { kycId: kyc.id } }

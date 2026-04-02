@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { updateProfile } from '@/domains/members/profile-actions'
+import { updateProfile, updateAvatar } from '@/domains/members/profile-actions'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { CloudinaryUpload } from '@/components/shared/cloudinary-upload'
+import { CLOUDINARY_FOLDERS } from '@/lib/constants'
 
 interface ProfileFormProps {
   defaultValues: {
@@ -15,6 +17,7 @@ interface ProfileFormProps {
     lastName: string
     phone: string | null
     bio: string | null
+    avatar: string | null
   }
 }
 
@@ -57,6 +60,25 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Avatar */}
+          <div className="space-y-2">
+            <Label>Photo de profil</Label>
+            <CloudinaryUpload
+              folder={CLOUDINARY_FOLDERS.avatars}
+              currentImage={defaultValues.avatar ?? undefined}
+              onUpload={async (urls) => {
+                if (urls[0]) {
+                  const result = await updateAvatar({ avatarUrl: urls[0] })
+                  if (result.success) {
+                    toast.success('Photo de profil mise a jour')
+                  } else {
+                    toast.error(result.error)
+                  }
+                }
+              }}
+            />
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">Prenom</Label>

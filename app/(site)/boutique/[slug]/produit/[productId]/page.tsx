@@ -133,7 +133,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Right: Info */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
               <div className="bg-white rounded-2xl p-6 lg:p-8">
                 {/* Type badge */}
                 <div className="flex items-center gap-2 mb-4">

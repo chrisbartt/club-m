@@ -70,7 +70,7 @@ export default function AddToCartButton({ product, business }: AddToCartButtonPr
             ? 'bg-emerald-500 text-white'
             : outOfStock
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-[#a55b46] text-white hover:bg-[#8f4d3b]'
+              : 'bg-primary text-white hover:bg-primary/90'
         }`}
       >
         {added ? (
@@ -92,7 +92,7 @@ export default function AddToCartButton({ product, business }: AddToCartButtonPr
       {showWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <h3 className="font-bold text-[#091626] text-lg mb-2">
+            <h3 className="font-bold text-foreground text-lg mb-2">
               Boutique differente
             </h3>
             <p className="text-gray-600 text-sm mb-6">
@@ -101,7 +101,7 @@ export default function AddToCartButton({ product, business }: AddToCartButtonPr
             </p>
             <button
               onClick={() => setShowWarning(false)}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-[#091626] hover:bg-gray-50"
+              className="w-full py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-foreground hover:bg-gray-50"
             >
               Compris
             </button>

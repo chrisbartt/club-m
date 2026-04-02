@@ -14,15 +14,15 @@ import {
   createOrderSchema,
   createCartOrderSchema,
   confirmDeliverySchema,
+  markAsShippedSchema,
 } from './validators'
 import {
-  sendOrderConfirmationBuyer,
-  sendOrderNotificationSeller,
   sendOrderShippedEmail,
   sendDeliveryConfirmedBuyer,
   sendDeliveryConfirmedSeller,
 } from '@/lib/email'
 import { formatOrderNumber } from '@/lib/server-utils'
+import { getPaymentProvider } from '@/integrations/payment'
 
 type ActionResult<T> =
   | { success: true; data: T }
@@ -30,7 +30,7 @@ type ActionResult<T> =
 
 export async function purchaseProduct(
   input: unknown,
-): Promise<ActionResult<{ orderId: string; confirmationCode: string }>> {
+): Promise<ActionResult<{ orderId: string; transactionId: string }>> {
   try {
     const user = await requireAuth()
     await requireVerifiedEmail()
@@ -40,7 +40,7 @@ export async function purchaseProduct(
       return { success: false, error: 'INVALID_INPUT' }
     }
 
-    const { productId, quantity, variantId } = parsed.data
+    const { productId, quantity, variantId, payment: paymentInfo } = parsed.data
 
     // Fetch product
     const product = await db.product.findUnique({
@@ -104,7 +104,7 @@ export async function purchaseProduct(
       Date.now() + CONFIRMATION_CODE_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
     )
 
-    // Create order, order item, payment in transaction
+    // Create order as PENDING, initiate ARAKA payment
     const order = await db.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
@@ -116,7 +116,7 @@ export async function purchaseProduct(
           commission,
           confirmationCode,
           codeExpiresAt,
-          status: 'PAID', // MVP: simulated payment
+          status: 'PENDING',
           items: {
             create: {
               productId: product.id,
@@ -125,16 +125,6 @@ export async function purchaseProduct(
               ...(variant ? { variantId: variant.id, variantLabel: variant.label } : {}),
             },
           },
-        },
-      })
-
-      await tx.payment.create({
-        data: {
-          amount: totalAmount,
-          currency: product.currency,
-          status: 'SUCCESS',
-          provider: 'LOCAL_FINTECH',
-          orderId: newOrder.id,
         },
       })
 
@@ -154,10 +144,42 @@ export async function purchaseProduct(
       return newOrder
     })
 
+    // Initiate ARAKA payment
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Client'
+
+    const paymentProvider = getPaymentProvider()
+    const paymentResult = await paymentProvider.createPayment({
+      amount: totalAmount,
+      currency: product.currency as 'USD' | 'CDF' | 'EUR',
+      description: `Commande ${formatOrderNumber(order.id)}`,
+      returnUrl: `${baseUrl}/api/payments/callback`,
+      cancelUrl: `${baseUrl}/checkout?error=payment_cancelled`,
+      metadata: {
+        orderId: order.id,
+        customerName: buyerName,
+        customerEmail: user.email,
+        provider: paymentInfo.provider,
+        walletId: paymentInfo.walletId,
+      },
+    })
+
+    // Create payment record with ARAKA transactionId
+    await db.payment.create({
+      data: {
+        amount: totalAmount,
+        currency: product.currency,
+        status: 'PENDING',
+        provider: 'MOBILE_MONEY',
+        providerRef: paymentResult.providerRef,
+        orderId: order.id,
+      },
+    })
+
     // Timeline entry
     try {
       await db.orderStatusHistory.create({
-        data: { orderId: order.id, status: 'PAID' },
+        data: { orderId: order.id, status: 'PENDING', note: 'Paiement initie via ' + paymentInfo.provider },
       })
     } catch (e) { console.error('Timeline entry failed:', e) }
 
@@ -170,53 +192,11 @@ export async function purchaseProduct(
       entityId: order.id,
     })
 
-    // Send emails + notifications
-    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Client'
-    const sellerProfile = await db.businessProfile.findUnique({
-      where: { id: business.id },
-      include: { member: { include: { user: true } } },
-    })
-    if (sellerProfile) {
-      try {
-        const itemLabel = variant ? `${product.name} — ${variant.label}` : product.name
-        await sendOrderConfirmationBuyer(user.email, buyerName, {
-          number: formatOrderNumber(order.id),
-          items: [{ name: itemLabel, quantity, unitPrice }],
-          total: totalAmount,
-          currency: product.currency,
-          confirmationCode,
-          businessName: business.businessName,
-        })
-        await sendOrderNotificationSeller(sellerProfile.member.user.email, business.businessName, {
-          number: formatOrderNumber(order.id),
-          buyerName,
-          items: [{ name: itemLabel, quantity, unitPrice }],
-          total: totalAmount,
-          currency: product.currency,
-        })
-      } catch (e) {
-        console.error('Order emails failed:', e)
-      }
-
-      await createNotification({
-        userId: user.id,
-        type: 'ORDER_CREATED',
-        title: 'Commande confirmee',
-        message: `Commande ${formatOrderNumber(order.id)} chez ${business.businessName} confirmee.`,
-        link: '/achats/' + order.id,
-      })
-      await createNotification({
-        userId: sellerProfile.member.user.id,
-        type: 'ORDER_RECEIVED',
-        title: 'Nouvelle commande',
-        message: `Nouvelle commande ${formatOrderNumber(order.id)} de ${buyerName}.`,
-        link: '/mon-business/commandes/' + order.id,
-      })
-    }
+    // Emails + notifications sent in /api/payments/callback on payment confirmation
 
     return {
       success: true,
-      data: { orderId: order.id, confirmationCode },
+      data: { orderId: order.id, transactionId: paymentResult.providerRef },
     }
   } catch (error) {
     return {
@@ -228,7 +208,7 @@ export async function purchaseProduct(
 
 export async function createCartOrder(
   input: unknown,
-): Promise<ActionResult<{ orderId: string; confirmationCode: string }>> {
+): Promise<ActionResult<{ orderId: string; transactionId: string }>> {
   try {
     const user = await requireAuth()
     await requireVerifiedEmail()
@@ -238,7 +218,7 @@ export async function createCartOrder(
       return { success: false, error: 'INVALID_INPUT' }
     }
 
-    const { items, businessId, deliveryAddress, couponCode } = parsed.data
+    const { items, businessId, deliveryAddress, couponCode, payment: paymentInfo } = parsed.data
 
     // Verify business is a valid, approved store
     const business = await db.businessProfile.findUnique({
@@ -349,7 +329,7 @@ export async function createCartOrder(
       Date.now() + CONFIRMATION_CODE_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
     )
 
-    // Create order with all items in a transaction
+    // Create order as PENDING, initiate ARAKA payment
     const order = await db.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
@@ -368,7 +348,7 @@ export async function createCartOrder(
           deliveryQuartier: deliveryAddress?.quartier || null,
           deliveryAvenue: deliveryAddress?.avenue || null,
           deliveryRepere: deliveryAddress?.repere || null,
-          status: 'PAID', // MVP: simulated payment
+          status: 'PENDING',
           items: {
             create: items.map((item) => {
               const product = productMap.get(item.productId)!
@@ -385,16 +365,6 @@ export async function createCartOrder(
         },
       })
 
-      await tx.payment.create({
-        data: {
-          amount: finalAmount,
-          currency,
-          status: 'SUCCESS',
-          provider: 'LOCAL_FINTECH',
-          orderId: newOrder.id,
-        },
-      })
-
       // Increment coupon usage count
       if (couponId) {
         await tx.coupon.update({
@@ -403,7 +373,7 @@ export async function createCartOrder(
         })
       }
 
-      // Decrement stock — variant stock if variant, else product stock
+      // Decrement stock
       for (const item of items) {
         const product = productMap.get(item.productId)!
         if (item.variantId) {
@@ -422,10 +392,42 @@ export async function createCartOrder(
       return newOrder
     })
 
+    // Initiate ARAKA payment
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Client'
+
+    const paymentProvider = getPaymentProvider()
+    const paymentResult = await paymentProvider.createPayment({
+      amount: finalAmount,
+      currency: currency as 'USD' | 'CDF' | 'EUR',
+      description: `Commande ${formatOrderNumber(order.id)}`,
+      returnUrl: `${baseUrl}/api/payments/callback`,
+      cancelUrl: `${baseUrl}/checkout?error=payment_cancelled`,
+      metadata: {
+        orderId: order.id,
+        customerName: buyerName,
+        customerEmail: user.email,
+        provider: paymentInfo.provider,
+        walletId: paymentInfo.walletId,
+      },
+    })
+
+    // Create payment record
+    await db.payment.create({
+      data: {
+        amount: finalAmount,
+        currency,
+        status: 'PENDING',
+        provider: 'MOBILE_MONEY',
+        providerRef: paymentResult.providerRef,
+        orderId: order.id,
+      },
+    })
+
     // Timeline entry
     try {
       await db.orderStatusHistory.create({
-        data: { orderId: order.id, status: 'PAID' },
+        data: { orderId: order.id, status: 'PENDING', note: 'Paiement initie via ' + paymentInfo.provider },
       })
     } catch (e) { console.error('Timeline entry failed:', e) }
 
@@ -438,65 +440,11 @@ export async function createCartOrder(
       entityId: order.id,
     })
 
-    // Send order emails (non-blocking)
-    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Client'
-    const sellerProfile = await db.businessProfile.findUnique({
-      where: { id: business.id },
-      include: { member: { include: { user: true } } },
-    })
-    if (sellerProfile) {
-      try {
-        await sendOrderConfirmationBuyer(user.email, buyerName, {
-          number: formatOrderNumber(order.id),
-          items: items.map((item) => {
-            const product = productMap.get(item.productId)!
-            const variant = item.variantId ? variantMap.get(item.variantId) : null
-            const name = variant ? `${product.name} — ${variant.label}` : product.name
-            const price = variant?.price ? Number(variant.price) : Number(product.price)
-            return { name, quantity: item.quantity, unitPrice: price }
-          }),
-          total: finalAmount,
-          currency,
-          confirmationCode,
-          businessName: business.businessName,
-        })
-        await sendOrderNotificationSeller(sellerProfile.member.user.email, business.businessName, {
-          number: formatOrderNumber(order.id),
-          buyerName,
-          items: items.map((item) => {
-            const product = productMap.get(item.productId)!
-            const variant = item.variantId ? variantMap.get(item.variantId) : null
-            const name = variant ? `${product.name} — ${variant.label}` : product.name
-            const price = variant?.price ? Number(variant.price) : Number(product.price)
-            return { name, quantity: item.quantity, unitPrice: price }
-          }),
-          total: finalAmount,
-          currency,
-        })
-      } catch (e) {
-        console.error('Order emails failed:', e)
-      }
-
-      // Notifications
-      await createNotification({
-        userId: user.id,
-        type: 'ORDER_CREATED',
-        title: 'Commande confirmee',
-        message: `Commande ${formatOrderNumber(order.id)} chez ${business.businessName} confirmee.`,
-        link: '/achats/' + order.id,
-      })
-      await createNotification({
-        userId: sellerProfile.member.user.id,
-        type: 'ORDER_RECEIVED',
-        title: 'Nouvelle commande',
-        message: `Nouvelle commande ${formatOrderNumber(order.id)} de ${buyerName}.`,
-        link: '/mon-business/commandes/' + order.id,
-      })
-    }
+    // Emails + notifications sent in /api/payments/callback on payment confirmation
 
     return {
       success: true,
-      data: { orderId: order.id, confirmationCode },
+      data: { orderId: order.id, transactionId: paymentResult.providerRef },
     }
   } catch (error) {
     return {
@@ -507,10 +455,16 @@ export async function createCartOrder(
 }
 
 export async function markAsShipped(
-  orderId: string,
+  input: unknown,
 ): Promise<ActionResult<{ orderId: string }>> {
   try {
     const { user, member } = await requireMember('BUSINESS')
+
+    const parsed = markAsShippedSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+    const { orderId } = parsed.data
 
     const profile = await db.businessProfile.findUnique({
       where: { memberId: member.id },

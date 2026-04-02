@@ -38,6 +38,7 @@ export default async function ProfilPage() {
               lastName: profile.lastName,
               phone: profile.phone,
               bio: profile.bio,
+              avatar: profile.avatar,
             }}
           />
         </TabsContent>

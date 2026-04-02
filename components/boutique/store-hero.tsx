@@ -27,7 +27,7 @@ export default function StoreHero({ business }: StoreHeroProps) {
   return (
     <section className="relative">
       {/* Cover image */}
-      <div className="relative h-56 md:h-72 lg:h-80 bg-gradient-to-br from-[#091626] to-[#1a3050]">
+      <div className="relative h-56 md:h-72 lg:h-80 bg-gradient-to-br from-foreground to-[#1a3050]">
         {business.coverImage ? (
           <img
             src={business.coverImage}
@@ -35,7 +35,7 @@ export default function StoreHero({ business }: StoreHeroProps) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#091626] to-[#1a3050] flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-foreground to-[#1a3050] flex items-center justify-center">
             <span className="text-7xl md:text-9xl font-bold text-white/10">
               {business.businessName.charAt(0).toUpperCase()}
             </span>
@@ -58,7 +58,7 @@ export default function StoreHero({ business }: StoreHeroProps) {
                   className="object-cover w-full h-full"
                 />
               ) : (
-                <div className="w-full h-full bg-[#a55b46] flex items-center justify-center">
+                <div className="w-full h-full bg-primary flex items-center justify-center">
                   <span className="text-2xl font-bold text-white">
                     {business.member.firstName.charAt(0)}
                   </span>
@@ -69,14 +69,14 @@ export default function StoreHero({ business }: StoreHeroProps) {
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-2xl md:text-3xl font-bold text-[#091626] truncate">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground truncate">
                   {business.businessName}
                 </h1>
                 <BadgeCheck className="w-6 h-6 text-emerald-500 flex-shrink-0" />
               </div>
 
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="bg-[#a55b46]/10 text-[#a55b46] rounded-full px-3 py-1 text-xs font-medium">
+                <span className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-medium">
                   {business.category}
                 </span>
                 <span className="bg-emerald-50 text-emerald-700 rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1">
@@ -117,7 +117,7 @@ export default function StoreHero({ business }: StoreHeroProps) {
                 {business.phone && (
                   <a
                     href={`tel:${business.phone}`}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-[#091626] text-sm font-medium hover:bg-gray-50 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-foreground text-sm font-medium hover:bg-gray-50 transition-colors"
                   >
                     <Phone className="w-4 h-4" />
                     Appeler
@@ -126,7 +126,7 @@ export default function StoreHero({ business }: StoreHeroProps) {
                 {business.email && (
                   <a
                     href={`mailto:${business.email}`}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-[#091626] text-sm font-medium hover:bg-gray-50 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-foreground text-sm font-medium hover:bg-gray-50 transition-colors"
                   >
                     <Mail className="w-4 h-4" />
                     Email

@@ -17,7 +17,7 @@ export function ToggleActiveButton({ productId, isActive }: ToggleActiveButtonPr
 
   function handleToggle() {
     startTransition(async () => {
-      const result = await toggleProductActive(productId)
+      const result = await toggleProductActive({ productId })
       if (result.success) {
         toast.success(result.data.isActive ? 'Produit active' : 'Produit desactive')
         router.refresh()

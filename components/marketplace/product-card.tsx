@@ -85,7 +85,7 @@ export default function ProductCard({ product, business }: ProductCardProps) {
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#a55b46]/20 to-[#091626]/20 flex items-center justify-center">
-            <span className="text-2xl font-bold text-[#a55b46]/30">{product.name[0]}</span>
+            <span className="text-2xl font-bold text-primary/30">{product.name[0]}</span>
           </div>
         )}
 
@@ -99,16 +99,35 @@ export default function ProductCard({ product, business }: ProductCardProps) {
         >
           {isService ? 'Service' : 'Produit'}
         </span>
+
+        {/* Stock indicator */}
+        {!isService && product.stock !== null && (
+          <span
+            className={`absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-medium ${
+              product.stock <= 0
+                ? 'bg-red-50 text-red-600'
+                : product.stock <= 5
+                  ? 'bg-orange-50 text-orange-600'
+                  : 'bg-green-50 text-green-700'
+            }`}
+          >
+            {product.stock <= 0
+              ? 'Epuise'
+              : product.stock <= 5
+                ? `${product.stock} restant${product.stock > 1 ? 's' : ''}`
+                : 'En stock'}
+          </span>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-semibold text-[#091626] text-sm leading-snug line-clamp-2 mb-1">
+        <h3 className="font-semibold text-foreground text-sm leading-snug line-clamp-2 mb-1">
           {product.name}
         </h3>
 
         {/* Price */}
-        <p className="font-bold text-[#091626] text-lg mb-2">
+        <p className="font-bold text-foreground text-lg mb-2">
           {isService && price === 0
             ? 'Sur devis'
             : `${price.toLocaleString('fr-FR')}${currencySymbol}`}
@@ -124,8 +143,8 @@ export default function ProductCard({ product, business }: ProductCardProps) {
                 className="object-cover w-full h-full"
               />
             ) : (
-              <div className="w-full h-full bg-[#a55b46]/20 flex items-center justify-center">
-                <span className="text-[8px] font-bold text-[#a55b46]">
+              <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+                <span className="text-[8px] font-bold text-primary">
                   {business.member.firstName.charAt(0)}
                 </span>
               </div>
@@ -139,7 +158,7 @@ export default function ProductCard({ product, business }: ProductCardProps) {
         {isService ? (
           <Link
             href={`/boutique/${business.slug}`}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-[#a55b46] bg-[#a55b46]/5 hover:bg-[#a55b46]/10 transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
           >
             Contacter
             <ArrowRight className="w-4 h-4" />
@@ -153,7 +172,7 @@ export default function ProductCard({ product, business }: ProductCardProps) {
                 ? 'bg-emerald-500 text-white'
                 : product.stock !== null && product.stock <= 0
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-[#a55b46] text-white hover:bg-[#8f4d3b]'
+                  : 'bg-primary text-white hover:bg-primary/90'
             }`}
           >
             {added ? (
@@ -174,7 +193,7 @@ export default function ProductCard({ product, business }: ProductCardProps) {
       {showWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <h3 className="font-bold text-[#091626] text-lg mb-2">
+            <h3 className="font-bold text-foreground text-lg mb-2">
               Boutique differente
             </h3>
             <p className="text-gray-600 text-sm mb-6">
@@ -184,13 +203,13 @@ export default function ProductCard({ product, business }: ProductCardProps) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowWarning(false)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-[#091626] hover:bg-gray-50"
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-foreground hover:bg-gray-50"
               >
                 Fermer
               </button>
               <Link
                 href={`/boutique/${business.slug}`}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-center bg-[#a55b46] text-white hover:bg-[#8f4d3b]"
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-center bg-primary text-white hover:bg-primary/90"
               >
                 Voir la boutique
               </Link>

@@ -1,6 +1,6 @@
 'use server'
 
-import type { z } from 'zod'
+import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAuth, requireMember, requireAdmin } from '@/lib/auth-guards'
 import { createNotification } from '@/domains/notifications/actions'
@@ -141,12 +141,22 @@ export async function flagReview(
   }
 }
 
+const moderateReviewSchema = z.object({
+  reviewId: z.string().min(1, 'ID avis requis'),
+  decision: z.enum(['MAINTAIN', 'HIDE']),
+})
+
 export async function moderateReview(
   reviewId: string,
   decision: 'MAINTAIN' | 'HIDE'
 ): Promise<ActionResult<{ reviewId: string }>> {
   try {
     await requireAdmin()
+
+    const parsed = moderateReviewSchema.safeParse({ reviewId, decision })
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT', details: flattenFieldErrors(parsed.error) }
+    }
 
     const review = await db.review.findUnique({
       where: { id: reviewId },

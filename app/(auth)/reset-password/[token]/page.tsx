@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex justify-center">
-          <Link href="/login" className="text-sm text-[#a55b46] hover:underline">
+          <Link href="/login" className="text-sm text-primary hover:underline">
             Se connecter
           </Link>
         </CardFooter>
@@ -80,7 +80,7 @@ export default function ResetPasswordPage() {
           <CardDescription>{error}</CardDescription>
         </CardHeader>
         <CardFooter className="flex justify-center">
-          <Link href="/forgot-password" className="text-sm text-[#a55b46] hover:underline">
+          <Link href="/forgot-password" className="text-sm text-primary hover:underline">
             Demander un nouveau lien
           </Link>
         </CardFooter>
@@ -124,7 +124,7 @@ export default function ResetPasswordPage() {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Reinitialisation...' : 'Reinitialiser le mot de passe'}
           </Button>
-          <Link href="/login" className="text-sm text-[#a55b46] hover:underline">
+          <Link href="/login" className="text-sm text-primary hover:underline">
             Retour a la connexion
           </Link>
         </CardFooter>

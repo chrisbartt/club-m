@@ -1,9 +1,12 @@
 import type { PaymentProvider } from './types'
 import { LocalFintechProvider } from './local-fintech'
+import { ArakaProvider } from './araka'
 
 export function getPaymentProvider(): PaymentProvider {
-  const provider = process.env.PAYMENT_PROVIDER ?? 'local-fintech'
+  const provider = process.env.PAYMENT_PROVIDER ?? 'araka'
   switch (provider) {
+    case 'araka':
+      return new ArakaProvider()
     case 'local-fintech':
       return new LocalFintechProvider()
     default:

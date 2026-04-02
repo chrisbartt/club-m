@@ -60,14 +60,14 @@ export default async function ConfirmationPage({ params }: PageProps) {
 
   return (
     <AppContainerWebSite>
-      <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="bg-muted min-h-screen">
         <div className="max-w-2xl mx-auto px-4 py-12">
           {/* Success header */}
           <div className="text-center mb-10">
             <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10 text-emerald-600" />
             </div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-[#091626] mb-2">
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
               Commande confirmee !
             </h1>
             <p className="text-gray-500">
@@ -97,7 +97,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
 
           {/* Order recap */}
           <div className="bg-white rounded-2xl p-6 mb-6">
-            <h2 className="text-lg font-bold text-[#091626] mb-4">
+            <h2 className="text-lg font-bold text-foreground mb-4">
               Recapitulatif de la commande
             </h2>
             <div className="space-y-3 mb-4">
@@ -119,7 +119,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
                       {item.product.name} <span className="text-gray-400">x{item.quantity}</span>
                     </span>
                   </div>
-                  <span className="font-medium text-[#091626] flex-shrink-0 ml-2">
+                  <span className="font-medium text-foreground flex-shrink-0 ml-2">
                     {(Number(item.unitPrice) * item.quantity).toLocaleString('fr-FR')} {symbol}
                   </span>
                 </div>
@@ -127,8 +127,8 @@ export default async function ConfirmationPage({ params }: PageProps) {
             </div>
             <div className="border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-[#091626]">Total</span>
-                <span className="text-xl font-bold text-[#091626]">
+                <span className="font-bold text-foreground">Total</span>
+                <span className="text-xl font-bold text-foreground">
                   {Number(order.totalAmount).toLocaleString('fr-FR')} {symbol}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
 
           {/* Next steps */}
           <div className="bg-white rounded-2xl p-6 mb-6">
-            <h2 className="text-lg font-bold text-[#091626] mb-4">
+            <h2 className="text-lg font-bold text-foreground mb-4">
               Prochaines etapes
             </h2>
             <div className="space-y-4">
@@ -146,7 +146,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
                   <Package className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#091626]">Preparation</p>
+                  <p className="text-sm font-medium text-foreground">Preparation</p>
                   <p className="text-sm text-gray-500">La vendeuse va preparer votre commande</p>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
                   <Phone className="w-4 h-4 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#091626]">Contact</p>
+                  <p className="text-sm font-medium text-foreground">Contact</p>
                   <p className="text-sm text-gray-500">Vous serez contacte(e) pour la livraison</p>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export default async function ConfirmationPage({ params }: PageProps) {
                   <Truck className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#091626]">Reception</p>
+                  <p className="text-sm font-medium text-foreground">Reception</p>
                   <p className="text-sm text-gray-500">A la reception, donnez votre code au livreur</p>
                 </div>
               </div>
@@ -175,14 +175,14 @@ export default async function ConfirmationPage({ params }: PageProps) {
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/achats"
-              className="flex items-center justify-center gap-2 flex-1 py-3.5 rounded-xl text-sm font-semibold bg-[#a55b46] text-white hover:bg-[#8f4d3b] transition-colors"
+              className="flex items-center justify-center gap-2 flex-1 py-3.5 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors"
             >
               Voir mes commandes
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/marketplace"
-              className="flex items-center justify-center gap-2 flex-1 py-3.5 rounded-xl text-sm font-semibold border-2 border-[#091626] text-[#091626] hover:bg-[#091626] hover:text-white transition-colors"
+              className="flex items-center justify-center gap-2 flex-1 py-3.5 rounded-xl text-sm font-semibold border-2 border-[#091626] text-foreground hover:bg-[#091626] hover:text-white transition-colors"
             >
               Continuer mes achats
             </Link>

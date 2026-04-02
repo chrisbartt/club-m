@@ -8,6 +8,9 @@ import { createAuditLog } from '@/domains/audit/actions'
 import { getEventBySlug, getAvailableSeats } from '@/domains/events/queries'
 import { sendTicketConfirmationEmail } from '@/lib/email'
 import { hasTicketForEvent } from './queries'
+import { bookEventSchema, scanTicketSchema } from './validators'
+import { getPaymentProvider } from '@/integrations/payment'
+import { formatOrderNumber } from '@/lib/server-utils'
 import type { MemberTier, PricingRole, EventPrice } from '@/lib/generated/prisma/client'
 
 type ActionResult<T> =
@@ -40,10 +43,16 @@ function canAccessEvent(
 }
 
 export async function bookEvent(
-  eventSlug: string
-): Promise<ActionResult<{ ticketId: string; qrCode: string }>> {
+  input: unknown
+): Promise<ActionResult<{ ticketId: string; qrCode: string; transactionId: string }>> {
   try {
     const user = await requireAuth()
+
+    const parsed = bookEventSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+    const { eventSlug, payment: paymentInfo } = parsed.data
 
     const event = await getEventBySlug(eventSlug)
     if (!event || event.status !== 'PUBLISHED') {
@@ -83,29 +92,46 @@ export async function bookEvent(
 
     const qrCode = crypto.randomBytes(16).toString('hex')
 
-    // Create ticket + payment in transaction
-    const ticket = await db.$transaction(async (tx) => {
-      const newTicket = await tx.ticket.create({
-        data: {
-          eventId: event.id,
-          memberId: user.member?.id ?? null,
-          customerId: user.customer?.id ?? null,
-          qrCode,
-          status: 'PAID', // MVP: simulated payment
-        },
-      })
+    // Create ticket as PENDING, initiate payment
+    const ticket = await db.ticket.create({
+      data: {
+        eventId: event.id,
+        memberId: user.member?.id ?? null,
+        customerId: user.customer?.id ?? null,
+        qrCode,
+        status: 'PENDING',
+      },
+    })
 
-      await tx.payment.create({
-        data: {
-          amount: priceRecord.price,
-          currency: priceRecord.currency,
-          status: 'SUCCESS',
-          provider: 'LOCAL_FINTECH',
-          ticketId: newTicket.id,
-        },
-      })
+    // Initiate ARAKA payment
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Participant'
 
-      return newTicket
+    const paymentProvider = getPaymentProvider()
+    const paymentResult = await paymentProvider.createPayment({
+      amount: Number(priceRecord.price),
+      currency: priceRecord.currency as 'USD' | 'CDF' | 'EUR',
+      description: `Billet ${event.title}`,
+      returnUrl: `${baseUrl}/api/payments/callback`,
+      cancelUrl: `${baseUrl}/evenements/${event.slug}?error=payment_cancelled`,
+      metadata: {
+        orderId: ticket.id,
+        customerName: buyerName,
+        customerEmail: user.email,
+        provider: paymentInfo.provider,
+        walletId: paymentInfo.walletId,
+      },
+    })
+
+    await db.payment.create({
+      data: {
+        amount: priceRecord.price,
+        currency: priceRecord.currency,
+        status: 'PENDING',
+        provider: 'MOBILE_MONEY',
+        providerRef: paymentResult.providerRef,
+        ticketId: ticket.id,
+      },
     })
 
     await createAuditLog({
@@ -120,19 +146,9 @@ export async function bookEvent(
       },
     })
 
-    // Send ticket confirmation email
-    try {
-      const buyerName = user.member?.firstName ?? user.customer?.firstName ?? 'Participant'
-      await sendTicketConfirmationEmail(user.email, buyerName, {
-        title: event.title,
-        date: event.startDate.toLocaleDateString('fr-FR', { dateStyle: 'long' }),
-        location: event.location,
-      })
-    } catch (e) {
-      console.error('Ticket confirmation email failed:', e)
-    }
+    // Ticket confirmation email sent on payment callback
 
-    return { success: true, data: { ticketId: ticket.id, qrCode } }
+    return { success: true, data: { ticketId: ticket.id, qrCode, transactionId: paymentResult.providerRef } }
   } catch (error) {
     return {
       success: false,
@@ -142,10 +158,16 @@ export async function bookEvent(
 }
 
 export async function scanTicket(
-  qrCode: string
+  input: unknown
 ): Promise<ActionResult<{ attendeeName: string; eventTitle: string }>> {
   try {
     const { user } = await requireAdmin()
+
+    const parsed = scanTicketSchema.safeParse(input)
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
+    const { qrCode } = parsed.data
 
     const ticket = await db.ticket.findUnique({
       where: { qrCode },

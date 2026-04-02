@@ -1,6 +1,6 @@
 'use server'
 
-import type { z } from 'zod'
+import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireMember } from '@/lib/auth-guards'
 import {
@@ -154,11 +154,20 @@ export async function checkCoupon(
   }
 }
 
+const toggleCouponSchema = z.object({
+  couponId: z.string().min(1, 'ID coupon requis'),
+})
+
 export async function toggleCoupon(
   couponId: string
 ): Promise<ActionResult<{ couponId: string; isActive: boolean }>> {
   try {
     const { member } = await requireMember('BUSINESS')
+
+    const parsed = toggleCouponSchema.safeParse({ couponId })
+    if (!parsed.success) {
+      return { success: false, error: 'INVALID_INPUT' }
+    }
 
     const sellerProfile = await db.businessProfile.findUnique({
       where: { memberId: member.id },

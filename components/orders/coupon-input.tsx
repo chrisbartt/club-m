@@ -65,7 +65,7 @@ export default function CouponInput({
               setError(null)
             }}
             disabled={!!applied || loading}
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm text-[#091626] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#a55b46]/30 focus:border-[#a55b46] transition-colors disabled:bg-gray-50 disabled:text-gray-500"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:bg-gray-50 disabled:text-gray-500"
           />
         </div>
         {!applied ? (

@@ -268,7 +268,7 @@ export default async function MonBusinessPage() {
         </div>
 
         {/* Row 1: Main KPI Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <KpiCard
             label="Chiffre d'affaires"
             value={formatCurrency(stats.totalRevenue)}
@@ -320,7 +320,7 @@ export default async function MonBusinessPage() {
         </div>
 
         {/* Row 2: Actionable KPI Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <KpiCard
             label="CA aujourd'hui"
             value={formatCurrency(revenueToday)}
@@ -379,7 +379,7 @@ export default async function MonBusinessPage() {
         <QuickActions alertsCount={alertsCount} />
 
         {/* Row 4: Charts */}
-        <div className="grid gap-4 lg:grid-cols-12">
+        <div className="grid gap-3 md:gap-4 lg:grid-cols-12">
           {/* Revenue Chart */}
           <div className="rounded-xl border border-border bg-card p-5 lg:col-span-7">
             <div className="mb-4">
@@ -409,7 +409,7 @@ export default async function MonBusinessPage() {
         </div>
 
         {/* Row 5: Recent Orders + Activity Feed */}
-        <div className="grid gap-4 lg:grid-cols-12">
+        <div className="grid gap-3 md:gap-4 lg:grid-cols-12">
           {/* Recent Orders Table */}
           <div className="rounded-xl border border-border bg-card p-5 lg:col-span-8">
             <div className="mb-4 flex items-center justify-between">
@@ -445,7 +445,7 @@ export default async function MonBusinessPage() {
         </div>
 
         {/* Row 6: Alerts Sidebar + Clients */}
-        <div className="grid gap-4 lg:grid-cols-12">
+        <div className="grid gap-3 md:gap-4 lg:grid-cols-12">
           {/* Alerts Sidebar */}
           <div className="lg:col-span-8">
             <AlertsSidebar

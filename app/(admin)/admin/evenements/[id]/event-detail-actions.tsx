@@ -19,7 +19,7 @@ export function EventDetailActions({ eventId, status }: EventDetailActionsProps)
   async function handlePublish() {
     setLoading(true)
     try {
-      const result = await publishEvent(eventId)
+      const result = await publishEvent({ eventId })
       if (result.success) {
         toast.success('Evenement publie')
         router.refresh()
@@ -36,7 +36,7 @@ export function EventDetailActions({ eventId, status }: EventDetailActionsProps)
   async function handleCancel() {
     setLoading(true)
     try {
-      const result = await cancelEvent(eventId)
+      const result = await cancelEvent({ eventId })
       if (result.success) {
         toast.success('Evenement annule')
         router.refresh()

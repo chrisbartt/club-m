@@ -1,6 +1,8 @@
 import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/auth-guards'
 
 export async function getGlobalDashboardStats() {
+  await requireAdmin()
   const [
     totalMembers, freeMembers, premiumMembers, businessMembers,
     totalEvents, publishedEvents,
@@ -29,6 +31,7 @@ export async function getGlobalDashboardStats() {
 }
 
 export async function getMemberGrowthByMonth() {
+  await requireAdmin()
   const sixMonthsAgo = new Date()
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
@@ -52,6 +55,7 @@ export async function getMemberGrowthByMonth() {
 }
 
 export async function getRevenueByMonth() {
+  await requireAdmin()
   const sixMonthsAgo = new Date()
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 

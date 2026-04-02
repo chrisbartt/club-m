@@ -16,7 +16,7 @@ export function ShipOrderButton({ orderId }: ShipOrderButtonProps) {
 
   function handleShip() {
     startTransition(async () => {
-      const result = await markAsShipped(orderId)
+      const result = await markAsShipped({ orderId })
       if (result.success) {
         toast.success('Commande marquee comme expediee !')
         router.refresh()

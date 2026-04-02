@@ -30,7 +30,7 @@ export default function ServiceContactButton({
         href={whatsappLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold bg-[#a55b46]/5 text-[#a55b46] hover:bg-[#a55b46]/10 transition-colors"
+        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
       >
         <MessageCircle className="w-4 h-4" />
         {label}

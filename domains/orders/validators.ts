@@ -1,9 +1,15 @@
 import { z } from 'zod'
 
+export const paymentInfoSchema = z.object({
+  provider: z.enum(['MPESA', 'AIRTEL', 'ORANGE']),
+  walletId: z.string().min(10, 'Numero de telephone invalide'),
+})
+
 export const createOrderSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().min(1).default(1),
   variantId: z.string().min(1).optional(),
+  payment: paymentInfoSchema,
 })
 
 export const createCartOrderSchema = z.object({
@@ -28,9 +34,14 @@ export const createCartOrderSchema = z.object({
     })
     .optional(),
   couponCode: z.string().optional(),
+  payment: paymentInfoSchema,
 })
 
 export const confirmDeliverySchema = z.object({
   orderId: z.string().min(1),
   confirmationCode: z.string().min(1, 'Code requis'),
+})
+
+export const markAsShippedSchema = z.object({
+  orderId: z.string().min(1, 'Identifiant commande requis'),
 })

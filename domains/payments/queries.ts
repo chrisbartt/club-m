@@ -1,7 +1,9 @@
 import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/auth-guards'
 import type { PaymentStatus } from '@/lib/generated/prisma/client'
 
 export async function getAdminPayments(filters?: { status?: PaymentStatus }) {
+  await requireAdmin()
   return db.payment.findMany({
     where: filters?.status ? { status: filters.status } : undefined,
     include: {
@@ -15,6 +17,7 @@ export async function getAdminPayments(filters?: { status?: PaymentStatus }) {
 }
 
 export async function getPaymentsStats() {
+  await requireAdmin()
   const [total, success, pending, failed, totalRevenue] = await Promise.all([
     db.payment.count(),
     db.payment.count({ where: { status: 'SUCCESS' } }),

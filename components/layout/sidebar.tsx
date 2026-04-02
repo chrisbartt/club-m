@@ -20,6 +20,7 @@ import {
   LayoutDashboard,
   LogOut,
   MessageSquare,
+  PiggyBank,
   Monitor,
   Moon,
   Palette,
@@ -240,9 +241,9 @@ const Sidebar = () => {
                     title="Business Alignés"
                   />
                 </li>
-                {/* <li>
-                <LinkNav href="/admin/epargne-tontines" icon={<PiggyBank size={20} />} title="Épargne / Tontines" badge={3} />
-              </li> */}
+                <li>
+                  <LinkNav href="/admin/epargne-tontines" icon={<PiggyBank size={20} />} title="Epargne / Tontines" />
+                </li>
                 <li>
                   <LinkNav
                     href="/admin/evenements"

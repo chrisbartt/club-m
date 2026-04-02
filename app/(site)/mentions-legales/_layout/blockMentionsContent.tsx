@@ -41,9 +41,9 @@ const SECTIONS = [
           Le site Club M est hébergé par :
         </p>
         <div className="bg-[#f5f0eb] rounded-xl p-6 my-4">
-          <p><strong>Hébergeur :</strong> [Nom de l&apos;hébergeur]</p>
-          <p><strong>Adresse :</strong> [Adresse de l&apos;hébergeur]</p>
-          <p><strong>Contact :</strong> [Contact hébergeur]</p>
+          <p><strong>Hebergeur :</strong> Vercel Inc.</p>
+          <p><strong>Adresse :</strong> 440 N Barranca Ave #4133, Covina, CA 91723, USA</p>
+          <p><strong>Contact :</strong> privacy@vercel.com</p>
         </div>
       </>
     ),

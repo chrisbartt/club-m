@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { generateSecureToken, hashToken } from '@/lib/server-utils'
 import { requireAuth } from '@/lib/auth-guards'
 import { createAuditLog } from '@/domains/audit/actions'
-import { sendPasswordResetEmail, sendWelcomeEmail } from '@/lib/email'
+import { sendPasswordResetEmail, sendWelcomeEmail, sendEmailVerifiedConfirmation } from '@/lib/email'
 import {
   PASSWORD_RESET_TOKEN_EXPIRY_HOURS,
   PASSWORD_RESET_COOLDOWN_MINUTES,
@@ -221,6 +221,17 @@ export async function verifyEmail(
       entity: 'USER',
       entityId: verificationToken.userId,
     })
+
+    // Send confirmation email
+    try {
+      const member = await db.member.findUnique({
+        where: { userId: verificationToken.userId },
+      })
+      const prenom = member?.firstName ?? 'Membre'
+      await sendEmailVerifiedConfirmation(verificationToken.user.email, prenom)
+    } catch (e) {
+      console.error('Email verified confirmation failed:', e)
+    }
 
     return {
       success: true,

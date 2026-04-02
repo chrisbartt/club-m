@@ -17,6 +17,7 @@ import { createCartOrder } from '@/domains/orders/actions'
 import { CURRENCY_SYMBOLS } from '@/lib/constants'
 import AppContainerWebSite from '@/components/common/containers/AppContainerWebSite'
 import CouponInput from '@/components/orders/coupon-input'
+import { PaymentPending } from '@/components/checkout/payment-pending'
 import type { Currency } from '@/lib/generated/prisma/client'
 
 const COMMUNES = [
@@ -54,10 +55,13 @@ export default function CheckoutPage() {
   const [commune, setCommune] = useState('')
   const [quartier, setQuartier] = useState('')
   const [instructions, setInstructions] = useState('')
+  const [paymentProvider, setPaymentProvider] = useState<'MPESA' | 'AIRTEL' | 'ORANGE'>('MPESA')
+  const [paymentPhone, setPaymentPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [couponCode, setCouponCode] = useState<string | null>(null)
   const [discount, setDiscount] = useState(0)
+  const [pendingPayment, setPendingPayment] = useState<{ transactionId: string; orderId: string } | null>(null)
 
   const symbol = CURRENCY_SYMBOLS[currency as Currency] ?? '$'
 
@@ -65,8 +69,8 @@ export default function CheckoutPage() {
   if (status === 'loading') {
     return (
       <AppContainerWebSite>
-        <div className="bg-[#f8f8f8] min-h-[70vh] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-[#a55b46] animate-spin" />
+        <div className="bg-muted min-h-[70vh] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
         </div>
       </AppContainerWebSite>
     )
@@ -76,12 +80,12 @@ export default function CheckoutPage() {
   if (!session?.user) {
     return (
       <AppContainerWebSite>
-        <div className="bg-[#f8f8f8] min-h-[70vh] flex items-center justify-center">
+        <div className="bg-muted min-h-[70vh] flex items-center justify-center">
           <div className="text-center px-4 max-w-md">
-            <div className="w-16 h-16 rounded-full bg-[#a55b46]/10 flex items-center justify-center mx-auto mb-6">
-              <LogIn className="w-8 h-8 text-[#a55b46]" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <LogIn className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-[#091626] mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               Connectez-vous pour continuer
             </h1>
             <p className="text-gray-500 mb-8">
@@ -89,7 +93,7 @@ export default function CheckoutPage() {
             </p>
             <Link
               href={`/login?callbackUrl=/checkout`}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#a55b46] text-white font-semibold hover:bg-[#8f4d3b] transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors"
             >
               Se connecter
               <ArrowRight className="w-4 h-4" />
@@ -104,12 +108,12 @@ export default function CheckoutPage() {
   if (cart.items.length === 0) {
     return (
       <AppContainerWebSite>
-        <div className="bg-[#f8f8f8] min-h-[70vh] flex items-center justify-center">
+        <div className="bg-muted min-h-[70vh] flex items-center justify-center">
           <div className="text-center px-4">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-6">
               <ShoppingCart className="w-8 h-8 text-gray-300" />
             </div>
-            <h1 className="text-2xl font-bold text-[#091626] mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               Votre panier est vide
             </h1>
             <p className="text-gray-500 mb-8">
@@ -117,11 +121,32 @@ export default function CheckoutPage() {
             </p>
             <Link
               href="/marketplace"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#a55b46] text-white font-semibold hover:bg-[#8f4d3b] transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors"
             >
               Decouvrir nos produits
               <ArrowRight className="w-4 h-4" />
             </Link>
+          </div>
+        </div>
+      </AppContainerWebSite>
+    )
+  }
+
+  // Show payment pending screen
+  if (pendingPayment) {
+    return (
+      <AppContainerWebSite>
+        <div className="bg-muted min-h-[70vh] flex items-center justify-center">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <PaymentPending
+              transactionId={pendingPayment.transactionId}
+              orderId={pendingPayment.orderId}
+              provider={paymentProvider}
+              onFailed={() => {
+                setPendingPayment(null)
+                setError('Le paiement a echoue. Veuillez reessayer.')
+              }}
+            />
           </div>
         </div>
       </AppContainerWebSite>
@@ -138,6 +163,10 @@ export default function CheckoutPage() {
     }
     if (!commune) {
       setError('Veuillez selectionner votre commune.')
+      return
+    }
+    if (!paymentPhone.trim() || paymentPhone.trim().length < 10) {
+      setError('Veuillez entrer un numero de telephone valide pour le paiement.')
       return
     }
     if (!cart.businessId) {
@@ -161,11 +190,18 @@ export default function CheckoutPage() {
           quartier: quartier.trim() || undefined,
         },
         ...(couponCode ? { couponCode } : {}),
+        payment: {
+          provider: paymentProvider,
+          walletId: paymentPhone.trim(),
+        },
       })
 
       if (result.success) {
         clearCart()
-        router.push(`/confirmation/${result.data.orderId}`)
+        setPendingPayment({
+          transactionId: result.data.transactionId,
+          orderId: result.data.orderId,
+        })
       } else {
         const errorMessages: Record<string, string> = {
           INVALID_INPUT: 'Donnees invalides. Veuillez verifier votre formulaire.',
@@ -187,18 +223,18 @@ export default function CheckoutPage() {
 
   return (
     <AppContainerWebSite>
-      <div className="bg-[#f8f8f8] min-h-screen">
+      <div className="bg-muted min-h-screen">
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <h1 className="text-2xl lg:text-3xl font-bold text-[#091626] mb-8">
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-8">
             Finaliser la commande
           </h1>
 
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
               {/* Left: Delivery form */}
               <div className="lg:col-span-7">
                 <div className="bg-white rounded-2xl p-6 lg:p-8">
-                  <h2 className="text-lg font-bold text-[#091626] mb-6">
+                  <h2 className="text-lg font-bold text-foreground mb-6">
                     Livraison
                   </h2>
 
@@ -207,7 +243,7 @@ export default function CheckoutPage() {
                     <div>
                       <label
                         htmlFor="phone"
-                        className="block text-sm font-medium text-[#091626] mb-1.5"
+                        className="block text-sm font-medium text-foreground mb-1.5"
                       >
                         Telephone <span className="text-red-500">*</span>
                       </label>
@@ -217,7 +253,7 @@ export default function CheckoutPage() {
                         placeholder="+243 ..."
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#091626] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#a55b46]/30 focus:border-[#a55b46] transition-colors"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                       />
                     </div>
 
@@ -225,7 +261,7 @@ export default function CheckoutPage() {
                     <div>
                       <label
                         htmlFor="commune"
-                        className="block text-sm font-medium text-[#091626] mb-1.5"
+                        className="block text-sm font-medium text-foreground mb-1.5"
                       >
                         Commune <span className="text-red-500">*</span>
                       </label>
@@ -233,7 +269,7 @@ export default function CheckoutPage() {
                         id="commune"
                         value={commune}
                         onChange={(e) => setCommune(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#091626] focus:outline-none focus:ring-2 focus:ring-[#a55b46]/30 focus:border-[#a55b46] transition-colors appearance-none bg-white"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors appearance-none bg-white"
                       >
                         <option value="">Selectionnez votre commune</option>
                         {COMMUNES.map((c) => (
@@ -248,7 +284,7 @@ export default function CheckoutPage() {
                     <div>
                       <label
                         htmlFor="quartier"
-                        className="block text-sm font-medium text-[#091626] mb-1.5"
+                        className="block text-sm font-medium text-foreground mb-1.5"
                       >
                         Quartier / Avenue / Repere
                       </label>
@@ -258,7 +294,7 @@ export default function CheckoutPage() {
                         placeholder="Avenue X, a cote de Y"
                         value={quartier}
                         onChange={(e) => setQuartier(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#091626] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#a55b46]/30 focus:border-[#a55b46] transition-colors"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                       />
                     </div>
 
@@ -266,7 +302,7 @@ export default function CheckoutPage() {
                     <div>
                       <label
                         htmlFor="instructions"
-                        className="block text-sm font-medium text-[#091626] mb-1.5"
+                        className="block text-sm font-medium text-foreground mb-1.5"
                       >
                         Instructions de livraison{' '}
                         <span className="text-gray-400 font-normal">(optionnel)</span>
@@ -277,8 +313,66 @@ export default function CheckoutPage() {
                         placeholder="Instructions particulieres pour la livraison..."
                         value={instructions}
                         onChange={(e) => setInstructions(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#091626] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#a55b46]/30 focus:border-[#a55b46] transition-colors resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div className="bg-white rounded-2xl p-6 lg:p-8 mt-6">
+                  <h2 className="text-lg font-bold text-foreground mb-6">
+                    Paiement Mobile Money
+                  </h2>
+
+                  <div className="space-y-5">
+                    {/* Provider selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">
+                        Operateur <span className="text-red-500">*</span>
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {([
+                          { id: 'MPESA' as const, label: 'M-Pesa', sub: 'Vodacom' },
+                          { id: 'AIRTEL' as const, label: 'Airtel Money', sub: 'Airtel' },
+                          { id: 'ORANGE' as const, label: 'Orange Money', sub: 'Orange' },
+                        ]).map((op) => (
+                          <button
+                            key={op.id}
+                            type="button"
+                            onClick={() => setPaymentProvider(op.id)}
+                            className={`p-3 rounded-xl border-2 text-center transition-colors ${
+                              paymentProvider === op.id
+                                ? 'border-primary bg-primary/5'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <span className="block text-sm font-semibold text-foreground">{op.label}</span>
+                            <span className="block text-xs text-gray-400">{op.sub}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Payment phone */}
+                    <div>
+                      <label
+                        htmlFor="paymentPhone"
+                        className="block text-sm font-medium text-foreground mb-1.5"
+                      >
+                        Numero de paiement <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="paymentPhone"
+                        type="tel"
+                        placeholder="+243 9XX XXX XXX"
+                        value={paymentPhone}
+                        onChange={(e) => setPaymentPhone(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Vous recevrez une demande de confirmation sur ce numero.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -286,8 +380,8 @@ export default function CheckoutPage() {
 
               {/* Right: Order summary */}
               <div className="lg:col-span-5">
-                <div className="bg-white rounded-2xl p-6 sticky top-24">
-                  <h2 className="text-lg font-bold text-[#091626] mb-6">
+                <div className="bg-white rounded-2xl p-6 lg:sticky lg:top-24">
+                  <h2 className="text-lg font-bold text-foreground mb-6">
                     Votre commande
                   </h2>
 
@@ -304,7 +398,7 @@ export default function CheckoutPage() {
                             )}
                             {' '}<span className="text-gray-400">x{item.quantity}</span>
                           </span>
-                          <span className="font-medium text-[#091626] flex-shrink-0">
+                          <span className="font-medium text-foreground flex-shrink-0">
                             {(item.price * item.quantity).toLocaleString('fr-FR')} {itemSymbol}
                           </span>
                         </div>
@@ -315,7 +409,7 @@ export default function CheckoutPage() {
                   <div className="border-t border-gray-100 pt-4 space-y-3 mb-6">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500">Sous-total ({itemCount} article{itemCount > 1 ? 's' : ''})</span>
-                      <span className="font-medium text-[#091626]">
+                      <span className="font-medium text-foreground">
                         {total.toLocaleString('fr-FR')} {symbol}
                       </span>
                     </div>
@@ -351,8 +445,8 @@ export default function CheckoutPage() {
 
                     <div className="border-t border-gray-100 pt-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#091626]">Total</span>
-                        <span className="text-xl font-bold text-[#091626]">
+                        <span className="font-bold text-foreground">Total</span>
+                        <span className="text-xl font-bold text-foreground">
                           {(total - discount).toLocaleString('fr-FR')} {symbol}
                         </span>
                       </div>
@@ -371,7 +465,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-semibold bg-[#a55b46] text-white hover:bg-[#8f4d3b] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {submitting ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

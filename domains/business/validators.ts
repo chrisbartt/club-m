@@ -21,3 +21,7 @@ export const createProductSchema = z.object({
 export const updateProductSchema = createProductSchema.partial().extend({
   id: z.string().min(1),
 })
+
+export const toggleProductSchema = z.object({
+  productId: z.string().min(1, 'Identifiant produit requis'),
+})

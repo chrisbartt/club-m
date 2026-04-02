@@ -171,8 +171,7 @@ export function EmailVerificationBanner({
             </p>
             <Button
               onClick={() => setShowDialog(false)}
-              className="w-full"
-              style={{ backgroundColor: '#a55b46' }}
+              className="w-full bg-primary hover:bg-primary/90"
             >
               Compris
             </Button>
@@ -278,8 +277,7 @@ export function EmailVerificationBanner({
                   type="submit"
                   size="sm"
                   disabled={changingEmail}
-                  className="h-8 text-xs"
-                  style={{ backgroundColor: '#a55b46' }}
+                  className="h-8 text-xs bg-primary hover:bg-primary/90"
                 >
                   {changingEmail ? 'Envoi...' : 'Modifier et renvoyer'}
                 </Button>

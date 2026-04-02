@@ -1,8 +1,8 @@
 import { db } from '@/lib/db'
 
 export async function getDisputeByOrder(orderId: string) {
-  return db.dispute.findUnique({
-    where: { orderId },
+  return db.dispute.findFirst({
+    where: { orderId, deletedAt: null },
     include: {
       member: {
         select: { firstName: true, lastName: true },

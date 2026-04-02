@@ -91,7 +91,7 @@ export default function GateView({ onUnlock }: GateViewProps) {
           )}
           <Button
             type="submit"
-            className="w-full h-12 rounded-xl bg-[#a55b46] text-white hover:bg-[#a55b46]/80 font-semibold cursor-pointer"
+            className="w-full h-12 rounded-xl bg-primary text-white hover:bg-primary/80 font-semibold cursor-pointer"
             disabled={loading}
           >
             {loading ? "Validation…" : "Valider"}

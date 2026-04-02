@@ -55,7 +55,8 @@ model Member {
   orders           Order[]              @relation("MemberOrders")
   reviews          Review[]
   upgradeRequests  UpgradeRequest[]
-  disputes         Dispute[]
+  disputes             Dispute[]
+  tontineMemberships   TontineMember[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -696,4 +697,84 @@ model Notification {
 
   @@index([userId])
   @@index([userId, read])
+}
+
+// ---------------------------------------------------------------------------
+// Tontines (Epargne)
+// ---------------------------------------------------------------------------
+
+model Tontine {
+  id                   String        @id @default(cuid())
+  name                 String
+  code                 String?       @unique
+  monthlyAmount        Decimal
+  currency             Currency      @default(USD)
+  durationMonths       Int
+  startDate            DateTime
+  totalSpots           Int
+  description          String?
+  isPremium            Boolean       @default(false)
+  notifyMembers        Boolean       @default(true)
+  allowPreRegistration Boolean       @default(false)
+  status               TontineStatus @default(DRAFT)
+  createdById          String
+
+  members TontineMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+model TontineMember {
+  id        String              @id @default(cuid())
+  tontineId String
+  tontine   Tontine             @relation(fields: [tontineId], references: [id])
+  memberId  String
+  member    Member              @relation(fields: [memberId], references: [id])
+  role      TontineMemberRole   @default(MEMBER)
+  status    TontineMemberStatus @default(ACTIVE)
+
+  payments TontinePayment[]
+  joinedAt DateTime @default(now())
+
+  @@unique([tontineId, memberId])
+  @@index([tontineId])
+  @@index([memberId])
+}
+
+model TontinePayment {
+  id              String        @id @default(cuid())
+  tontineMemberId String
+  tontineMember   TontineMember @relation(fields: [tontineMemberId], references: [id])
+  amount          Decimal
+  currency        Currency      @default(USD)
+  dueDate         DateTime
+  paidAt          DateTime?
+  status          PaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([tontineMemberId])
+  @@index([dueDate])
+}
+
+enum TontineStatus {
+  DRAFT
+  OPEN
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum TontineMemberRole {
+  ADMIN
+  MEMBER
+}
+
+enum TontineMemberStatus {
+  ACTIVE
+  SUSPENDED
+  LEFT
 }

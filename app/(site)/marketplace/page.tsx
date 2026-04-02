@@ -111,7 +111,7 @@ export default async function MarketplacePage({
           <>
             {products.products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                   {products.products.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -152,7 +152,7 @@ export default async function MarketplacePage({
                         p.set('offset', String(offset + PAGE_SIZE))
                         return `/marketplace?${p.toString()}`
                       })()}
-                      className="px-8 py-3 rounded-xl bg-[#a55b46] text-white font-semibold hover:bg-[#8f4d3b] transition-colors"
+                      className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors"
                     >
                       Voir plus
                     </Link>
@@ -190,7 +190,7 @@ function EmptyState() {
       <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
         <PackageSearch className="w-8 h-8 text-gray-300" />
       </div>
-      <h3 className="text-lg font-semibold text-[#091626] mb-1">
+      <h3 className="text-lg font-semibold text-foreground mb-1">
         Aucun resultat pour votre recherche
       </h3>
       <p className="text-sm text-gray-500">
