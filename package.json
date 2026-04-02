@@ -22,7 +22,6 @@
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
-    "lightningcss-darwin-arm64": "^1.32.0",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.30",
