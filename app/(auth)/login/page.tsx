@@ -1,5 +1,6 @@
 'use client'
 
+import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
 import Link from 'next/link'
@@ -8,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { loginAction } from './login-action'
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -24,13 +24,12 @@ function LoginForm() {
     setError(null)
     setLoading(true)
 
-    const result = await loginAction({ email, password, callbackUrl })
-
-    if (!result.success) {
-      setError(result.error)
-      setLoading(false)
-    }
-    // On success, the server action redirects — no client-side redirect needed
+    // Use redirect: true — Auth.js v5 handles the cookie + redirect server-side
+    await signIn('credentials', {
+      email,
+      password,
+      callbackUrl,
+    })
   }
 
   return (

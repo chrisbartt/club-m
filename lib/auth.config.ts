@@ -4,7 +4,7 @@ import { SESSION_MAX_AGE } from '@/lib/constants'
 // Shared auth config — NO database imports.
 // Used by middleware (Edge Runtime) and by the full auth config.
 export const authConfig = {
-  pages: { signIn: '/login' },
+  pages: { signIn: '/login', signOut: '/login' },
   session: { strategy: 'jwt', maxAge: SESSION_MAX_AGE },
   callbacks: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
