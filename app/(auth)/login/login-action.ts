@@ -1,7 +1,7 @@
 'use server'
 
 import { signIn } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+import { AuthError } from 'next-auth'
 
 export async function loginAction(input: {
   email: string
@@ -12,16 +12,15 @@ export async function loginAction(input: {
     await signIn('credentials', {
       email: input.email,
       password: input.password,
-      redirect: false,
+      redirectTo: input.callbackUrl,
     })
   } catch (error) {
-    // AuthError from next-auth means invalid credentials
-    if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-      // This is actually a redirect, not an error — rethrow
-      throw error
+    if (error instanceof AuthError) {
+      return { success: false, error: 'Email ou mot de passe incorrect.' }
     }
-    return { success: false, error: 'Email ou mot de passe incorrect.' }
+    // NEXT_REDIRECT is thrown by signIn on success — rethrow it
+    throw error
   }
 
-  redirect(input.callbackUrl)
+  return { success: false, error: 'Une erreur est survenue.' }
 }
