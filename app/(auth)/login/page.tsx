@@ -91,6 +91,12 @@ function LoginForm() {
             </Link>
           </div>
         </form>
+
+        <div className="mt-4 pt-4 border-t text-center">
+          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Retour a l&apos;accueil
+          </Link>
+        </div>
       </CardContent>
     </Card>
   )
