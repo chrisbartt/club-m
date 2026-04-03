@@ -1,7 +1,6 @@
 'use client'
 
-import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
@@ -9,9 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { loginAction } from './login-action'
 
 function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
 
@@ -25,19 +24,13 @@ function LoginForm() {
     setError(null)
     setLoading(true)
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
+    const result = await loginAction({ email, password, callbackUrl })
 
-    if (result?.error) {
-      setError('Email ou mot de passe incorrect.')
+    if (!result.success) {
+      setError(result.error)
       setLoading(false)
-    } else {
-      router.push(callbackUrl)
-      router.refresh()
     }
+    // On success, the server action redirects — no client-side redirect needed
   }
 
   return (
