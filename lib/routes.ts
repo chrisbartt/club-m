@@ -1,5 +1,5 @@
 export const PROTECTED_ROUTES = {
-  member: ['/dashboard', '/profil', '/tickets', '/achats', '/mon-business', '/upgrade', '/kyc', '/epargne-tontines'],
+  member: ['/dashboard', '/profil', '/tickets', '/achats', '/mon-business', '/upgrade', '/kyc'],
   admin: ['/admin'],
   auth: ['/login', '/register', '/verify-email'],
 } as const

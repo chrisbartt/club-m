@@ -241,9 +241,7 @@ const Sidebar = () => {
                     title="Business Alignés"
                   />
                 </li>
-                <li>
-                  <LinkNav href="/admin/epargne-tontines" icon={<PiggyBank size={20} />} title="Epargne / Tontines" />
-                </li>
+                {/* Tontines desactivees pour le moment */}
                 <li>
                   <LinkNav
                     href="/admin/evenements"

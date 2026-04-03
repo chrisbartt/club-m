@@ -40,7 +40,6 @@ const baseLinks = [
   { href: '/annuaire', label: 'Annuaire', icon: BookOpen },
   { href: '/tickets', label: 'Mes tickets', icon: Ticket },
   { href: '/achats', label: 'Mes achats', icon: ShoppingBag },
-  { href: '/epargne-tontines', label: 'Epargne', icon: PiggyBank },
 ]
 
 export function MemberSidebar({ memberTier, verificationStatus, unreadNotificationCount = 0 }: MemberSidebarProps) {
