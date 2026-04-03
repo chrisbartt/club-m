@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label'
 function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  // After login, Auth.js will redirect to callbackUrl
+  // Admin-only users will be redirected to /admin/dashboard by middleware
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

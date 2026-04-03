@@ -24,6 +24,10 @@ export default auth((req) => {
         new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, req.url)
       )
     }
+    // Admin accessing /dashboard → redirect to /admin/dashboard
+    if (pathname === '/dashboard' && req.auth?.user?.isAdmin && !req.auth?.user?.isMember) {
+      return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+    }
     // Pass pathname to server components via header
     const response = NextResponse.next()
     response.headers.set('x-pathname', pathname)
